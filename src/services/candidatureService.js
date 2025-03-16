@@ -8,7 +8,7 @@ const CANDIDATURES_URL = '/candidatures';
 // Obtenir toutes les candidatures (avec filtre optionnel)
 const getAllCandidatures = async (filters = {}) => {
   try {
-    const response = await axios.get(`api/users/candidatures`, {
+    const response = await apiClient.get(`/users/candidatures`, {
       params: filters,
       headers: authService.authHeader()
     });

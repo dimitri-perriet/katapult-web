@@ -62,7 +62,7 @@ src/
 
 ## Fonctionnement avec le backend
 
-Cette application est conçue pour fonctionner avec l'API Katapult hébergée sur Vercel à l'adresse https://katapult-api.vercel.app. Assurez-vous que l'API backend est en cours d'exécution sur le port 3000 (ou modifiez la configuration proxy dans `package.json`).
+Cette application est conçue pour fonctionner avec l'API Katapult hébergée sur Vercel à l'adresse https://katapult-api.vercel.app.
 
 ## Rôles utilisateurs
 
