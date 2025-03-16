@@ -1,0 +1,222 @@
+.candidature-list-container {
+  padding: 30px 0;
+}
+
+.candidature-list-header {
+  margin-bottom: 30px;
+}
+
+.candidature-list-header h1 {
+  font-size: 2.2rem;
+  color: var(--dark-color);
+  margin-bottom: 10px;
+}
+
+.candidature-list-header p {
+  color: var(--medium-color);
+  font-size: 1.1rem;
+}
+
+.candidature-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 25px;
+  align-items: center;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+}
+
+.filter-label {
+  margin-right: 10px;
+  font-weight: 600;
+  color: var(--dark-color);
+}
+
+.filter-select {
+  padding: 8px 12px;
+  border: 1px solid var(--light-color);
+  border-radius: 4px;
+  background-color: white;
+  font-size: 0.9rem;
+  min-width: 160px;
+}
+
+.search-group {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.search-input {
+  padding: 8px 12px;
+  border: 1px solid var(--light-color);
+  border-radius: 4px 0 0 4px;
+  font-size: 0.9rem;
+  min-width: 250px;
+}
+
+.search-button {
+  padding: 8px 15px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+}
+
+.candidature-list-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  box-shadow: var(--shadow);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.candidature-list-table th,
+.candidature-list-table td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid var(--light-color);
+}
+
+.candidature-list-table th {
+  background-color: var(--bg-light);
+  font-weight: 600;
+  color: var(--dark-color);
+}
+
+.candidature-list-table tbody tr:hover {
+  background-color: rgba(232, 90, 79, 0.05);
+}
+
+.candidature-list-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+  gap: 5px;
+}
+
+.pagination-button {
+  padding: 8px 15px;
+  background-color: white;
+  border: 1px solid var(--light-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pagination-button.active {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.pagination-button:hover:not(.active) {
+  background-color: var(--bg-light);
+}
+
+.pagination-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  color: var(--medium-color);
+  font-size: 0.9rem;
+}
+
+.pagination-select {
+  padding: 5px 10px;
+  border: 1px solid var(--light-color);
+  border-radius: 4px;
+  background-color: white;
+  font-size: 0.9rem;
+  margin-left: 10px;
+}
+
+.new-candidature-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 4px;
+  font-weight: 600;
+  margin-left: auto;
+  transition: background-color 0.3s ease;
+}
+
+.new-candidature-btn i {
+  margin-right: 8px;
+}
+
+.new-candidature-btn:hover {
+  background-color: var(--primary-dark);
+  text-decoration: none;
+  color: white;
+}
+
+.no-candidatures {
+  text-align: center;
+  padding: 50px 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.no-candidatures-icon {
+  font-size: 3rem;
+  color: var(--light-color);
+  margin-bottom: 15px;
+}
+
+.no-candidatures-title {
+  font-size: 1.2rem;
+  color: var(--dark-color);
+  margin-bottom: 10px;
+}
+
+.no-candidatures-description {
+  color: var(--medium-color);
+  margin-bottom: 20px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 768px) {
+  .candidature-filters {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .search-group {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .search-input {
+    flex-grow: 1;
+    min-width: 0;
+  }
+  
+  .new-candidature-btn {
+    margin-left: 0;
+    width: 100%;
+    margin-top: 15px;
+  }
+  
+  .candidature-list-table {
+    display: block;
+    overflow-x: auto;
+  }
+} 
