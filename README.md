@@ -37,7 +37,7 @@ npm install
 3. Configurez les variables d'environnement :
 Créez un fichier `.env` à la racine du projet et ajoutez :
 ```
-REACT_APP_API_URL=http://localhost:3000/api
+REACT_APP_API_URL=https://katapult-api.vercel.app/api
 ```
 
 4. Lancez l'application :
@@ -62,7 +62,7 @@ src/
 
 ## Fonctionnement avec le backend
 
-Cette application est conçue pour fonctionner avec l'API Katapult. Assurez-vous que l'API backend est en cours d'exécution sur le port 3000 (ou modifiez la configuration proxy dans `package.json`).
+Cette application est conçue pour fonctionner avec l'API Katapult hébergée sur Vercel à l'adresse https://katapult-api.vercel.app. Assurez-vous que l'API backend est en cours d'exécution sur le port 3000 (ou modifiez la configuration proxy dans `package.json`).
 
 ## Rôles utilisateurs
 

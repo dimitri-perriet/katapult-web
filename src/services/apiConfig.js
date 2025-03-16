@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Configuration de base d'Axios
 const apiClient = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || '/api',
+  baseURL: process.env.REACT_APP_API_URL || 'https://katapult-api.vercel.app/api',
   headers: {
     'Content-Type': 'application/json'
   }
