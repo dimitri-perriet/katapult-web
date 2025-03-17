@@ -45,11 +45,13 @@ const Navbar = () => {
             </Link>
           </li>
 
-          <li className="navbar-item">
-            <Link to="/candidater" className="navbar-link" onClick={() => setMobileMenuOpen(false)}>
-              Candidater
+          {!isAuthenticated && (
+            <li className="navbar-item">
+              <Link to="/register" className="navbar-link" onClick={() => setMobileMenuOpen(false)}>
+                Candidater
             </Link>
           </li>
+          )}
 
           {isAuthenticated && (
             <>
