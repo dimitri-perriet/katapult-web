@@ -188,6 +188,31 @@
   padding: 8px 16px;
 }
 
+.navbar-logout-btn-visible {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  margin-left: 16px;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--primary-color);
+  background-color: transparent;
+  border: 2px solid var(--primary-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.navbar-logout-btn-visible:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.navbar-logout-btn-visible i {
+  font-size: 18px;
+}
+
 /* Styles pour le menu mobile */
 .navbar-mobile-toggle {
   display: none;
@@ -234,6 +259,25 @@
   transform: rotate(-45deg);
 }
 
+/* Style spécifique pour le menu desktop */
+.navbar-menu.desktop-menu {
+  display: flex;
+}
+
+/* Style spécifique pour le menu mobile */
+.navbar-menu.mobile-menu {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+/* Masquer complètement le contenu mobile en version desktop */
+.navbar-mobile-content {
+  display: none;
+}
+
 /* Media queries pour la version mobile */
 @media screen and (max-width: 960px) {
   .navbar {
@@ -241,85 +285,85 @@
   }
   
   .navbar-item {
-    height: 80px;
+    height: 60px;
   }
   
   .navbar-mobile-toggle {
     display: block;
+    order: 1;
   }
 
-  .navbar-menu {
-    display: flex;
+  /* Cacher le menu desktop en version mobile */
+  .navbar-menu.desktop-menu {
+    display: none;
+  }
+
+  /* Styles pour le conteneur mobile */
+  .navbar-mobile-content {
+    display: none;
     flex-direction: column;
     width: 100%;
     position: absolute;
     top: 80px;
-    left: -100%;
-    opacity: 1;
-    transition: all 0.5s ease;
-    background-color: #fff;
-    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
-  }
-
-  .navbar-menu.active {
     left: 0;
-    opacity: 1;
-    transition: all 0.5s ease;
-    z-index: 1;
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 998;
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
   }
 
-  .navbar-item {
+  .navbar-mobile-content.active {
+    display: flex;
+  }
+
+  /* Style pour les boutons d'auth en mobile */
+  .navbar-auth-mobile {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    margin-bottom: 0;
+  }
+
+  .navbar-auth-mobile .navbar-login-btn,
+  .navbar-auth-mobile .navbar-register-btn,
+  .navbar-auth-mobile .navbar-logout-btn-visible {
+    width: 100%;
+    text-align: center;
+    margin: 0 0 8px 0;
+  }
+
+  /* Ajuster le style du menu dans le contexte mobile */
+  .navbar-mobile-content .navbar-item {
     height: auto;
     width: 100%;
   }
 
-  .navbar-link {
-    padding: 16px;
+  .navbar-mobile-content .navbar-link {
     width: 100%;
-    display: block;
+    padding: 16px;
     text-align: left;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   }
 
-  .navbar-auth {
-    position: absolute;
-    top: 80px;
-    left: -100%;
-    opacity: 1;
-    transition: all 0.5s ease;
-    background-color: #fff;
-    width: 100%;
-    padding: 16px;
-    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
-    flex-direction: column;
-    align-items: flex-start;
+  /* Ajout d'une animation de slide pour le menu */
+  @keyframes slideIn {
+    from {
+      transform: translateY(-10px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
 
-  .navbar-auth.active {
-    left: 0;
-    opacity: 1;
-    transition: all 0.5s ease;
-    z-index: 1;
+  .navbar-mobile-content.active {
+    animation: slideIn 0.3s ease forwards;
   }
 
-  .navbar-login-btn,
-  .navbar-register-btn {
-    width: 100%;
-    margin: 8px 0;
-    text-align: center;
-  }
-
-  .navbar-user-info {
-    width: 100%;
-  }
-
-  .navbar-user-dropdown {
-    position: relative;
-    width: 100%;
-    box-shadow: none;
-    display: block;
-    margin-top: 8px;
-  }
-  
   .navbar-logo-img {
     height: 40px;
   }
@@ -330,5 +374,34 @@
   
   .logo-subtitle {
     font-size: 8px;
+  }
+  
+  .navbar-mobile-content .navbar-item {
+    height: auto;
+  }
+  
+  .navbar-mobile-content .navbar-link {
+    height: auto;
+    padding: 16px;
+  }
+  
+  .navbar-link:hover {
+    color: var(--primary-color);
+    background-color: rgba(232, 90, 79, 0.05);
+  }
+  
+  .navbar-auth-mobile .navbar-login-btn {
+    margin-right: 0;
+  }
+}
+
+/* Afficher l'auth desktop seulement en desktop */
+.navbar-auth.desktop-only {
+  display: none;
+}
+
+@media (min-width: 961px) {
+  .navbar-auth.desktop-only {
+    display: flex;
   }
 } 

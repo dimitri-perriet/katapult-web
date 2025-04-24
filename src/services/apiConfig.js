@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Configuration de base d'Axios
 const apiClient = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://padu1468.odns.fr/backend/api',
+  baseURL: process.env.REACT_APP_API_URL || '/backend/api',
   headers: {
     'Content-Type': 'application/json'
   }
