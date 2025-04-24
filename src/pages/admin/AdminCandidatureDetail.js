@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import candidatureService from '../../services/candidatureService';
+import apiClient from '../../services/apiConfig';
+import authService from '../../services/authService';
 import '../../assets/css/candidature-detail.css';
 
 const AdminCandidatureDetail = () => {
@@ -11,6 +13,9 @@ const AdminCandidatureDetail = () => {
   const [candidature, setCandidature] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('');
+  const [updateLoading, setUpdateLoading] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState({ type: '', text: '' });
 
   // Format de date
   const formatDate = (dateString) => {
@@ -118,6 +123,7 @@ const AdminCandidatureDetail = () => {
           
           console.log('Données transformées pour l\'affichage:', flattenedData);
           setCandidature(flattenedData);
+          setSelectedStatus(response.candidature.status || '');
         } else {
           setError("La candidature n'a pas pu être chargée. Format de réponse non reconnu.");
         }
@@ -132,13 +138,61 @@ const AdminCandidatureDetail = () => {
     fetchCandidature();
   }, [id]);
 
+  // Fonction pour mettre à jour le statut de la candidature
+  const updateCandidatureStatus = async () => {
+    // Ne rien faire si le statut n'a pas changé
+    if (selectedStatus === candidature.status) {
+      setUpdateMessage({ 
+        type: 'info', 
+        text: 'Le statut n\'a pas été modifié.' 
+      });
+      return;
+    }
+
+    try {
+      setUpdateLoading(true);
+      setUpdateMessage({ type: '', text: '' });
+
+      const response = await apiClient.put(`/candidatures/${id}`, 
+        { status: selectedStatus },
+        { headers: authService.authHeader() }
+      );
+
+      if (response.data && response.data.success) {
+        // Mise à jour du candidature local
+        setCandidature(prev => ({ ...prev, status: selectedStatus }));
+        setUpdateMessage({ 
+          type: 'success', 
+          text: `Le statut a été modifié en "${getStatusText(selectedStatus)}" avec succès.` 
+        });
+      } else {
+        setUpdateMessage({ 
+          type: 'danger', 
+          text: 'Erreur lors de la mise à jour du statut.' 
+        });
+      }
+    } catch (err) {
+      console.error('Erreur lors de la mise à jour du statut:', err);
+      setUpdateMessage({ 
+        type: 'danger', 
+        text: 'Erreur lors de la mise à jour du statut: ' + (err.response?.data?.message || err.message) 
+      });
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
+
+  const handleStatusChange = (e) => {
+    setSelectedStatus(e.target.value);
+  };
+
   // Fonction pour obtenir le texte du statut
   const getStatusText = (status) => {
     switch (status) {
       case 'brouillon': return 'Brouillon';
       case 'soumise': return 'Soumise';
       case 'en_evaluation': return 'En évaluation';
-      case 'acceptee': return 'Acceptée';
+      case 'acceptee': return 'Validée';
       case 'rejetee': return 'Rejetée';
       default: return 'Inconnu';
     }
@@ -192,17 +246,49 @@ const AdminCandidatureDetail = () => {
             </div>
           </div>
           
-          {/* Actions d'administration */}
-          <div className="admin-actions mt-3">
-            <button className="btn btn-success me-2">
-              <i className="bi bi-check-circle me-1"></i> Valider
-            </button>
-            <button className="btn btn-danger me-2">
-              <i className="bi bi-x-circle me-1"></i> Rejeter
-            </button>
-            <button className="btn btn-info me-2">
-              <i className="bi bi-pencil-square me-1"></i> Modifier le statut
-            </button>
+          {/* Gestion du statut avec select */}
+          <div className="admin-actions mt-3 card">
+            <div className="card-body">
+              <h4>Modifier le statut</h4>
+              <div className="row">
+                <div className="col-md-6">
+                  <select 
+                    className="form-select"
+                    value={selectedStatus}
+                    onChange={handleStatusChange}
+                    disabled={updateLoading}
+                  >
+                    <option value="brouillon">Brouillon</option>
+                    <option value="soumise">Soumise</option>
+                    <option value="en_evaluation">En évaluation</option>
+                    <option value="acceptee">Validée</option>
+                    <option value="rejetee">Rejetée</option>
+                  </select>
+                </div>
+                <div className="col-md-6">
+                  <button 
+                    className="btn btn-primary" 
+                    onClick={updateCandidatureStatus}
+                    disabled={updateLoading || selectedStatus === candidature.status}
+                  >
+                    {updateLoading ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Mise à jour...
+                      </>
+                    ) : (
+                      'Mettre à jour le statut'
+                    )}
+                  </button>
+                </div>
+              </div>
+              
+              {updateMessage.text && (
+                <div className={`alert alert-${updateMessage.type} mt-3`} role="alert">
+                  {updateMessage.text}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
