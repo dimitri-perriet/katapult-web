@@ -60,66 +60,57 @@ const AdminCandidatureList = () => {
   };
 
   return (
-    <div className="admin-candidature-list-container py-4">
+    <div className="admin-candidature-list-container">
       <div className="container">
-        <h1 className="mb-4">Gestion des Candidatures</h1>
+        <h1 className="my-4">Gestion des Candidatures</h1>
         
-        {/* Filtres améliorés */}
-        <div className="card mb-4 shadow-sm">
-          <div className="card-header bg-primary text-white">
-            <i className="bi bi-funnel me-2"></i>
-            Filtres
+        <div className="row mb-4">
+          <div className="col-md-6">
+            <div className="form-group">
+              <label htmlFor="status">Statut</label>
+              <select 
+                id="status" 
+                name="status" 
+                className="form-control"
+                value={filters.status}
+                onChange={handleFilterChange}
+              >
+                <option value="">Tous les statuts</option>
+                <option value="brouillon">Brouillon</option>
+                <option value="soumise">Soumise</option>
+                <option value="en_evaluation">En évaluation</option>
+                <option value="validee">Validée</option>
+                <option value="rejetee">Rejetée</option>
+              </select>
+            </div>
           </div>
-          <div className="card-body">
-            <div className="row g-3">
-              <div className="col-md-6">
-                <label htmlFor="status" className="form-label fw-bold">Statut</label>
-                <select 
-                  id="status" 
-                  name="status" 
-                  className="form-select form-select-lg"
-                  value={filters.status}
-                  onChange={handleFilterChange}
-                >
-                  <option value="">Tous les statuts</option>
-                  <option value="brouillon">Brouillon</option>
-                  <option value="soumise">Soumise</option>
-                  <option value="en_evaluation">En évaluation</option>
-                  <option value="validee">Validée</option>
-                  <option value="rejetee">Rejetée</option>
-                </select>
-              </div>
-              
-              <div className="col-md-6">
-                <label htmlFor="promotion" className="form-label fw-bold">Promotion</label>
-                <select 
-                  id="promotion" 
-                  name="promotion" 
-                  className="form-select form-select-lg"
-                  value={filters.promotion}
-                  onChange={handleFilterChange}
-                >
-                  <option value="">Toutes les promotions</option>
-                  <option value="Katapult 2023">Katapult 2023</option>
-                  <option value="Katapult 2024">Katapult 2024</option>
-                </select>
-              </div>
+          <div className="col-md-6">
+            <div className="form-group">
+              <label htmlFor="promotion">Promotion</label>
+              <select 
+                id="promotion" 
+                name="promotion" 
+                className="form-control"
+                value={filters.promotion}
+                onChange={handleFilterChange}
+              >
+                <option value="">Toutes les promotions</option>
+                <option value="Katapult 2023">Katapult 2023</option>
+                <option value="Katapult 2024">Katapult 2024</option>
+              </select>
             </div>
           </div>
         </div>
 
-        <div className="d-flex justify-content-between mb-3">
-          <Link to="/admin/dashboard" className="btn btn-secondary btn-lg">
-            <i className="bi bi-arrow-left me-1"></i> Retour
+        <div className="mb-3">
+          <Link to="/admin/dashboard" className="btn btn-primary">
+            <i className="bi bi-arrow-left me-1"></i> Retour au tableau de bord
           </Link>
-          <div className="badge bg-info text-dark fs-5">
-            {candidatures.length} candidature(s) trouvée(s)
-          </div>
         </div>
 
         {loading ? (
-          <div className="d-flex justify-content-center p-5">
-            <div className="spinner-border text-primary" role="status" style={{width: '3rem', height: '3rem'}}>
+          <div className="text-center my-5">
+            <div className="spinner-border text-primary" role="status">
               <span className="visually-hidden">Chargement...</span>
             </div>
           </div>
@@ -128,32 +119,35 @@ const AdminCandidatureList = () => {
             {error}
           </div>
         ) : candidatures.length === 0 ? (
-          <div className="alert alert-info p-4 fw-bold text-center fs-5" role="alert">
-            <i className="bi bi-info-circle me-2"></i>
+          <div className="alert alert-info" role="alert">
             Aucune candidature trouvée.
           </div>
         ) : (
           <div className="table-responsive">
-            <table className="table table-striped table-hover shadow">
-              <thead className="table-dark">
-                <tr>
-                  <th>ID</th>
-                  <th>Projet</th>
-                  <th>Candidat</th>
-                  <th>Email</th>
-                  <th>Secteur</th>
-                  <th>Statut</th>
-                  <th>Date de soumission</th>
-                  <th>Actions</th>
+            <table className="table table-hover border">
+              <thead>
+                <tr className="table-primary">
+                  <th className="text-center" style={{width: '5%'}}>ID</th>
+                  <th style={{width: '15%'}}>Projet</th>
+                  <th style={{width: '15%'}}>Candidat</th>
+                  <th style={{width: '20%'}}>Email</th>
+                  <th style={{width: '15%'}}>Secteur</th>
+                  <th style={{width: '10%'}}>Statut</th>
+                  <th style={{width: '12%'}}>Date de soumission</th>
+                  <th className="text-center" style={{width: '8%'}}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {candidatures.map(candidature => (
-                  <tr key={candidature.id}>
-                    <td className="fw-bold">{candidature.id}</td>
-                    <td>{candidature.projectName || 'Sans nom'}</td>
+                  <tr key={candidature.id} className="align-middle">
+                    <td className="text-center fw-bold">{candidature.id}</td>
+                    <td className="fw-bold">{candidature.projectName || 'Sans nom'}</td>
                     <td>{candidature.applicant}</td>
-                    <td>{candidature.email}</td>
+                    <td>
+                      <a href={`mailto:${candidature.email}`} className="text-decoration-none">
+                        {candidature.email}
+                      </a>
+                    </td>
                     <td>{candidature.sector || 'Non spécifié'}</td>
                     <td>
                       <span className={getStatusBadgeClass(candidature.status)}>
@@ -165,9 +159,13 @@ const AdminCandidatureList = () => {
                         ? new Date(candidature.submissionDate).toLocaleDateString('fr-FR') 
                         : '-'}
                     </td>
-                    <td>
-                      <Link to={`/admin/candidatures/${candidature.id}`} className="btn btn-sm btn-primary">
-                        <i className="bi bi-eye me-1"></i> Voir
+                    <td className="text-center">
+                      <Link 
+                        to={`/admin/candidatures/${candidature.id}`} 
+                        className="btn btn-sm btn-primary"
+                        title="Voir les détails de la candidature"
+                      >
+                        <i className="bi bi-eye"></i> Voir
                       </Link>
                     </td>
                   </tr>
