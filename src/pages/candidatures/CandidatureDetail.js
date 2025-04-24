@@ -36,6 +36,35 @@ const CandidatureDetail = () => {
         if (response && response.candidature) {
           console.log('Données brutes reçues de l\'API:', response.candidature);
           
+          // Parser les données JSON si elles sont stockées sous forme de chaînes
+          const parsedFicheIdentite = typeof response.candidature.fiche_identite === 'string' 
+            ? JSON.parse(response.candidature.fiche_identite) 
+            : response.candidature.fiche_identite || {};
+            
+          const parsedProjetUtiliteSociale = typeof response.candidature.projet_utilite_sociale === 'string'
+            ? JSON.parse(response.candidature.projet_utilite_sociale)
+            : response.candidature.projet_utilite_sociale || {};
+            
+          const parsedQuiEstConcerne = typeof response.candidature.qui_est_concerne === 'string'
+            ? JSON.parse(response.candidature.qui_est_concerne)
+            : response.candidature.qui_est_concerne || {};
+            
+          const parsedModeleEconomique = typeof response.candidature.modele_economique === 'string'
+            ? JSON.parse(response.candidature.modele_economique)
+            : response.candidature.modele_economique || {};
+            
+          const parsedPartiesPrenantes = typeof response.candidature.parties_prenantes === 'string'
+            ? JSON.parse(response.candidature.parties_prenantes)
+            : response.candidature.parties_prenantes || {};
+            
+          const parsedEquipeProjet = typeof response.candidature.equipe_projet === 'string'
+            ? JSON.parse(response.candidature.equipe_projet)
+            : response.candidature.equipe_projet || {};
+            
+          const parsedStructureJuridique = typeof response.candidature.structure_juridique === 'string'
+            ? JSON.parse(response.candidature.structure_juridique)
+            : response.candidature.structure_juridique || {};
+          
           // Transformer les données imbriquées en structure plate pour l'affichage
           const flattenedData = {
             // Valeurs par défaut
@@ -46,46 +75,46 @@ const CandidatureDetail = () => {
             updatedAt: response.candidature.updatedAt,
             
             // Fiche d'identité
-            ...(response.candidature.fiche_identite || {}),
+            ...parsedFicheIdentite,
             
             // Projet et utilité sociale
-            ...(response.candidature.projet_utilite_sociale || {}),
+            ...parsedProjetUtiliteSociale,
             
             // Qui est concerné
-            ...(response.candidature.qui_est_concerne || {}),
+            ...parsedQuiEstConcerne,
             
             // Modèle économique
-            ...(response.candidature.modele_economique || {}),
+            ...parsedModeleEconomique,
             
             // Parties prenantes
-            ...(response.candidature.parties_prenantes || {}),
+            ...parsedPartiesPrenantes,
             
             // Équipe projet
-            ...(response.candidature.equipe_projet?.members ? { teamMembers: response.candidature.equipe_projet.members } : { teamMembers: [] }),
+            teamMembers: parsedEquipeProjet?.members || [],
             
             // Personne référente
-            referenceLastName: response.candidature.equipe_projet?.reference?.lastName || '',
-            referenceFirstName: response.candidature.equipe_projet?.reference?.firstName || '',
-            referenceDOB: response.candidature.equipe_projet?.reference?.DOB ? response.candidature.equipe_projet?.reference?.DOB.substring(0, 10) : '',
-            referenceAddress: response.candidature.equipe_projet?.reference?.address || '',
-            referenceEmail: response.candidature.equipe_projet?.reference?.email || '',
-            referenceTelephone: response.candidature.equipe_projet?.reference?.telephone || '',
-            referenceEmploymentType: response.candidature.equipe_projet?.reference?.employmentType || '',
-            referenceEmploymentDuration: response.candidature.equipe_projet?.reference?.employmentDuration || '',
+            referenceLastName: parsedEquipeProjet?.reference?.lastName || '',
+            referenceFirstName: parsedEquipeProjet?.reference?.firstName || '',
+            referenceDOB: parsedEquipeProjet?.reference?.DOB ? parsedEquipeProjet.reference.DOB.substring(0, 10) : '',
+            referenceAddress: parsedEquipeProjet?.reference?.address || '',
+            referenceEmail: parsedEquipeProjet?.reference?.email || '',
+            referenceTelephone: parsedEquipeProjet?.reference?.telephone || '',
+            referenceEmploymentType: parsedEquipeProjet?.reference?.employmentType || '',
+            referenceEmploymentDuration: parsedEquipeProjet?.reference?.employmentDuration || '',
             
             // Autres informations d'équipe
-            entrepreneurialExperience: response.candidature.equipe_projet?.entrepreneurialExperience || '',
-            inspiringEntrepreneur: response.candidature.equipe_projet?.inspiringEntrepreneur || '',
-            missingTeamSkills: response.candidature.equipe_projet?.missingTeamSkills || '',
-            incubationParticipants: response.candidature.equipe_projet?.incubationParticipants || '',
-            projectRoleLongTerm: response.candidature.equipe_projet?.projectRoleLongTerm || '',
+            entrepreneurialExperience: parsedEquipeProjet?.entrepreneurialExperience || '',
+            inspiringEntrepreneur: parsedEquipeProjet?.inspiringEntrepreneur || '',
+            missingTeamSkills: parsedEquipeProjet?.missingTeamSkills || '',
+            incubationParticipants: parsedEquipeProjet?.incubationParticipants || '',
+            projectRoleLongTerm: parsedEquipeProjet?.projectRoleLongTerm || '',
             
             // Structure juridique
-            hasExistingStructure: response.candidature.structure_juridique?.hasExistingStructure || false,
-            structureName: response.candidature.structure_juridique?.structureName || '',
-            structureStatus: response.candidature.structure_juridique?.structureStatus || '',
-            structureCreationDate: response.candidature.structure_juridique?.structureCreationDate || '',
-            structureContext: response.candidature.structure_juridique?.structureContext || '',
+            hasExistingStructure: parsedStructureJuridique?.hasExistingStructure || false,
+            structureName: parsedStructureJuridique?.structureName || '',
+            structureStatus: parsedStructureJuridique?.structureStatus || '',
+            structureCreationDate: parsedStructureJuridique?.structureCreationDate || '',
+            structureContext: parsedStructureJuridique?.structureContext || '',
           };
           
           console.log('Données transformées pour l\'affichage:', flattenedData);

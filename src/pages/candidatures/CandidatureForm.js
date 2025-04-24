@@ -7,10 +7,11 @@ import candidatureService from '../../services/candidatureService';
 import '../../assets/css/candidature-form.css';
 
 const CandidatureForm = () => {
-  const { id } = useParams();
+  const { id: routeId } = useParams();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  const isEditMode = !!id;
+  const [isEditMode, setIsEditMode] = useState(!!routeId);
+  const [id, setId] = useState(routeId);
 
   const [currentStep, setCurrentStep] = useState(1);
   const [candidature, setCandidature] = useState(null);
@@ -206,6 +207,35 @@ const CandidatureForm = () => {
               console.log('Cette candidature est en statut soumise, elle n\'est pas modifiable');
             }
             
+            // Parser les données JSON si elles sont stockées sous forme de chaînes
+            const parsedFicheIdentite = typeof response.candidature.fiche_identite === 'string' 
+              ? JSON.parse(response.candidature.fiche_identite) 
+              : response.candidature.fiche_identite || {};
+              
+            const parsedProjetUtiliteSociale = typeof response.candidature.projet_utilite_sociale === 'string'
+              ? JSON.parse(response.candidature.projet_utilite_sociale)
+              : response.candidature.projet_utilite_sociale || {};
+              
+            const parsedQuiEstConcerne = typeof response.candidature.qui_est_concerne === 'string'
+              ? JSON.parse(response.candidature.qui_est_concerne)
+              : response.candidature.qui_est_concerne || {};
+              
+            const parsedModeleEconomique = typeof response.candidature.modele_economique === 'string'
+              ? JSON.parse(response.candidature.modele_economique)
+              : response.candidature.modele_economique || {};
+              
+            const parsedPartiesPrenantes = typeof response.candidature.parties_prenantes === 'string'
+              ? JSON.parse(response.candidature.parties_prenantes)
+              : response.candidature.parties_prenantes || {};
+              
+            const parsedEquipeProjet = typeof response.candidature.equipe_projet === 'string'
+              ? JSON.parse(response.candidature.equipe_projet)
+              : response.candidature.equipe_projet || {};
+              
+            const parsedStructureJuridique = typeof response.candidature.structure_juridique === 'string'
+              ? JSON.parse(response.candidature.structure_juridique)
+              : response.candidature.structure_juridique || {};
+            
             // Transformer les données imbriquées en structure plate
             const flattenedData = {
               // Valeurs par défaut
@@ -217,39 +247,46 @@ const CandidatureForm = () => {
               status: response.candidature.status,
               
               // Fiche d'identité
-              ...(response.candidature.fiche_identite || {}),
+              ...parsedFicheIdentite,
               
               // Projet et utilité sociale
-              ...(response.candidature.projet_utilite_sociale || {}),
+              ...parsedProjetUtiliteSociale,
               
               // Qui est concerné
-              ...(response.candidature.qui_est_concerne || {}),
+              ...parsedQuiEstConcerne,
               
               // Modèle économique
-              ...(response.candidature.modele_economique || {}),
+              ...parsedModeleEconomique,
               
               // Parties prenantes
-              ...(response.candidature.parties_prenantes || {}),
+              ...parsedPartiesPrenantes,
               
               // Équipe projet
-              ...(response.candidature.equipe_projet?.members ? { teamMembers: response.candidature.equipe_projet.members } : { teamMembers: [] }),
+              ...(parsedEquipeProjet.members ? { teamMembers: parsedEquipeProjet.members } : { teamMembers: [] }),
               
               // Personne référente
-              referenceLastName: response.candidature.equipe_projet?.reference?.lastName || '',
-              referenceFirstName: response.candidature.equipe_projet?.reference?.firstName || '',
-              referenceDOB: response.candidature.equipe_projet?.reference?.DOB ? response.candidature.equipe_projet?.reference?.DOB.substring(0, 10) : '',
-              referenceAddress: response.candidature.equipe_projet?.reference?.address || '',
-              referenceEmail: response.candidature.equipe_projet?.reference?.email || '',
-              referenceTelephone: response.candidature.equipe_projet?.reference?.telephone || '',
-              referenceEmploymentType: response.candidature.equipe_projet?.reference?.employmentType || '',
-              referenceEmploymentDuration: response.candidature.equipe_projet?.reference?.employmentDuration || '',
+              referenceLastName: parsedEquipeProjet?.reference?.lastName || '',
+              referenceFirstName: parsedEquipeProjet?.reference?.firstName || '',
+              referenceDOB: parsedEquipeProjet?.reference?.DOB ? parsedEquipeProjet?.reference?.DOB.substring(0, 10) : '',
+              referenceAddress: parsedEquipeProjet?.reference?.address || '',
+              referenceEmail: parsedEquipeProjet?.reference?.email || '',
+              referenceTelephone: parsedEquipeProjet?.reference?.telephone || '',
+              referenceEmploymentType: parsedEquipeProjet?.reference?.employmentType || '',
+              referenceEmploymentDuration: parsedEquipeProjet?.reference?.employmentDuration || '',
               
               // Autres informations d'équipe
-              entrepreneurialExperience: response.candidature.equipe_projet?.entrepreneurialExperience || '',
-              inspiringEntrepreneur: response.candidature.equipe_projet?.inspiringEntrepreneur || '',
-              missingTeamSkills: response.candidature.equipe_projet?.missingTeamSkills || '',
-              incubationParticipants: response.candidature.equipe_projet?.incubationParticipants || '',
-              projectRoleLongTerm: response.candidature.equipe_projet?.projectRoleLongTerm || '',
+              entrepreneurialExperience: parsedEquipeProjet?.entrepreneurialExperience || '',
+              inspiringEntrepreneur: parsedEquipeProjet?.inspiringEntrepreneur || '',
+              missingTeamSkills: parsedEquipeProjet?.missingTeamSkills || '',
+              incubationParticipants: parsedEquipeProjet?.incubationParticipants || '',
+              projectRoleLongTerm: parsedEquipeProjet?.projectRoleLongTerm || '',
+              
+              // Structure juridique
+              hasExistingStructure: parsedStructureJuridique?.hasExistingStructure || false,
+              structureName: parsedStructureJuridique?.structureName || '',
+              structureStatus: parsedStructureJuridique?.structureStatus || '',
+              structureCreationDate: parsedStructureJuridique?.structureCreationDate || '',
+              structureContext: parsedStructureJuridique?.structureContext || '',
             };
             
             console.log('Données transformées pour le formulaire:', flattenedData);
@@ -356,89 +393,94 @@ const CandidatureForm = () => {
   // Sauvegarder automatiquement en brouillon quand on arrive à l'étape de récapitulatif
   useEffect(() => {
     if (currentStep === 8 && candidature && !loading) {
-      // Sauvegarde silencieuse en brouillon sans afficher de message de succès
       const autoSaveDraft = async () => {
         try {
+          // Vérifier si la candidature est complète et a été soumise
+          if (isSubmitted) {
+            console.log('Candidature déjà soumise, pas de sauvegarde automatique');
+            return;
+          }
+          
           const apiData = {
             status: 'brouillon',
             
             // Fiche d'identité
             fiche_identite: {
-              projectName: candidature.projectName,
-              sector: candidature.sector,
-              territory: candidature.territory,
-              interventionZone: candidature.interventionZone,
-              referral_boucheOreille: candidature.referral_boucheOreille,
-              referral_facebook: candidature.referral_facebook,
-              referral_linkedin: candidature.referral_linkedin,
-              referral_web: candidature.referral_web,
-              referral_tiers: candidature.referral_tiers,
-              referral_presse: candidature.referral_presse,
+              projectName: candidature.projectName || '',
+              sector: candidature.sector || '',
+              territory: candidature.territory || '',
+              interventionZone: candidature.interventionZone || '',
+              referral_boucheOreille: !!candidature.referral_boucheOreille,
+              referral_facebook: !!candidature.referral_facebook,
+              referral_linkedin: !!candidature.referral_linkedin,
+              referral_web: !!candidature.referral_web,
+              referral_tiers: !!candidature.referral_tiers,
+              referral_presse: !!candidature.referral_presse,
             },
             
             // Projet et utilité sociale
             projet_utilite_sociale: {
-              projectGenesis: candidature.projectGenesis,
-              projectSummary: candidature.projectSummary,
-              problemDescription: candidature.problemDescription,
+              projectGenesis: candidature.projectGenesis || '',
+              projectSummary: candidature.projectSummary || '',
+              problemDescription: candidature.problemDescription || '',
             },
             
             // Qui est concerné
             qui_est_concerne: {
-              beneficiaries: candidature.beneficiaries,
-              clients: candidature.clients,
-              clientsQuantification: candidature.clientsQuantification,
-              proposedSolution: candidature.proposedSolution,
-              projectDifferentiation: candidature.projectDifferentiation,
-              indicator1: candidature.indicator1,
-              indicator2: candidature.indicator2,
-              indicator3: candidature.indicator3,
-              indicator4: candidature.indicator4,
-              indicator5: candidature.indicator5,
+              beneficiaries: candidature.beneficiaries || '',
+              clients: candidature.clients || '',
+              clientsQuantification: candidature.clientsQuantification || '',
+              proposedSolution: candidature.proposedSolution || '',
+              projectDifferentiation: candidature.projectDifferentiation || '',
+              indicator1: candidature.indicator1 || '',
+              indicator2: candidature.indicator2 || '',
+              indicator3: candidature.indicator3 || '',
+              indicator4: candidature.indicator4 || '',
+              indicator5: candidature.indicator5 || '',
             },
             
             // Modèle économique
             modele_economique: {
-              revenueSources: candidature.revenueSources,
-              employmentCreation: candidature.employmentCreation,
-              economicViability: candidature.economicViability,
-              diversification: candidature.diversification,
+              revenueSources: candidature.revenueSources || '',
+              employmentCreation: candidature.employmentCreation || '',
+              economicViability: candidature.economicViability || '',
+              diversification: candidature.diversification || '',
             },
             
             // Parties prenantes
             parties_prenantes: {
-              existingPartnerships: candidature.existingPartnerships,
-              desiredPartnerships: candidature.desiredPartnerships,
-              stakeholderRole: candidature.stakeholderRole,
+              existingPartnerships: candidature.existingPartnerships || '',
+              desiredPartnerships: candidature.desiredPartnerships || '',
+              stakeholderRole: candidature.stakeholderRole || '',
             },
             
             // Équipe projet
             equipe_projet: {
               reference: {
-                lastName: candidature.referenceLastName,
-                firstName: candidature.referenceFirstName,
-                DOB: candidature.referenceDOB,
-                address: candidature.referenceAddress,
-                email: candidature.referenceEmail,
-                telephone: candidature.referenceTelephone,
-                employmentType: candidature.referenceEmploymentType,
-                employmentDuration: candidature.referenceEmploymentDuration,
+                lastName: candidature.referenceLastName || '',
+                firstName: candidature.referenceFirstName || '',
+                DOB: candidature.referenceDOB || '',
+                address: candidature.referenceAddress || '',
+                email: candidature.referenceEmail || '',
+                telephone: candidature.referenceTelephone || '',
+                employmentType: candidature.referenceEmploymentType || '',
+                employmentDuration: candidature.referenceEmploymentDuration || '',
               },
-              members: candidature.teamMembers || [],
-              entrepreneurialExperience: candidature.entrepreneurialExperience,
-              inspiringEntrepreneur: candidature.inspiringEntrepreneur,
-              missingTeamSkills: candidature.missingTeamSkills,
-              incubationParticipants: candidature.incubationParticipants,
-              projectRoleLongTerm: candidature.projectRoleLongTerm,
+              members: Array.isArray(candidature.teamMembers) ? candidature.teamMembers : [],
+              entrepreneurialExperience: candidature.entrepreneurialExperience || '',
+              inspiringEntrepreneur: candidature.inspiringEntrepreneur || '',
+              missingTeamSkills: candidature.missingTeamSkills || '',
+              incubationParticipants: candidature.incubationParticipants || '',
+              projectRoleLongTerm: candidature.projectRoleLongTerm || '',
             },
             
             // Structure juridique
             structure_juridique: {
-              hasExistingStructure: candidature.hasExistingStructure,
-              structureName: candidature.structureName,
-              structureStatus: candidature.structureStatus,
-              structureCreationDate: candidature.structureCreationDate,
-              structureContext: candidature.structureContext,
+              hasExistingStructure: !!candidature.hasExistingStructure,
+              structureName: candidature.structureName || '',
+              structureStatus: candidature.structureStatus || '',
+              structureCreationDate: candidature.structureCreationDate || '',
+              structureContext: candidature.structureContext || '',
             },
             
             // Conserver les champs supplémentaires qui pourraient être nécessaires
@@ -447,34 +489,47 @@ const CandidatureForm = () => {
           
           console.log('Sauvegarde automatique en brouillon avant le récapitulatif:', apiData);
           
-          if (isEditMode) {
-            await candidatureService.updateCandidature(id, apiData);
-            console.log('Candidature mise à jour automatiquement en brouillon');
+          let response;
+          if (isEditMode && id) {
+            // Mettre à jour la candidature existante avec le nouveau statut et les données
+            response = await candidatureService.updateCandidature(id, apiData);
+            console.log('Candidature mise à jour automatiquement en brouillon:', response);
           } else {
-            const response = await candidatureService.createCandidature(apiData);
-            console.log('Réponse création:', response);
+            // Créer une nouvelle candidature si nous ne sommes pas en mode édition
+            response = await candidatureService.createCandidature(apiData);
+            console.log('Nouvelle candidature créée automatiquement en brouillon:', response);
             
-            // Vérifier la structure de la réponse et extraire l'ID en conséquence
+            // Récupérer l'ID de la nouvelle candidature
             const candidatureId = response?.data?._id || response?.candidature?.id || response?.id;
             
             if (candidatureId) {
-              console.log('ID de candidature identifié:', candidatureId);
-              navigate(`/candidatures/${candidatureId}/edit`);
+              console.log('ID de la nouvelle candidature:', candidatureId);
+              
+              // Mettre à jour l'URL sans recharger la page
+              window.history.replaceState(null, '', `/candidatures/${candidatureId}/edit`);
+              
+              // Mettre à jour l'état local pour refléter le mode édition
+              setId(candidatureId);
+              setIsEditMode(true);
+              
+              // Afficher un message de succès
+              setSuccessMessage('Votre candidature a été automatiquement sauvegardée en brouillon.');
+              setTimeout(() => {
+                setSuccessMessage('');
+              }, 5000);
             } else {
               console.warn('Impossible de déterminer l\'ID de la candidature à partir de la réponse:', response);
-              // La candidature a bien été créée, mais on ne peut pas rediriger vers la page d'édition
-              // On reste sur la page actuelle car la candidature a bien été enregistrée en brouillon
             }
           }
         } catch (err) {
           console.error('Erreur lors de la sauvegarde automatique en brouillon:', err);
-          // Ne pas afficher d'erreur à l'utilisateur, juste enregistrer dans la console
+          // Ne pas afficher d'erreur à l'utilisateur pour la sauvegarde automatique
         }
       };
       
       autoSaveDraft();
     }
-  }, [currentStep, candidature, id, isEditMode, loading, navigate]);
+  }, [currentStep, candidature, id, isEditMode, loading, navigate, isSubmitted]);
 
   const goToStep = (stepId) => {
     setCurrentStep(stepId);
@@ -510,87 +565,90 @@ const CandidatureForm = () => {
     try {
       console.log('Valeurs brutes du formulaire à sauvegarder:', values);
       
+      // S'assurer que toutes les valeurs sont des types de données appropriés (pas des chaînes JSON)
+      // Cela évite de sauvegarder des chaînes JSON déjà sérialisées
+      
       // Transformer les données plates en structure attendue par l'API
       const apiData = {
         status: 'brouillon',
         
         // Fiche d'identité (si nous connaissons les champs exacts, nous pouvons les filtrer ici)
         fiche_identite: {
-          projectName: values.projectName,
-          sector: values.sector,
-          territory: values.territory,
-          interventionZone: values.interventionZone,
-          referral_boucheOreille: values.referral_boucheOreille,
-          referral_facebook: values.referral_facebook,
-          referral_linkedin: values.referral_linkedin,
-          referral_web: values.referral_web,
-          referral_tiers: values.referral_tiers,
-          referral_presse: values.referral_presse,
+          projectName: values.projectName || '',
+          sector: values.sector || '',
+          territory: values.territory || '',
+          interventionZone: values.interventionZone || '',
+          referral_boucheOreille: !!values.referral_boucheOreille,
+          referral_facebook: !!values.referral_facebook,
+          referral_linkedin: !!values.referral_linkedin,
+          referral_web: !!values.referral_web,
+          referral_tiers: !!values.referral_tiers,
+          referral_presse: !!values.referral_presse,
         },
         
         // Projet et utilité sociale
         projet_utilite_sociale: {
-          projectGenesis: values.projectGenesis,
-          projectSummary: values.projectSummary,
-          problemDescription: values.problemDescription,
+          projectGenesis: values.projectGenesis || '',
+          projectSummary: values.projectSummary || '',
+          problemDescription: values.problemDescription || '',
         },
         
         // Qui est concerné
         qui_est_concerne: {
-          beneficiaries: values.beneficiaries,
-          clients: values.clients,
-          clientsQuantification: values.clientsQuantification,
-          proposedSolution: values.proposedSolution,
-          projectDifferentiation: values.projectDifferentiation,
-          indicator1: values.indicator1,
-          indicator2: values.indicator2,
-          indicator3: values.indicator3,
-          indicator4: values.indicator4,
-          indicator5: values.indicator5,
+          beneficiaries: values.beneficiaries || '',
+          clients: values.clients || '',
+          clientsQuantification: values.clientsQuantification || '',
+          proposedSolution: values.proposedSolution || '',
+          projectDifferentiation: values.projectDifferentiation || '',
+          indicator1: values.indicator1 || '',
+          indicator2: values.indicator2 || '',
+          indicator3: values.indicator3 || '',
+          indicator4: values.indicator4 || '',
+          indicator5: values.indicator5 || '',
         },
         
         // Modèle économique
         modele_economique: {
-          revenueSources: values.revenueSources,
-          employmentCreation: values.employmentCreation,
-          economicViability: values.economicViability,
-          diversification: values.diversification,
+          revenueSources: values.revenueSources || '',
+          employmentCreation: values.employmentCreation || '',
+          economicViability: values.economicViability || '',
+          diversification: values.diversification || '',
         },
         
         // Parties prenantes
         parties_prenantes: {
-          existingPartnerships: values.existingPartnerships,
-          desiredPartnerships: values.desiredPartnerships,
-          stakeholderRole: values.stakeholderRole,
+          existingPartnerships: values.existingPartnerships || '',
+          desiredPartnerships: values.desiredPartnerships || '',
+          stakeholderRole: values.stakeholderRole || '',
         },
         
         // Équipe projet
         equipe_projet: {
           reference: {
-            lastName: values.referenceLastName,
-            firstName: values.referenceFirstName,
-            DOB: values.referenceDOB,
-            address: values.referenceAddress,
-            email: values.referenceEmail,
-            telephone: values.referenceTelephone,
-            employmentType: values.referenceEmploymentType,
-            employmentDuration: values.referenceEmploymentDuration,
+            lastName: values.referenceLastName || '',
+            firstName: values.referenceFirstName || '',
+            DOB: values.referenceDOB || '',
+            address: values.referenceAddress || '',
+            email: values.referenceEmail || '',
+            telephone: values.referenceTelephone || '',
+            employmentType: values.referenceEmploymentType || '',
+            employmentDuration: values.referenceEmploymentDuration || '',
           },
-          members: values.teamMembers || [],
-          entrepreneurialExperience: values.entrepreneurialExperience,
-          inspiringEntrepreneur: values.inspiringEntrepreneur,
-          missingTeamSkills: values.missingTeamSkills,
-          incubationParticipants: values.incubationParticipants,
-          projectRoleLongTerm: values.projectRoleLongTerm,
+          members: Array.isArray(values.teamMembers) ? values.teamMembers : [],
+          entrepreneurialExperience: values.entrepreneurialExperience || '',
+          inspiringEntrepreneur: values.inspiringEntrepreneur || '',
+          missingTeamSkills: values.missingTeamSkills || '',
+          incubationParticipants: values.incubationParticipants || '',
+          projectRoleLongTerm: values.projectRoleLongTerm || '',
         },
         
         // Structure juridique
         structure_juridique: {
-          hasExistingStructure: values.hasExistingStructure,
-          structureName: values.structureName,
-          structureStatus: values.structureStatus,
-          structureCreationDate: values.structureCreationDate,
-          structureContext: values.structureContext,
+          hasExistingStructure: !!values.hasExistingStructure,
+          structureName: values.structureName || '',
+          structureStatus: values.structureStatus || '',
+          structureCreationDate: values.structureCreationDate || '',
+          structureContext: values.structureContext || '',
         },
         
         // Conserver les champs supplémentaires qui pourraient être nécessaires
@@ -621,9 +679,18 @@ const CandidatureForm = () => {
       }
       
       // Mettre à jour les données et la progression
-      // Garder les valeurs du formulaire pour l'affichage
-      setCandidature(values);
-      const percentage = calculateCompletionPercentage(values);
+      // Garder les valeurs du formulaire pour l'affichage mais s'assurer que les objets sont correctement structurés
+      const updatedCandidature = {
+        ...values, // Copier les valeurs actuelles du formulaire
+        // S'assurer que teamMembers est bien un tableau
+        teamMembers: Array.isArray(values.teamMembers) ? values.teamMembers : []
+      };
+      
+      // Mettre à jour l'état avec les nouvelles valeurs structurées
+      setCandidature(updatedCandidature);
+      
+      // Calculer le pourcentage de complétion avec les données mises à jour
+      const percentage = calculateCompletionPercentage(updatedCandidature);
       setProgressPercentage(percentage);
       
       // Afficher un message de succès plus détaillé
@@ -660,81 +727,81 @@ const CandidatureForm = () => {
           
           // Fiche d'identité
           fiche_identite: {
-            projectName: values.projectName,
-            sector: values.sector,
-            territory: values.territory,
-            interventionZone: values.interventionZone,
-            referral_boucheOreille: values.referral_boucheOreille,
-            referral_facebook: values.referral_facebook,
-            referral_linkedin: values.referral_linkedin,
-            referral_web: values.referral_web,
-            referral_tiers: values.referral_tiers,
-            referral_presse: values.referral_presse,
+            projectName: values.projectName || '',
+            sector: values.sector || '',
+            territory: values.territory || '',
+            interventionZone: values.interventionZone || '',
+            referral_boucheOreille: !!values.referral_boucheOreille,
+            referral_facebook: !!values.referral_facebook,
+            referral_linkedin: !!values.referral_linkedin,
+            referral_web: !!values.referral_web,
+            referral_tiers: !!values.referral_tiers,
+            referral_presse: !!values.referral_presse,
           },
           
           // Projet et utilité sociale
           projet_utilite_sociale: {
-            projectGenesis: values.projectGenesis,
-            projectSummary: values.projectSummary,
-            problemDescription: values.problemDescription,
+            projectGenesis: values.projectGenesis || '',
+            projectSummary: values.projectSummary || '',
+            problemDescription: values.problemDescription || '',
           },
           
           // Qui est concerné
           qui_est_concerne: {
-            beneficiaries: values.beneficiaries,
-            clients: values.clients,
-            clientsQuantification: values.clientsQuantification,
-            proposedSolution: values.proposedSolution,
-            projectDifferentiation: values.projectDifferentiation,
-            indicator1: values.indicator1,
-            indicator2: values.indicator2,
-            indicator3: values.indicator3,
-            indicator4: values.indicator4,
-            indicator5: values.indicator5,
+            beneficiaries: values.beneficiaries || '',
+            clients: values.clients || '',
+            clientsQuantification: values.clientsQuantification || '',
+            proposedSolution: values.proposedSolution || '',
+            projectDifferentiation: values.projectDifferentiation || '',
+            indicator1: values.indicator1 || '',
+            indicator2: values.indicator2 || '',
+            indicator3: values.indicator3 || '',
+            indicator4: values.indicator4 || '',
+            indicator5: values.indicator5 || '',
           },
           
           // Modèle économique
           modele_economique: {
-            revenueSources: values.revenueSources,
-            employmentCreation: values.employmentCreation,
-            economicViability: values.economicViability,
-            diversification: values.diversification,
+            revenueSources: values.revenueSources || '',
+            employmentCreation: values.employmentCreation || '',
+            economicViability: values.economicViability || '',
+            diversification: values.diversification || '',
           },
           
           // Parties prenantes
           parties_prenantes: {
-            existingPartnerships: values.existingPartnerships,
-            desiredPartnerships: values.desiredPartnerships,
-            stakeholderRole: values.stakeholderRole,
+            existingPartnerships: values.existingPartnerships || '',
+            desiredPartnerships: values.desiredPartnerships || '',
+            stakeholderRole: values.stakeholderRole || '',
           },
           
           // Équipe projet
           equipe_projet: {
             reference: {
-              lastName: values.referenceLastName,
-              firstName: values.referenceFirstName,
-              DOB: values.referenceDOB,
-              address: values.referenceAddress,
-              email: values.referenceEmail,
-              telephone: values.referenceTelephone,
-              employmentType: values.referenceEmploymentType,
-              employmentDuration: values.referenceEmploymentDuration,
+              lastName: values.referenceLastName || '',
+              firstName: values.referenceFirstName || '',
+              DOB: values.referenceDOB || '',
+              address: values.referenceAddress || '',
+              email: values.referenceEmail || '',
+              telephone: values.referenceTelephone || '',
+              employmentType: values.referenceEmploymentType || '',
+              employmentDuration: values.referenceEmploymentDuration || '',
             },
-            members: values.teamMembers || [],
-            entrepreneurialExperience: values.entrepreneurialExperience,
-            inspiringEntrepreneur: values.inspiringEntrepreneur,
-            missingTeamSkills: values.missingTeamSkills,
-            incubationParticipants: values.incubationParticipants,
-            projectRoleLongTerm: values.projectRoleLongTerm,
+            members: Array.isArray(values.teamMembers) ? values.teamMembers : [],
+            entrepreneurialExperience: values.entrepreneurialExperience || '',
+            inspiringEntrepreneur: values.inspiringEntrepreneur || '',
+            missingTeamSkills: values.missingTeamSkills || '',
+            incubationParticipants: values.incubationParticipants || '',
+            projectRoleLongTerm: values.projectRoleLongTerm || '',
           },
           
           // Structure juridique
           structure_juridique: {
-            hasExistingStructure: values.hasExistingStructure,
-            structureName: values.structureName,
-            structureStatus: values.structureStatus,
-            structureCreationDate: values.structureCreationDate,
-            structureContext: values.structureContext,
+            hasExistingStructure: !!values.hasExistingStructure,
+            structureName: values.structureName || '',
+            structureStatus: values.structureStatus || '',
+            structureCreationDate: values.structureCreationDate || '',
+            structureContext: values.structureContext || '',
           },
           
           // Conserver les champs supplémentaires qui pourraient être nécessaires
