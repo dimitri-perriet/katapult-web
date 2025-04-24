@@ -62,14 +62,14 @@ const Navbar = () => {
                 </Link>
               </li>
 
-              <li className="navbar-item">
+{/*               <li className="navbar-item">
                 <Link
                   to="/candidatures"
                   className="navbar-link"
                 >
                   Mes Candidatures
                 </Link>
-              </li>
+              </li> */}
               
               {/* Liens spécifiques aux administrateurs */}
               {userRole === 'admin' && (
