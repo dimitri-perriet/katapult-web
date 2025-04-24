@@ -45,6 +45,30 @@ const AdminCandidatureList = () => {
     return new Date(dateString).toLocaleDateString('fr-FR', options);
   };
 
+  // Obtenir la classe CSS du badge de statut
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case 'brouillon': return 'status-badge status-draft';
+      case 'soumise': return 'status-badge status-submitted';
+      case 'en_evaluation': return 'status-badge status-review';
+      case 'acceptee': return 'status-badge status-accepted';
+      case 'rejetee': return 'status-badge status-rejected';
+      default: return 'status-badge';
+    }
+  };
+
+  // Obtenir le libellé du statut
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 'brouillon': return 'Brouillon';
+      case 'soumise': return 'Soumise';
+      case 'en_evaluation': return 'En évaluation';
+      case 'acceptee': return 'Validée';
+      case 'rejetee': return 'Rejetée';
+      default: return 'Inconnu';
+    }
+  };
+
   return (
     <div className="admin-dashboard">
       <div className="dashboard-header">
@@ -93,6 +117,61 @@ const AdminCandidatureList = () => {
         </div>
       </div>
 
+      {/* Ajout de styles CSS en ligne pour les badges de statut */}
+      <style>
+        {`
+          .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+            color: white;
+          }
+          .status-draft {
+            background-color: #6c757d;
+          }
+          .status-submitted {
+            background-color: #0d6efd;
+          }
+          .status-review {
+            background-color: #ffc107;
+            color: #212529;
+          }
+          .status-accepted {
+            background-color: #198754;
+          }
+          .status-rejected {
+            background-color: #dc3545;
+          }
+          .btn-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #f8f9fa;
+            color: #0d6efd;
+            text-decoration: none;
+            transition: all 0.2s;
+          }
+          .btn-action:hover {
+            background-color: #0d6efd;
+            color: white;
+          }
+          .email-link {
+            color: #0d6efd;
+            text-decoration: none;
+          }
+          .email-link:hover {
+            text-decoration: underline;
+          }
+        `}
+      </style>
+
       {/* Affichage des candidatures */}
       {error && <div className="alert alert-danger">{error}</div>}
 
@@ -120,7 +199,7 @@ const AdminCandidatureList = () => {
                 {candidatures.map(candidature => (
                   <tr key={candidature.id}>
                     <td>{candidature.id}</td>
-                    <td>{candidature.projectName || 'Sans nom'}</td>
+                    <td><strong>{candidature.projectName || 'Sans nom'}</strong></td>
                     <td>{candidature.applicant}</td>
                     <td>
                       <a href={`mailto:${candidature.email}`} className="email-link">
@@ -129,25 +208,15 @@ const AdminCandidatureList = () => {
                     </td>
                     <td>{candidature.sector || 'Non spécifié'}</td>
                     <td>
-                      <span className={`status-badge status-${candidature.status}`}>
-                        {candidature.status === 'brouillon'
-                          ? 'Brouillon'
-                          : candidature.status === 'soumise'
-                          ? 'Soumise'
-                          : candidature.status === 'en_evaluation'
-                          ? 'En évaluation'
-                          : candidature.status === 'acceptee'
-                          ? 'Validée'
-                          : candidature.status === 'rejetee'
-                          ? 'Rejetée'
-                          : 'Inconnue'}
+                      <span className={getStatusBadgeClass(candidature.status)}>
+                        {getStatusLabel(candidature.status)}
                       </span>
                     </td>
                     <td>{formatDate(candidature.submissionDate)}</td>
                     <td>
                       <Link
                         to={`/admin/candidatures/${candidature.id}`}
-                        className="btn-action btn-view"
+                        className="btn-action"
                         title="Voir détails"
                       >
                         <i className="fas fa-eye"></i>
