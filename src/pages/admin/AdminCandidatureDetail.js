@@ -211,6 +211,45 @@ const AdminCandidatureDetail = () => {
     }
   };
 
+  // Fonction pour obtenir la couleur du statut
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'brouillon': return '#6c757d'; // secondary
+      case 'soumise': return '#0d6efd'; // primary
+      case 'en_evaluation': return '#0dcaf0'; // info
+      case 'acceptee': return '#198754'; // success
+      case 'rejetee': return '#dc3545'; // danger
+      default: return '#6c757d'; // secondary
+    }
+  };
+
+  // Styles pour le select moderne
+  const selectStyle = {
+    backgroundColor: '#f8f9fa',
+    border: '1px solid #ced4da',
+    borderRadius: '0.375rem',
+    padding: '0.5rem 2rem',
+    height: '48px',
+    fontSize: '1rem',
+    width: 'auto',
+    appearance: 'none',
+    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e")`,
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'right 0.75rem center',
+    backgroundSize: '16px 12px',
+    outline: 'none',
+    cursor: 'pointer',
+    transition: 'border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out',
+  };
+
+  // Styles pour les options du select
+  const getOptionStyle = (value) => ({
+    backgroundColor: value === selectedStatus ? getStatusColor(value) : 'transparent',
+    color: value === selectedStatus ? 'white' : 'black',
+    padding: '8px 16px',
+    cursor: 'pointer',
+  });
+
   if (loading) {
     return (
       <div className="candidature-detail-container">
@@ -248,30 +287,52 @@ const AdminCandidatureDetail = () => {
             </div>
           </div>
           
-          {/* Gestion du statut avec select */}
+          {/* Gestion du statut avec select moderne */}
           <div className="admin-actions mt-3 card">
             <div className="card-body">
-              <h4>Modifier le statut</h4>
-              <div className="row">
-                <div className="col-md-6">
-                  <select 
-                    className="form-select"
-                    value={selectedStatus}
-                    onChange={handleStatusChange}
-                    disabled={updateLoading}
-                  >
-                    <option value="brouillon">Brouillon</option>
-                    <option value="soumise">Soumise</option>
-                    <option value="en_evaluation">En évaluation</option>
-                    <option value="acceptee">Validée</option>
-                    <option value="rejetee">Rejetée</option>
-                  </select>
+              <div className="d-flex flex-column flex-md-row align-items-md-center gap-3" style={{display: 'flex', gap: '10px'}}>
+                <div className="d-flex flex-column">
+                  <label htmlFor="status-select" className="form-label mb-1 fw-bold">Statut de la candidature</label>
+                  <div className="d-flex align-items-center" style={{ position: 'relative' }}>
+                    <div style={{ 
+                      width: '16px', 
+                      height: '16px', 
+                      borderRadius: '50%', 
+                      backgroundColor: getStatusColor(selectedStatus), 
+                      position: 'absolute',
+                      left: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      zIndex: 5
+                    }}></div>
+                    <select
+                      id="status-select"
+                      className="form-select"
+                      value={selectedStatus}
+                      onChange={handleStatusChange}
+                      disabled={updateLoading}
+                      style={{
+                        ...selectStyle,
+                        paddingLeft: '36px',
+                        fontWeight: '500',
+                        borderColor: getStatusColor(selectedStatus),
+                        borderWidth: '2px'
+                      }}
+                    >
+                      <option value="brouillon" style={getOptionStyle('brouillon')}>Brouillon</option>
+                      <option value="soumise" style={getOptionStyle('soumise')}>Soumise</option>
+                      <option value="en_evaluation" style={getOptionStyle('en_evaluation')}>En évaluation</option>
+                      <option value="acceptee" style={getOptionStyle('acceptee')}>Validée</option>
+                      <option value="rejetee" style={getOptionStyle('rejetee')}>Rejetée</option>
+                    </select>
+                  </div>
                 </div>
-                <div className="col-md-6">
+                <div>
                   <button 
-                    className="btn btn-primary" 
+                    className="btn btn-primary px-4 py-2"
                     onClick={updateCandidatureStatus}
                     disabled={updateLoading || selectedStatus === candidature.status}
+                    style={{ height: '48px', marginTop: '24px' }}
                   >
                     {updateLoading ? (
                       <>
@@ -279,14 +340,14 @@ const AdminCandidatureDetail = () => {
                         Mise à jour...
                       </>
                     ) : (
-                      'Mettre à jour le statut'
+                      'Mettre à jour'
                     )}
                   </button>
                 </div>
               </div>
               
               {updateMessage.text && (
-                <div className={`alert alert-${updateMessage.type} mt-3`} role="alert">
+                <div className={`alert alert-${updateMessage.type} mt-3 mb-0`} role="alert">
                   {updateMessage.text}
                 </div>
               )}
