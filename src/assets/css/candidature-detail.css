@@ -55,6 +55,20 @@
   color: #842029;
 }
 
+.status-promotion {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.promotion {
+  background-color: #f0f0f0;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: 500;
+  color: #666;
+}
+
 .date-info {
   display: flex;
   flex-direction: column;

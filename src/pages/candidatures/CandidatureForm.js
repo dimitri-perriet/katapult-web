@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage, FieldArray } from 'formik';
 import * as Yup from 'yup';
@@ -20,6 +20,9 @@ const CandidatureForm = () => {
   const [progressPercentage, setProgressPercentage] = useState(0);
   const [successMessage, setSuccessMessage] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  
+  // Référence pour accéder aux valeurs Formik dans des fonctions externes
+  const formikRef = useRef(null);
 
   // Définition des 8 étapes du formulaire avec numérotation (les chiffres seront affichés dans la navigation)
   const steps = [
@@ -401,90 +404,99 @@ const CandidatureForm = () => {
             return;
           }
           
+          // Si formikRef n'est pas défini ou ne contient pas de valeurs, on sort
+          if (!formikRef.current || !formikRef.current.values) {
+            console.log('Formik non initialisé, impossible de sauvegarder automatiquement');
+            return;
+          }
+          
+          // Utiliser les valeurs du formulaire Formik au lieu de l'état candidature
+          const formValues = formikRef.current.values;
+          
           const apiData = {
             status: 'brouillon',
             
             // Fiche d'identité
             fiche_identite: {
-              projectName: candidature.projectName || '',
-              sector: candidature.sector || '',
-              territory: candidature.territory || '',
-              interventionZone: candidature.interventionZone || '',
-              referral_boucheOreille: !!candidature.referral_boucheOreille,
-              referral_facebook: !!candidature.referral_facebook,
-              referral_linkedin: !!candidature.referral_linkedin,
-              referral_web: !!candidature.referral_web,
-              referral_tiers: !!candidature.referral_tiers,
-              referral_presse: !!candidature.referral_presse,
+              projectName: formValues.projectName || '',
+              sector: formValues.sector || '',
+              territory: formValues.territory || '',
+              interventionZone: formValues.interventionZone || '',
+              referral_boucheOreille: !!formValues.referral_boucheOreille,
+              referral_facebook: !!formValues.referral_facebook,
+              referral_linkedin: !!formValues.referral_linkedin,
+              referral_web: !!formValues.referral_web,
+              referral_tiers: !!formValues.referral_tiers,
+              referral_presse: !!formValues.referral_presse,
             },
             
             // Projet et utilité sociale
             projet_utilite_sociale: {
-              projectGenesis: candidature.projectGenesis || '',
-              projectSummary: candidature.projectSummary || '',
-              problemDescription: candidature.problemDescription || '',
+              projectGenesis: formValues.projectGenesis || '',
+              projectSummary: formValues.projectSummary || '',
+              problemDescription: formValues.problemDescription || '',
             },
             
             // Qui est concerné
             qui_est_concerne: {
-              beneficiaries: candidature.beneficiaries || '',
-              clients: candidature.clients || '',
-              clientsQuantification: candidature.clientsQuantification || '',
-              proposedSolution: candidature.proposedSolution || '',
-              projectDifferentiation: candidature.projectDifferentiation || '',
-              indicator1: candidature.indicator1 || '',
-              indicator2: candidature.indicator2 || '',
-              indicator3: candidature.indicator3 || '',
-              indicator4: candidature.indicator4 || '',
-              indicator5: candidature.indicator5 || '',
+              beneficiaries: formValues.beneficiaries || '',
+              clients: formValues.clients || '',
+              clientsQuantification: formValues.clientsQuantification || '',
+              proposedSolution: formValues.proposedSolution || '',
+              projectDifferentiation: formValues.projectDifferentiation || '',
+              indicator1: formValues.indicator1 || '',
+              indicator2: formValues.indicator2 || '',
+              indicator3: formValues.indicator3 || '',
+              indicator4: formValues.indicator4 || '',
+              indicator5: formValues.indicator5 || '',
             },
             
             // Modèle économique
             modele_economique: {
-              revenueSources: candidature.revenueSources || '',
-              employmentCreation: candidature.employmentCreation || '',
-              economicViability: candidature.economicViability || '',
-              diversification: candidature.diversification || '',
+              revenueSources: formValues.revenueSources || '',
+              employmentCreation: formValues.employmentCreation || '',
+              economicViability: formValues.economicViability || '',
+              diversification: formValues.diversification || '',
             },
             
             // Parties prenantes
             parties_prenantes: {
-              existingPartnerships: candidature.existingPartnerships || '',
-              desiredPartnerships: candidature.desiredPartnerships || '',
-              stakeholderRole: candidature.stakeholderRole || '',
+              existingPartnerships: formValues.existingPartnerships || '',
+              desiredPartnerships: formValues.desiredPartnerships || '',
+              stakeholderRole: formValues.stakeholderRole || '',
             },
             
             // Équipe projet
             equipe_projet: {
               reference: {
-                lastName: candidature.referenceLastName || '',
-                firstName: candidature.referenceFirstName || '',
-                DOB: candidature.referenceDOB || '',
-                address: candidature.referenceAddress || '',
-                email: candidature.referenceEmail || '',
-                telephone: candidature.referenceTelephone || '',
-                employmentType: candidature.referenceEmploymentType || '',
-                employmentDuration: candidature.referenceEmploymentDuration || '',
+                lastName: formValues.referenceLastName || '',
+                firstName: formValues.referenceFirstName || '',
+                DOB: formValues.referenceDOB || '',
+                address: formValues.referenceAddress || '',
+                email: formValues.referenceEmail || '',
+                telephone: formValues.referenceTelephone || '',
+                employmentType: formValues.referenceEmploymentType || '',
+                employmentDuration: formValues.referenceEmploymentDuration || '',
               },
-              members: Array.isArray(candidature.teamMembers) ? candidature.teamMembers : [],
-              entrepreneurialExperience: candidature.entrepreneurialExperience || '',
-              inspiringEntrepreneur: candidature.inspiringEntrepreneur || '',
-              missingTeamSkills: candidature.missingTeamSkills || '',
-              incubationParticipants: candidature.incubationParticipants || '',
-              projectRoleLongTerm: candidature.projectRoleLongTerm || '',
+              members: Array.isArray(formValues.teamMembers) ? formValues.teamMembers : [],
+              entrepreneurialExperience: formValues.entrepreneurialExperience || '',
+              inspiringEntrepreneur: formValues.inspiringEntrepreneur || '',
+              missingTeamSkills: formValues.missingTeamSkills || '',
+              incubationParticipants: formValues.incubationParticipants || '',
+              projectRoleLongTerm: formValues.projectRoleLongTerm || '',
             },
             
             // Structure juridique
             structure_juridique: {
-              hasExistingStructure: !!candidature.hasExistingStructure,
-              structureName: candidature.structureName || '',
-              structureStatus: candidature.structureStatus || '',
-              structureCreationDate: candidature.structureCreationDate || '',
-              structureContext: candidature.structureContext || '',
+              hasExistingStructure: !!formValues.hasExistingStructure,
+              structureName: formValues.structureName || '',
+              structureStatus: formValues.structureStatus || '',
+              structureCreationDate: formValues.structureCreationDate || '',
+              structureContext: formValues.structureContext || '',
             },
             
             // Conserver les champs supplémentaires qui pourraient être nécessaires
-            user_id: candidature.user || candidature.user_id
+            user_id: formValues.user || formValues.user_id
           };
           
           console.log('Sauvegarde automatique en brouillon avant le récapitulatif:', apiData);
@@ -529,7 +541,7 @@ const CandidatureForm = () => {
       
       autoSaveDraft();
     }
-  }, [currentStep, candidature, id, isEditMode, loading, navigate, isSubmitted]);
+  }, [currentStep, candidature, id, isEditMode, loading, navigate, isSubmitted, formikRef]);
 
   const goToStep = (stepId) => {
     setCurrentStep(stepId);
@@ -1086,7 +1098,8 @@ const CandidatureForm = () => {
               <div className="col-md-9">
                 <div className="form-content">
                   <Formik
-                    initialValues={candidature}
+                    innerRef={formikRef}
+                    initialValues={candidature || initialValues}
                     validationSchema={getValidationSchema()}
                     enableReinitialize={true}
                     onSubmit={(values) => {

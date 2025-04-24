@@ -62,36 +62,14 @@ const Navbar = () => {
                 </Link>
               </li>
 
-              <li className="navbar-item">
+{/*               <li className="navbar-item">
                 <Link
                   to="/candidatures"
                   className="navbar-link"
                 >
                   Mes Candidatures
                 </Link>
-              </li>
-              
-              {/* Liens spécifiques aux administrateurs */}
-              {userRole === 'admin' && (
-                <>
-                  <li className="navbar-item">
-                    <Link
-                      to="/admin/candidatures"
-                      className="navbar-link"
-                    >
-                      Gestion Candidatures
-                    </Link>
-                  </li>
-                  <li className="navbar-item">
-                    <Link
-                      to="/admin/users"
-                      className="navbar-link"
-                    >
-                      Gestion Utilisateurs
-                    </Link>
-                  </li>
-                </>
-              )}
+              </li> */}
               
               {/* Liens spécifiques aux évaluateurs */}
               {userRole === 'evaluateur' && (
@@ -112,6 +90,12 @@ const Navbar = () => {
         <div className="navbar-auth desktop-only">
           {isAuthenticated ? (
             <>
+              {userRole === 'admin' && (
+                <Link to="/admin/dashboard" className="admin-link">
+                  <i className="fas fa-crown"></i>
+                  Espace admin
+                </Link>
+              )}
               <button
                 className="navbar-logout-btn-visible"
                 onClick={handleLogout}
@@ -139,6 +123,12 @@ const Navbar = () => {
           <div className="navbar-auth-mobile">
             {isAuthenticated ? (
               <>
+                {userRole === 'admin' && (
+                  <Link to="/admin/dashboard" className="admin-link" onClick={() => setMobileMenuOpen(false)}>
+                    <i className="fas fa-crown"></i>
+                    Espace admin
+                  </Link>
+                )}
                 <button
                   className="navbar-logout-btn-visible"
                   onClick={handleLogout}
@@ -198,30 +188,6 @@ const Navbar = () => {
                     Mes Candidatures
                   </Link>
                 </li>
-                
-                {/* Liens spécifiques aux administrateurs */}
-                {userRole === 'admin' && (
-                  <>
-                    <li className="navbar-item">
-                      <Link
-                        to="/admin/candidatures"
-                        className="navbar-link"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        Gestion Candidatures
-                      </Link>
-                    </li>
-                    <li className="navbar-item">
-                      <Link
-                        to="/admin/users"
-                        className="navbar-link"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        Gestion Utilisateurs
-                      </Link>
-                    </li>
-                  </>
-                )}
                 
                 {/* Liens spécifiques aux évaluateurs */}
                 {userRole === 'evaluateur' && (

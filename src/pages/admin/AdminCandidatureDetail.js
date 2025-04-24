@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import candidatureService from '../../services/candidatureService';
+import apiClient from '../../services/apiConfig';
+import authService from '../../services/authService';
 import '../../assets/css/candidature-detail.css';
 
 const AdminCandidatureDetail = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const { currentUser } = useAuth();
   
   const [candidature, setCandidature] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('');
+  const [updateLoading, setUpdateLoading] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState({ type: '', text: '' });
 
   // Format de date
   const formatDate = (dateString) => {
@@ -36,60 +40,91 @@ const AdminCandidatureDetail = () => {
         if (response && response.candidature) {
           console.log('Données brutes reçues de l\'API:', response.candidature);
           
+          // Parser les données JSON si elles sont stockées sous forme de chaînes
+          const parsedFicheIdentite = typeof response.candidature.fiche_identite === 'string' 
+            ? JSON.parse(response.candidature.fiche_identite) 
+            : response.candidature.fiche_identite || {};
+            
+          const parsedProjetUtiliteSociale = typeof response.candidature.projet_utilite_sociale === 'string'
+            ? JSON.parse(response.candidature.projet_utilite_sociale)
+            : response.candidature.projet_utilite_sociale || {};
+            
+          const parsedQuiEstConcerne = typeof response.candidature.qui_est_concerne === 'string'
+            ? JSON.parse(response.candidature.qui_est_concerne)
+            : response.candidature.qui_est_concerne || {};
+            
+          const parsedModeleEconomique = typeof response.candidature.modele_economique === 'string'
+            ? JSON.parse(response.candidature.modele_economique)
+            : response.candidature.modele_economique || {};
+            
+          const parsedPartiesPrenantes = typeof response.candidature.parties_prenantes === 'string'
+            ? JSON.parse(response.candidature.parties_prenantes)
+            : response.candidature.parties_prenantes || {};
+            
+          const parsedEquipeProjet = typeof response.candidature.equipe_projet === 'string'
+            ? JSON.parse(response.candidature.equipe_projet)
+            : response.candidature.equipe_projet || {};
+            
+          const parsedStructureJuridique = typeof response.candidature.structure_juridique === 'string'
+            ? JSON.parse(response.candidature.structure_juridique)
+            : response.candidature.structure_juridique || {};
+          
           // Transformer les données imbriquées en structure plate pour l'affichage
           const flattenedData = {
             // Valeurs par défaut
             id: response.candidature.id,
             user: response.candidature.user_id,
             status: response.candidature.status,
-            createdAt: response.candidature.createdAt,
-            updatedAt: response.candidature.updatedAt,
+            created_at: response.candidature.created_at,
+            updated_at: response.candidature.updated_at,
+            submission_date: response.candidature.submission_date,
             
             // Fiche d'identité
-            ...(response.candidature.fiche_identite || {}),
+            ...parsedFicheIdentite,
             
             // Projet et utilité sociale
-            ...(response.candidature.projet_utilite_sociale || {}),
+            ...parsedProjetUtiliteSociale,
             
             // Qui est concerné
-            ...(response.candidature.qui_est_concerne || {}),
+            ...parsedQuiEstConcerne,
             
             // Modèle économique
-            ...(response.candidature.modele_economique || {}),
+            ...parsedModeleEconomique,
             
             // Parties prenantes
-            ...(response.candidature.parties_prenantes || {}),
+            ...parsedPartiesPrenantes,
             
             // Équipe projet
-            ...(response.candidature.equipe_projet?.members ? { teamMembers: response.candidature.equipe_projet.members } : { teamMembers: [] }),
+            teamMembers: parsedEquipeProjet?.members || [],
             
             // Personne référente
-            referenceLastName: response.candidature.equipe_projet?.reference?.lastName || '',
-            referenceFirstName: response.candidature.equipe_projet?.reference?.firstName || '',
-            referenceDOB: response.candidature.equipe_projet?.reference?.DOB ? response.candidature.equipe_projet?.reference?.DOB.substring(0, 10) : '',
-            referenceAddress: response.candidature.equipe_projet?.reference?.address || '',
-            referenceEmail: response.candidature.equipe_projet?.reference?.email || '',
-            referenceTelephone: response.candidature.equipe_projet?.reference?.telephone || '',
-            referenceEmploymentType: response.candidature.equipe_projet?.reference?.employmentType || '',
-            referenceEmploymentDuration: response.candidature.equipe_projet?.reference?.employmentDuration || '',
+            referenceLastName: parsedEquipeProjet?.reference?.lastName || '',
+            referenceFirstName: parsedEquipeProjet?.reference?.firstName || '',
+            referenceDOB: parsedEquipeProjet?.reference?.DOB ? parsedEquipeProjet.reference.DOB.substring(0, 10) : '',
+            referenceAddress: parsedEquipeProjet?.reference?.address || '',
+            referenceEmail: parsedEquipeProjet?.reference?.email || '',
+            referenceTelephone: parsedEquipeProjet?.reference?.telephone || '',
+            referenceEmploymentType: parsedEquipeProjet?.reference?.employmentType || '',
+            referenceEmploymentDuration: parsedEquipeProjet?.reference?.employmentDuration || '',
             
             // Autres informations d'équipe
-            entrepreneurialExperience: response.candidature.equipe_projet?.entrepreneurialExperience || '',
-            inspiringEntrepreneur: response.candidature.equipe_projet?.inspiringEntrepreneur || '',
-            missingTeamSkills: response.candidature.equipe_projet?.missingTeamSkills || '',
-            incubationParticipants: response.candidature.equipe_projet?.incubationParticipants || '',
-            projectRoleLongTerm: response.candidature.equipe_projet?.projectRoleLongTerm || '',
+            entrepreneurialExperience: parsedEquipeProjet?.entrepreneurialExperience || '',
+            inspiringEntrepreneur: parsedEquipeProjet?.inspiringEntrepreneur || '',
+            missingTeamSkills: parsedEquipeProjet?.missingTeamSkills || '',
+            incubationParticipants: parsedEquipeProjet?.incubationParticipants || '',
+            projectRoleLongTerm: parsedEquipeProjet?.projectRoleLongTerm || '',
             
             // Structure juridique
-            hasExistingStructure: response.candidature.structure_juridique?.hasExistingStructure || false,
-            structureName: response.candidature.structure_juridique?.structureName || '',
-            structureStatus: response.candidature.structure_juridique?.structureStatus || '',
-            structureCreationDate: response.candidature.structure_juridique?.structureCreationDate || '',
-            structureContext: response.candidature.structure_juridique?.structureContext || '',
+            hasExistingStructure: parsedStructureJuridique?.hasExistingStructure || false,
+            structureName: parsedStructureJuridique?.structureName || '',
+            structureStatus: parsedStructureJuridique?.structureStatus || '',
+            structureCreationDate: parsedStructureJuridique?.structureCreationDate || '',
+            structureContext: parsedStructureJuridique?.structureContext || '',
           };
           
           console.log('Données transformées pour l\'affichage:', flattenedData);
           setCandidature(flattenedData);
+          setSelectedStatus(response.candidature.status || '');
         } else {
           setError("La candidature n'a pas pu être chargée. Format de réponse non reconnu.");
         }
@@ -104,13 +139,61 @@ const AdminCandidatureDetail = () => {
     fetchCandidature();
   }, [id]);
 
+  // Fonction pour mettre à jour le statut de la candidature
+  const updateCandidatureStatus = async () => {
+    // Ne rien faire si le statut n'a pas changé
+    if (selectedStatus === candidature.status) {
+      setUpdateMessage({ 
+        type: 'info', 
+        text: 'Le statut n\'a pas été modifié.' 
+      });
+      return;
+    }
+
+    try {
+      setUpdateLoading(true);
+      setUpdateMessage({ type: '', text: '' });
+
+      const response = await apiClient.put(`/candidatures/${id}`, 
+        { status: selectedStatus },
+        { headers: authService.authHeader() }
+      );
+
+      if (response.data && response.data.success) {
+        // Mise à jour du candidature local
+        setCandidature(prev => ({ ...prev, status: selectedStatus }));
+        setUpdateMessage({ 
+          type: 'success', 
+          text: `Le statut a été modifié en "${getStatusText(selectedStatus)}" avec succès.` 
+        });
+      } else {
+        setUpdateMessage({ 
+          type: 'danger', 
+          text: 'Erreur lors de la mise à jour du statut.' 
+        });
+      }
+    } catch (err) {
+      console.error('Erreur lors de la mise à jour du statut:', err);
+      setUpdateMessage({ 
+        type: 'danger', 
+        text: 'Erreur lors de la mise à jour du statut: ' + (err.response?.data?.message || err.message) 
+      });
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
+
+  const handleStatusChange = (e) => {
+    setSelectedStatus(e.target.value);
+  };
+
   // Fonction pour obtenir le texte du statut
   const getStatusText = (status) => {
     switch (status) {
       case 'brouillon': return 'Brouillon';
       case 'soumise': return 'Soumise';
       case 'en_evaluation': return 'En évaluation';
-      case 'acceptee': return 'Acceptée';
+      case 'acceptee': return 'Validée';
       case 'rejetee': return 'Rejetée';
       default: return 'Inconnu';
     }
@@ -127,6 +210,45 @@ const AdminCandidatureDetail = () => {
       default: return '';
     }
   };
+
+  // Fonction pour obtenir la couleur du statut
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'brouillon': return '#6c757d'; // secondary
+      case 'soumise': return '#0d6efd'; // primary
+      case 'en_evaluation': return '#0dcaf0'; // info
+      case 'acceptee': return '#198754'; // success
+      case 'rejetee': return '#dc3545'; // danger
+      default: return '#6c757d'; // secondary
+    }
+  };
+
+  // Styles pour le select moderne
+  const selectStyle = {
+    backgroundColor: '#f8f9fa',
+    border: '1px solid #ced4da',
+    borderRadius: '0.375rem',
+    padding: '0.5rem 2rem',
+    height: '48px',
+    fontSize: '1rem',
+    width: 'auto',
+    appearance: 'none',
+    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e")`,
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'right 0.75rem center',
+    backgroundSize: '16px 12px',
+    outline: 'none',
+    cursor: 'pointer',
+    transition: 'border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out',
+  };
+
+  // Styles pour les options du select
+  const getOptionStyle = (value) => ({
+    backgroundColor: value === selectedStatus ? getStatusColor(value) : 'transparent',
+    color: value === selectedStatus ? 'white' : 'black',
+    padding: '8px 16px',
+    cursor: 'pointer',
+  });
 
   if (loading) {
     return (
@@ -159,22 +281,77 @@ const AdminCandidatureDetail = () => {
               {getStatusText(candidature.status)}
             </span>
             <div className="date-info">
-              <span>Créée le : {formatDate(candidature.createdAt)}</span>
-              <span>Dernière mise à jour : {formatDate(candidature.updatedAt)}</span>
+              <span>Créée le : {formatDate(candidature.created_at)}</span>
+              <span>Soumise le : {formatDate(candidature.submission_date)}</span>
+              <span>Dernière mise à jour : {formatDate(candidature.updated_at)}</span>
             </div>
           </div>
           
-          {/* Actions d'administration */}
-          <div className="admin-actions mt-3">
-            <button className="btn btn-success me-2">
-              <i className="bi bi-check-circle me-1"></i> Valider
-            </button>
-            <button className="btn btn-danger me-2">
-              <i className="bi bi-x-circle me-1"></i> Rejeter
-            </button>
-            <button className="btn btn-info me-2">
-              <i className="bi bi-pencil-square me-1"></i> Modifier le statut
-            </button>
+          {/* Gestion du statut avec select moderne */}
+          <div className="admin-actions mt-3 card">
+            <div className="card-body">
+              <div className="d-flex flex-column flex-md-row align-items-md-center gap-3" style={{display: 'flex', gap: '10px'}}>
+                <div className="d-flex flex-column">
+                  <label htmlFor="status-select" className="form-label mb-1 fw-bold">Statut de la candidature</label>
+                  <div className="d-flex align-items-center" style={{ position: 'relative' }}>
+                    <div style={{ 
+                      width: '16px', 
+                      height: '16px', 
+                      borderRadius: '50%', 
+                      backgroundColor: getStatusColor(selectedStatus), 
+                      position: 'absolute',
+                      left: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      zIndex: 5
+                    }}></div>
+                    <select
+                      id="status-select"
+                      className="form-select"
+                      value={selectedStatus}
+                      onChange={handleStatusChange}
+                      disabled={updateLoading}
+                      style={{
+                        ...selectStyle,
+                        paddingLeft: '36px',
+                        fontWeight: '500',
+                        borderColor: getStatusColor(selectedStatus),
+                        borderWidth: '2px'
+                      }}
+                    >
+                      <option value="brouillon" style={getOptionStyle('brouillon')}>Brouillon</option>
+                      <option value="soumise" style={getOptionStyle('soumise')}>Soumise</option>
+                      <option value="en_evaluation" style={getOptionStyle('en_evaluation')}>En évaluation</option>
+                      <option value="acceptee" style={getOptionStyle('acceptee')}>Validée</option>
+                      <option value="rejetee" style={getOptionStyle('rejetee')}>Rejetée</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <button 
+                    className="btn btn-primary px-4 py-2"
+                    onClick={updateCandidatureStatus}
+                    disabled={updateLoading || selectedStatus === candidature.status}
+                    style={{ height: '48px', marginTop: '24px' }}
+                  >
+                    {updateLoading ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Mise à jour...
+                      </>
+                    ) : (
+                      'Mettre à jour'
+                    )}
+                  </button>
+                </div>
+              </div>
+              
+              {updateMessage.text && (
+                <div className={`alert alert-${updateMessage.type} mt-3 mb-0`} role="alert">
+                  {updateMessage.text}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

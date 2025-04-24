@@ -393,6 +393,17 @@
   .navbar-auth-mobile .navbar-login-btn {
     margin-right: 0;
   }
+
+  .navbar-auth-mobile .admin-link {
+    width: 100%;
+    justify-content: center;
+    margin-right: 0;
+    margin-bottom: 8px;
+  }
+
+  .navbar-auth-mobile .admin-link:hover {
+    transform: none;
+  }
 }
 
 /* Afficher l'auth desktop seulement en desktop */
@@ -403,5 +414,49 @@
 @media (min-width: 961px) {
   .navbar-auth.desktop-only {
     display: flex;
+  }
+}
+
+.admin-section {
+  display: flex;
+  align-items: center;
+  margin-right: 1rem;
+}
+
+.admin-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 8px 16px;
+  background-color: #ff4b4b;
+  color: white;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  margin-right: 16px;
+}
+
+.admin-link:hover {
+  background-color: #e63939;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  text-decoration: none;
+  color: white;
+}
+
+.admin-link i {
+  font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+  .admin-section {
+    position: static;
+    padding: 0.5rem;
+  }
+  
+  .admin-link {
+    width: fit-content;
+    margin: 0 auto;
   }
 } 
