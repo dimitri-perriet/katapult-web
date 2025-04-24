@@ -13,7 +13,6 @@ const AdminCandidatureDetail = () => {
   const [candidature, setCandidature] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('');
   const [updateLoading, setUpdateLoading] = useState(false);
   const [updateMessage, setUpdateMessage] = useState({ type: '', text: '' });
 
@@ -124,7 +123,6 @@ const AdminCandidatureDetail = () => {
           
           console.log('Données transformées pour l\'affichage:', flattenedData);
           setCandidature(flattenedData);
-          setSelectedStatus(response.candidature.status || '');
         } else {
           setError("La candidature n'a pas pu être chargée. Format de réponse non reconnu.");
         }
@@ -140,9 +138,9 @@ const AdminCandidatureDetail = () => {
   }, [id]);
 
   // Fonction pour mettre à jour le statut de la candidature
-  const updateCandidatureStatus = async () => {
+  const updateCandidatureStatus = async (newStatus) => {
     // Ne rien faire si le statut n'a pas changé
-    if (selectedStatus === candidature.status) {
+    if (newStatus === candidature.status) {
       setUpdateMessage({ 
         type: 'info', 
         text: 'Le statut n\'a pas été modifié.' 
@@ -155,16 +153,16 @@ const AdminCandidatureDetail = () => {
       setUpdateMessage({ type: '', text: '' });
 
       const response = await apiClient.put(`/candidatures/${id}`, 
-        { status: selectedStatus },
+        { status: newStatus },
         { headers: authService.authHeader() }
       );
 
       if (response.data && response.data.success) {
         // Mise à jour du candidature local
-        setCandidature(prev => ({ ...prev, status: selectedStatus }));
+        setCandidature(prev => ({ ...prev, status: newStatus }));
         setUpdateMessage({ 
           type: 'success', 
-          text: `Le statut a été modifié en "${getStatusText(selectedStatus)}" avec succès.` 
+          text: `Le statut a été modifié en "${getStatusText(newStatus)}" avec succès.` 
         });
       } else {
         setUpdateMessage({ 
@@ -181,10 +179,6 @@ const AdminCandidatureDetail = () => {
     } finally {
       setUpdateLoading(false);
     }
-  };
-
-  const handleStatusChange = (e) => {
-    setSelectedStatus(e.target.value);
   };
 
   // Fonction pour obtenir le texte du statut
@@ -223,32 +217,25 @@ const AdminCandidatureDetail = () => {
     }
   };
 
-  // Styles pour le select moderne
-  const selectStyle = {
-    backgroundColor: '#f8f9fa',
-    border: '1px solid #ced4da',
-    borderRadius: '0.375rem',
-    padding: '0.5rem 2rem',
-    height: '48px',
-    fontSize: '1rem',
-    width: 'auto',
-    appearance: 'none',
-    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e")`,
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'right 0.75rem center',
-    backgroundSize: '16px 12px',
-    outline: 'none',
-    cursor: 'pointer',
-    transition: 'border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out',
+  // Fonction pour obtenir la classe du bouton de statut
+  const getStatusButtonClass = (status, currentStatus) => {
+    if (status === currentStatus) {
+      return `status-button status-button-${status} active`;
+    }
+    return `status-button status-button-${status}`;
   };
 
-  // Styles pour les options du select
-  const getOptionStyle = (value) => ({
-    backgroundColor: value === selectedStatus ? getStatusColor(value) : 'transparent',
-    color: value === selectedStatus ? 'white' : 'black',
-    padding: '8px 16px',
-    cursor: 'pointer',
-  });
+  // Fonction pour obtenir la variante du bouton selon le statut (renommée, mais non utilisée avec la nouvelle approche)
+  const getStatusButtonVariant = (status) => {
+    switch (status) {
+      case 'brouillon': return 'secondary';
+      case 'soumise': return 'primary';
+      case 'en_evaluation': return 'info';
+      case 'acceptee': return 'success';
+      case 'rejetee': return 'danger';
+      default: return 'secondary';
+    }
+  };
 
   if (loading) {
     return (
@@ -287,64 +274,65 @@ const AdminCandidatureDetail = () => {
             </div>
           </div>
           
-          {/* Gestion du statut avec select moderne */}
+          {/* Gestion du statut avec boutons */}
           <div className="admin-actions mt-3 card">
             <div className="card-body">
-              <div className="d-flex flex-column flex-md-row align-items-md-center gap-3" style={{display: 'flex', gap: '10px'}}>
-                <div className="d-flex flex-column">
-                  <label htmlFor="status-select" className="form-label mb-1 fw-bold">Statut de la candidature</label>
-                  <div className="d-flex align-items-center" style={{ position: 'relative' }}>
-                    <div style={{ 
-                      width: '16px', 
-                      height: '16px', 
-                      borderRadius: '50%', 
-                      backgroundColor: getStatusColor(selectedStatus), 
-                      position: 'absolute',
-                      left: '12px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      zIndex: 5
-                    }}></div>
-                    <select
-                      id="status-select"
-                      className="form-select"
-                      value={selectedStatus}
-                      onChange={handleStatusChange}
+              <h5>Modifier le statut de la candidature</h5>
+              <div className="status-buttons-container">
+                <button 
+                  className={getStatusButtonClass('brouillon', candidature.status)}
+                  onClick={() => updateCandidatureStatus('brouillon')} 
+                  disabled={updateLoading || candidature.status === 'brouillon'}
+                  style={{ backgroundColor: candidature.status === 'brouillon' ? getStatusColor('brouillon') : 'transparent', 
+                         color: candidature.status === 'brouillon' ? 'white' : getStatusColor('brouillon'),
+                         borderColor: getStatusColor('brouillon') }}
+                >
+                  Brouillon
+                </button>
+                
+                <button 
+                  className={getStatusButtonClass('en_evaluation', candidature.status)}
+                  onClick={() => updateCandidatureStatus('en_evaluation')} 
+                  disabled={updateLoading || candidature.status === 'en_evaluation'}
+                  style={{ backgroundColor: candidature.status === 'en_evaluation' ? getStatusColor('en_evaluation') : 'transparent', 
+                         color: candidature.status === 'en_evaluation' ? 'white' : getStatusColor('en_evaluation'),
+                         borderColor: getStatusColor('en_evaluation') }}
+                >
+                  En évaluation
+                </button>
+                
+                {/* Boutons d'acceptation et de refus (uniquement visibles en mode évaluation) */}
+                {candidature.status === 'en_evaluation' && (
+                  <>
+                    <button 
+                      className="status-button status-button-acceptee"
+                      onClick={() => updateCandidatureStatus('acceptee')} 
                       disabled={updateLoading}
-                      style={{
-                        ...selectStyle,
-                        paddingLeft: '36px',
-                        fontWeight: '500',
-                        borderColor: getStatusColor(selectedStatus),
-                        borderWidth: '2px'
-                      }}
+                      style={{ backgroundColor: getStatusColor('acceptee'), color: 'white' }}
                     >
-                      <option value="brouillon" style={getOptionStyle('brouillon')}>Brouillon</option>
-                      <option value="soumise" style={getOptionStyle('soumise')}>Soumise</option>
-                      <option value="en_evaluation" style={getOptionStyle('en_evaluation')}>En évaluation</option>
-                      <option value="acceptee" style={getOptionStyle('acceptee')}>Validée</option>
-                      <option value="rejetee" style={getOptionStyle('rejetee')}>Rejetée</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <button 
-                    className="btn btn-primary px-4 py-2"
-                    onClick={updateCandidatureStatus}
-                    disabled={updateLoading || selectedStatus === candidature.status}
-                    style={{ height: '48px', marginTop: '24px' }}
-                  >
-                    {updateLoading ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                        Mise à jour...
-                      </>
-                    ) : (
-                      'Mettre à jour'
-                    )}
-                  </button>
-                </div>
+                      <i className="bi bi-check-circle me-1"></i> Accepter
+                    </button>
+                    
+                    <button 
+                      className="status-button status-button-rejetee"
+                      onClick={() => updateCandidatureStatus('rejetee')} 
+                      disabled={updateLoading}
+                      style={{ backgroundColor: getStatusColor('rejetee'), color: 'white' }}
+                    >
+                      <i className="bi bi-x-circle me-1"></i> Refuser
+                    </button>
+                  </>
+                )}
               </div>
+              
+              {updateLoading && (
+                <div className="d-flex align-items-center mt-3">
+                  <div className="spinner-border spinner-border-sm text-primary me-2" role="status">
+                    <span className="visually-hidden">Chargement...</span>
+                  </div>
+                  <span>Mise à jour en cours...</span>
+                </div>
+              )}
               
               {updateMessage.text && (
                 <div className={`alert alert-${updateMessage.type} mt-3 mb-0`} role="alert">
@@ -597,4 +585,40 @@ const AdminCandidatureDetail = () => {
   );
 };
 
-export default AdminCandidatureDetail; 
+export default AdminCandidatureDetail;
+
+// Ajout du style CSS inline à la fin du fichier
+const styles = `
+  .status-buttons-container {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  
+  .status-button {
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    border: 1px solid;
+    transition: all 0.3s ease;
+    min-width: 120px;
+    text-align: center;
+  }
+  
+  .status-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .status-button.active {
+    font-weight: 600;
+  }
+`;
+
+// Injecter le CSS dans le document
+const styleSheet = document.createElement("style");
+styleSheet.type = "text/css";
+styleSheet.innerText = styles;
+document.head.appendChild(styleSheet); 
