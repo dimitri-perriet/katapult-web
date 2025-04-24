@@ -226,6 +226,7 @@ const Dashboard = () => {
                 <thead>
                   <tr>
                     <th>Projet</th>
+                    <th>Promotion</th>
                     <th>Statut</th>
                     <th>Progression</th>
                     <th>Date de modification</th>
@@ -236,6 +237,13 @@ const Dashboard = () => {
                   {candidatures.slice(0, 5).map((candidature) => (
                     <tr key={candidature.id}>
                       <td>{candidature.projectName || 'Sans titre'}</td>
+                      <td>
+                        {candidature.promotion && (
+                          <span className="promotion">
+                            {candidature.promotion}
+                          </span>
+                        )}
+                      </td>
                       <td>
                         <span className={`candidature-status ${getStatusClass(candidature.status)}`}>
                           {getStatusText(candidature.status)}

@@ -354,4 +354,13 @@
   .dashboard-section-actions {
     width: 100%;
   }
+}
+
+.promotion {
+  background-color: #f0f0f0;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: 500;
+  color: #666;
+  display: inline-block;
 } 

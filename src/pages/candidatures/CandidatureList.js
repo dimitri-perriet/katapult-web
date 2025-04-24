@@ -228,6 +228,7 @@ const CandidatureList = () => {
               <thead>
                 <tr>
                   <th>Projet</th>
+                  <th>Promotion</th>
                   <th>Statut</th>
                   <th>Progression</th>
                   <th>Date de création</th>
@@ -239,6 +240,13 @@ const CandidatureList = () => {
                 {candidatures.map((candidature) => (
                   <tr key={candidature.id}>
                     <td>{candidature.projectName || 'Sans titre'}</td>
+                    <td>
+                      {candidature.promotion && (
+                        <span className="promotion">
+                          {candidature.promotion}
+                        </span>
+                      )}
+                    </td>
                     <td>
                       <span className={`candidature-status ${getStatusClass(candidature.status)}`}>
                         {getStatusText(candidature.status)}

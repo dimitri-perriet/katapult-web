@@ -75,8 +75,9 @@ const AdminCandidatureDetail = () => {
             id: response.candidature.id,
             user: response.candidature.user_id,
             status: response.candidature.status,
-            createdAt: response.candidature.createdAt,
-            updatedAt: response.candidature.updatedAt,
+            created_at: response.candidature.created_at,
+            updated_at: response.candidature.updated_at,
+            submission_date: response.candidature.submission_date,
             
             // Fiche d'identité
             ...parsedFicheIdentite,
@@ -241,8 +242,9 @@ const AdminCandidatureDetail = () => {
               {getStatusText(candidature.status)}
             </span>
             <div className="date-info">
-              <span>Créée le : {formatDate(candidature.createdAt)}</span>
-              <span>Dernière mise à jour : {formatDate(candidature.updatedAt)}</span>
+              <span>Créée le : {formatDate(candidature.created_at)}</span>
+              <span>Soumise le : {formatDate(candidature.submission_date)}</span>
+              <span>Dernière mise à jour : {formatDate(candidature.updated_at)}</span>
             </div>
           </div>
           
