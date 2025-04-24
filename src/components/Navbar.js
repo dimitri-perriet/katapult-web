@@ -32,31 +32,32 @@ const Navbar = () => {
           <span className={`hamburger ${mobileMenuOpen ? 'active' : ''}`}></span>
         </div>
 
-        <ul className={`navbar-menu ${mobileMenuOpen ? 'active' : ''}`}>
+        {/* Menu standard pour version desktop */}
+        <ul className="navbar-menu desktop-menu">
           <li className="navbar-item">
-            <Link to="/" className="navbar-link" onClick={() => setMobileMenuOpen(false)}>
+            <Link to="/" className="navbar-link">
               Accueil
             </Link>
           </li>
 
           <li className="navbar-item">
-            <Link to="https://adress-normandie.org/etre-incube-par-katapult/" className="navbar-link" onClick={() => setMobileMenuOpen(false)}>
+            <Link to="https://adress-normandie.org/etre-incube-par-katapult/" className="navbar-link" target="_blank" rel="noopener noreferrer">
               Le Programme
             </Link>
           </li>
 
           {!isAuthenticated && (
             <li className="navbar-item">
-              <Link to="/register" className="navbar-link" onClick={() => setMobileMenuOpen(false)}>
+              <Link to="/register" className="navbar-link">
                 Candidater
-            </Link>
-          </li>
+              </Link>
+            </li>
           )}
 
           {isAuthenticated && (
             <>
               <li className="navbar-item">
-                <Link to="/dashboard" className="navbar-link" onClick={() => setMobileMenuOpen(false)}>
+                <Link to="/dashboard" className="navbar-link">
                   Tableau de bord
                 </Link>
               </li>
@@ -65,7 +66,6 @@ const Navbar = () => {
                 <Link
                   to="/candidatures"
                   className="navbar-link"
-                  onClick={() => setMobileMenuOpen(false)}
                 >
                   Mes Candidatures
                 </Link>
@@ -78,7 +78,6 @@ const Navbar = () => {
                     <Link
                       to="/admin/candidatures"
                       className="navbar-link"
-                      onClick={() => setMobileMenuOpen(false)}
                     >
                       Gestion Candidatures
                     </Link>
@@ -87,7 +86,6 @@ const Navbar = () => {
                     <Link
                       to="/admin/users"
                       className="navbar-link"
-                      onClick={() => setMobileMenuOpen(false)}
                     >
                       Gestion Utilisateurs
                     </Link>
@@ -101,7 +99,6 @@ const Navbar = () => {
                   <Link
                     to="/evaluations"
                     className="navbar-link"
-                    onClick={() => setMobileMenuOpen(false)}
                   >
                     Évaluations
                   </Link>
@@ -111,25 +108,18 @@ const Navbar = () => {
           )}
         </ul>
 
-        <div className={`navbar-auth ${mobileMenuOpen ? 'active' : ''}`}>
+        {/* Version desktop des boutons d'authentification */}
+        <div className="navbar-auth desktop-only">
           {isAuthenticated ? (
             <>
-              <div className="navbar-user-info">
-                <span className="navbar-user-name">
-                  {currentUser.firstName} {currentUser.lastName}
-                </span>
-                <div className="navbar-user-dropdown">
-                  <Link to="/profile" className="navbar-dropdown-item">
-                    Mon profil
-                  </Link>
-                  <button
-                    className="navbar-dropdown-item navbar-logout-btn"
-                    onClick={handleLogout}
-                  >
-                    Déconnexion
-                  </button>
-                </div>
-              </div>
+              <button
+                className="navbar-logout-btn-visible"
+                onClick={handleLogout}
+                title="Se déconnecter"
+              >
+                <i className="fas fa-sign-out-alt"></i>
+                <span className="logout-text">Déconnexion</span>
+              </button>
             </>
           ) : (
             <>
@@ -141,6 +131,113 @@ const Navbar = () => {
               </Link>
             </>
           )}
+        </div>
+
+        {/* Contenu mobile avec l'ordre modifié */}
+        <div className={`navbar-mobile-content ${mobileMenuOpen ? 'active' : ''}`}>
+          {/* Boutons d'authentification en premier pour mobile */}
+          <div className="navbar-auth-mobile">
+            {isAuthenticated ? (
+              <>
+                <button
+                  className="navbar-logout-btn-visible"
+                  onClick={handleLogout}
+                  title="Se déconnecter"
+                >
+                  <i className="fas fa-sign-out-alt"></i>
+                  <span className="logout-text">Déconnexion</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="navbar-login-btn" onClick={() => setMobileMenuOpen(false)}>
+                  Connexion
+                </Link>
+                <Link to="/register" className="navbar-register-btn" onClick={() => setMobileMenuOpen(false)}>
+                  Inscription
+                </Link>
+              </>
+            )}
+          </div>
+          
+          <ul className="navbar-menu mobile-menu">
+            <li className="navbar-item">
+              <Link to="/" className="navbar-link" onClick={() => setMobileMenuOpen(false)}>
+                Accueil
+              </Link>
+            </li>
+
+            <li className="navbar-item">
+              <Link to="https://adress-normandie.org/etre-incube-par-katapult/" className="navbar-link" target="_blank" rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)}>
+                Le Programme
+              </Link>
+            </li>
+
+            {!isAuthenticated && (
+              <li className="navbar-item">
+                <Link to="/register" className="navbar-link" onClick={() => setMobileMenuOpen(false)}>
+                  Candidater
+                </Link>
+              </li>
+            )}
+
+            {isAuthenticated && (
+              <>
+                <li className="navbar-item">
+                  <Link to="/dashboard" className="navbar-link" onClick={() => setMobileMenuOpen(false)}>
+                    Tableau de bord
+                  </Link>
+                </li>
+
+                <li className="navbar-item">
+                  <Link
+                    to="/candidatures"
+                    className="navbar-link"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Mes Candidatures
+                  </Link>
+                </li>
+                
+                {/* Liens spécifiques aux administrateurs */}
+                {userRole === 'admin' && (
+                  <>
+                    <li className="navbar-item">
+                      <Link
+                        to="/admin/candidatures"
+                        className="navbar-link"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        Gestion Candidatures
+                      </Link>
+                    </li>
+                    <li className="navbar-item">
+                      <Link
+                        to="/admin/users"
+                        className="navbar-link"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        Gestion Utilisateurs
+                      </Link>
+                    </li>
+                  </>
+                )}
+                
+                {/* Liens spécifiques aux évaluateurs */}
+                {userRole === 'evaluateur' && (
+                  <li className="navbar-item">
+                    <Link
+                      to="/evaluations"
+                      className="navbar-link"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Évaluations
+                    </Link>
+                  </li>
+                )}
+              </>
+            )}
+          </ul>
         </div>
       </div>
     </nav>
