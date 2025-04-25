@@ -1,58 +1,30 @@
 /* Style pour la page de détail des candidatures */
 .candidature-detail-container {
-  padding: 40px 0;
+  padding: 2rem 0;
+  background-color: #f8f9fa;
+  min-height: 100vh;
 }
 
 .candidature-detail-header {
-  margin-bottom: 30px;
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
 }
 
 .candidature-detail-header h1 {
-  font-size: 28px;
-  margin-bottom: 15px;
-  color: #333;
+  font-size: 2rem;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
 }
 
 .meta-info {
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.candidature-status {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-weight: 600;
-  font-size: 14px;
-  text-transform: uppercase;
-}
-
-.status-draft {
-  background-color: #e9ecef;
-  color: #495057;
-}
-
-.status-submitted {
-  background-color: #cfe2ff;
-  color: #084298;
-}
-
-.status-evaluation {
-  background-color: #fff3cd;
-  color: #856404;
-}
-
-.status-accepted {
-  background-color: #d1e7dd;
-  color: #0f5132;
-}
-
-.status-rejected {
-  background-color: #f8d7da;
-  color: #842029;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .status-promotion {
@@ -61,160 +33,308 @@
   gap: 1rem;
 }
 
-.promotion {
-  background-color: #f0f0f0;
+.candidature-status {
   padding: 0.5rem 1rem;
-  border-radius: 4px;
-  font-weight: 500;
-  color: #666;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.status-draft { background: #e9ecef; color: #495057; }
+.status-submitted { background: #cff4fc; color: #055160; }
+.status-evaluation { background: #fff3cd; color: #664d03; }
+.status-accepted { background: #d1e7dd; color: #0f5132; }
+.status-rejected { background: #f8d7da; color: #842029; }
+
+.promotion {
+  background: #e9ecef;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  color: #495057;
+  font-weight: 600;
 }
 
 .date-info {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  font-size: 14px;
+  gap: 0.5rem;
   color: #6c757d;
-}
-
-.candidature-detail-content {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  margin-bottom: 30px;
+  font-size: 0.9rem;
 }
 
 .detail-section {
-  padding: 25px;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.detail-section:last-child {
-  border-bottom: none;
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
 }
 
 .section-title {
-  font-size: 20px;
-  color: #495057;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #6f42c1;
+  color: #2c3e50;
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e9ecef;
 }
 
 .section-content {
-  padding: 0 10px;
+  padding: 0 1rem;
 }
 
 .detail-item {
-  margin-bottom: 15px;
+  margin-bottom: 2rem;
 }
 
 .detail-label {
   display: block;
   font-weight: 600;
-  margin-bottom: 5px;
   color: #495057;
+  margin-bottom: 1rem;
 }
 
 .detail-value {
-  display: block;
-  margin-bottom: 10px;
+  color: #2c3e50;
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
 }
 
 .detail-text {
-  background-color: #f8f9fa;
-  padding: 15px;
-  border-radius: 4px;
-  margin-bottom: 15px;
-  white-space: pre-line;
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  color: #2c3e50;
+  white-space: pre-wrap;
+  border: 1px solid #e9ecef;
 }
 
 .detail-list {
-  list-style-type: circle;
-  padding-left: 20px;
-  margin-bottom: 15px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.detail-list li {
+  padding: 0.75rem 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.choice-cards-display {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.choice-card-display {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  cursor: default;
+}
+
+.choice-card-display.selected {
+  background: #e7f5ff;
+  border-color: #339af0;
+}
+
+.choice-card-title {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.choice-card-description {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.existing-structure {
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-top: 2rem;
+  border: 1px solid #e9ecef;
+}
+
+.existing-structure h3 {
+  color: #2c3e50;
+  font-size: 1.25rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.existing-structure-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
 }
 
 .team-members-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-  margin-bottom: 20px;
+  gap: 2rem;
 }
 
 .team-member {
-  background-color: #f8f9fa;
-  padding: 15px;
+  background: #f8f9fa;
+  padding: 1.5rem;
   border-radius: 8px;
-  border-left: 3px solid #6f42c1;
+  border: 1px solid #e9ecef;
+}
+
+.team-member-header {
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.team-member-content {
+  display: grid;
+  gap: 1rem;
+}
+
+.member-info {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.member-info-label {
+  font-weight: 600;
+  color: #495057;
+}
+
+.member-info-value {
+  color: #2c3e50;
 }
 
 .actions-container {
   display: flex;
-  gap: 15px;
-  margin-top: 20px;
+  gap: 1rem;
+  margin-top: 2rem;
 }
 
 .btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  gap: 0.5rem;
+  transition: all 0.2s;
   text-decoration: none;
 }
 
+.btn i {
+  font-size: 1.1rem;
+}
+
 .btn-primary {
-  background-color: #6f42c1;
+  background: #339af0;
   color: white;
   border: none;
 }
 
 .btn-primary:hover {
-  background-color: #5e35b1;
+  background: #228be6;
 }
 
 .btn-secondary {
-  background-color: #6c757d;
+  background: #868e96;
   color: white;
   border: none;
 }
 
 .btn-secondary:hover {
-  background-color: #5a6268;
+  background: #495057;
 }
 
-/* Style pour les titres h3 */
-.section-content h3 {
-  font-size: 18px;
-  margin: 25px 0 15px;
-  color: #6f42c1;
+/* Styles pour les rôles des membres */
+.roles-timeline {
+  display: grid;
+  gap: 2rem;
+}
+
+.member-roles {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  overflow: hidden;
+}
+
+.member-roles-header {
+  background: #f8f9fa;
+  padding: 1rem 1.5rem;
   border-bottom: 1px solid #e9ecef;
-  padding-bottom: 8px;
 }
 
-.existing-structure {
-  margin-top: 20px;
-  margin-bottom: 20px;
-  background-color: #f8f9fa;
-  padding: 15px;
+.member-roles-header h4 {
+  color: #2c3e50;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.role-periods {
+  padding: 1.5rem;
+  display: grid;
+  gap: 2rem;
+}
+
+.role-period {
+  display: grid;
+  gap: 1rem;
+}
+
+.role-period-header {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.role-period-content {
+  display: grid;
+  gap: 1rem;
+  padding-left: 1rem;
+}
+
+.role-field {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.role-label {
+  font-weight: 500;
+  color: #495057;
+}
+
+.role-value {
+  color: #2c3e50;
+  background: #f8f9fa;
+  padding: 0.75rem 1rem;
   border-radius: 8px;
-  border-left: 3px solid #6f42c1;
+  border: 1px solid #e9ecef;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .meta-info {
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
+    gap: 1rem;
   }
   
-  .team-members-list {
+  .section-content {
+    padding: 0;
+  }
+  
+  .existing-structure-grid {
     grid-template-columns: 1fr;
   }
   
@@ -225,5 +345,13 @@
   .btn {
     width: 100%;
     justify-content: center;
+  }
+  
+  .role-periods {
+    padding: 1rem;
+  }
+  
+  .role-period-content {
+    padding-left: 0;
   }
 } 

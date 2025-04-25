@@ -65,6 +65,14 @@ const CandidatureDetail = () => {
             ? JSON.parse(response.candidature.structure_juridique)
             : response.candidature.structure_juridique || {};
           
+          const parsedEtatAvancement = typeof response.candidature.etat_avancement === 'string'
+            ? JSON.parse(response.candidature.etat_avancement)
+            : response.candidature.etat_avancement || {};
+
+          const parsedDocuments = typeof response.candidature.documents_json === 'string'
+            ? JSON.parse(response.candidature.documents_json)
+            : response.candidature.documents_json || {};
+          
           // Transformer les données imbriquées en structure plate pour l'affichage
           const flattenedData = {
             // Valeurs par défaut
@@ -114,9 +122,53 @@ const CandidatureDetail = () => {
             // Structure juridique
             hasExistingStructure: parsedStructureJuridique?.hasExistingStructure || false,
             structureName: parsedStructureJuridique?.structureName || '',
+            structureSiret: parsedStructureJuridique?.structureSiret || '',
             structureStatus: parsedStructureJuridique?.structureStatus || '',
+            structureStatusOther: parsedStructureJuridique?.structureStatusOther || '',
             structureCreationDate: parsedStructureJuridique?.structureCreationDate || '',
             structureContext: parsedStructureJuridique?.structureContext || '',
+            
+            // État d'avancement
+            otherSupport: parsedEtatAvancement?.otherSupport || '',
+            diagnostic: parsedEtatAvancement?.diagnostic || {},
+            collectif: parsedEtatAvancement?.collectif || {},
+            experimentation: parsedEtatAvancement?.experimentation || {},
+            etudeMarche: parsedEtatAvancement?.etudeMarche || {},
+            offre: parsedEtatAvancement?.offre || {},
+            chiffrage: parsedEtatAvancement?.chiffrage || {},
+            firstRisk: parsedEtatAvancement?.firstRisk || '',
+            swot: parsedEtatAvancement?.swot || {},
+            weaknessesAndThreatsStrategy: parsedEtatAvancement?.weaknessesAndThreatsStrategy || '',
+            creationTimeline: parsedEtatAvancement?.creationTimeline || '',
+            readyToTravel: parsedEtatAvancement?.readyToTravel || '',
+            readyToCommunicate: parsedEtatAvancement?.readyToCommunicate || '',
+            readyToCommit: parsedEtatAvancement?.readyToCommit || '',
+
+            // Documents
+            businessPlan: parsedDocuments?.businessPlan || null,
+            financialProjections: parsedDocuments?.financialProjections || null,
+            additionalDocuments: parsedDocuments?.additionalDocuments || [],
+
+            // Informations équipe projet supplémentaires
+            teamPresentation: parsedEquipeProjet?.teamPresentation || '',
+            projectMembersRoles: parsedEquipeProjet?.projectMembersRoles || [],
+            currentProfessionalSituation: parsedEquipeProjet?.currentProfessionalSituation || '',
+            incubationPeriodIncome: parsedEquipeProjet?.incubationPeriodIncome || '',
+            weeklyTimeCommitment: parsedEquipeProjet?.weeklyTimeCommitment || '',
+            incubatorMotivation: parsedEquipeProjet?.incubatorMotivation || '',
+            contributionToIncubator: parsedEquipeProjet?.contributionToIncubator || '',
+
+            // Métadonnées supplémentaires
+            completion_percentage: response.candidature.completion_percentage,
+            monday_item_id: response.candidature.monday_item_id,
+            generated_pdf_url: response.candidature.generated_pdf_url,
+            phone: response.candidature.phone,
+            
+            // Informations utilisateur
+            user: response.candidature.user || {},
+            isOwner: response.isOwner || false,
+            isAdmin: response.isAdmin || false,
+            isEvaluator: response.isEvaluator || false,
           };
           
           console.log('Données transformées pour l\'affichage:', flattenedData);
@@ -213,33 +265,150 @@ const CandidatureDetail = () => {
               <h2 className="section-title">1. Fiche d'identité</h2>
               <div className="section-content">
                 <div className="detail-item">
-                  <span className="detail-label">Nom du projet :</span>
-                  <span className="detail-value">{candidature.projectName}</span>
+                  <span className="detail-label">Nom du projet *</span>
+                  <div className="detail-value">{candidature.projectName}</div>
                 </div>
+
                 <div className="detail-item">
-                  <span className="detail-label">Secteur d'activité :</span>
-                  <span className="detail-value">{candidature.sector}</span>
+                  <span className="detail-label">Secteur d'activité *</span>
+                  <div className="choice-cards-display">
+                    <div className="choice-card-display">
+                      <div className="choice-card-title">
+                        {candidature.sector === 'autre' 
+                          ? candidature.sectorOther 
+                          : {
+                              'economie_circulaire': 'Économie circulaire',
+                              'alimentation_durable': 'Alimentation durable',
+                              'mobilite': 'Mobilité',
+                              'habitat': 'Habitat',
+                              'education': 'Éducation',
+                              'sante': 'Santé',
+                              'numerique': 'Numérique',
+                              'culture': 'Culture',
+                              'tourisme': 'Tourisme',
+                              'sport': 'Sport',
+                              'services': 'Services',
+                              'commerce': 'Commerce',
+                              'energie': 'Énergie',
+                              'agriculture': 'Agriculture',
+                              'industrie': 'Industrie'
+                            }[candidature.sector] || candidature.sector}
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
                 <div className="detail-item">
-                  <span className="detail-label">Territoire d'implantation :</span>
-                  <span className="detail-value">{candidature.territory}</span>
+                  <span className="detail-label">Territoire d'implantation *</span>
+                  <div className="detail-value">{candidature.territory}</div>
                 </div>
+
                 <div className="detail-item">
-                  <span className="detail-label">Zone géographique d'intervention :</span>
-                  <span className="detail-value">{candidature.interventionZone}</span>
+                  <span className="detail-label">Zone géographique d'intervention *</span>
+                  <div className="choice-cards-display">
+                    <div className="choice-card-display">
+                      <div className="choice-card-title">
+                        {{
+                          'quartier': 'Quartier',
+                          'ville': 'Ville',
+                          'agglomeration': 'Agglomération',
+                          'departement': 'Département',
+                          'region': 'Région',
+                          'national': 'National',
+                          'international': 'International'
+                        }[candidature.interventionZone] || candidature.interventionZone}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                
+
                 <div className="detail-item">
-                  <span className="detail-label">Comment ont-ils connu l'appel à candidatures :</span>
-                  <ul className="detail-list">
-                    {candidature.referral_boucheOreille && <li>Bouche à oreilles</li>}
-                    {candidature.referral_facebook && <li>Facebook</li>}
-                    {candidature.referral_linkedin && <li>LinkedIn</li>}
-                    {candidature.referral_web && <li>Web</li>}
-                    {candidature.referral_tiers && <li>Tiers</li>}
-                    {candidature.referral_presse && <li>Presse</li>}
-                  </ul>
+                  <span className="detail-label">Comment avez-vous eu connaissance de l'appel à candidatures ? *</span>
+                  <div className="detail-list">
+                    {candidature.referral_facebook_adress && <li>Page Facebook de l'ADRESS</li>}
+                    {candidature.referral_linkedin_adress && <li>Page LinkedIn de l'ADRESS</li>}
+                    {candidature.referral_instagram_adress && <li>Page Instagram de l'ADRESS</li>}
+                    {candidature.referral_web_adress && <li>Site internet de l'ADRESS</li>}
+                    {candidature.referral_mail_adress && <li>Par un mail de l'ADRESS</li>}
+                  </div>
                 </div>
+
+                {candidature.hasExistingStructure && (
+                  <div className="existing-structure">
+                    <h3>Structure juridique existante</h3>
+                    <div className="existing-structure-grid">
+                      <div className="detail-item">
+                        <span className="detail-label">Nom de la structure *</span>
+                        <div className="detail-value">{candidature.structureName}</div>
+                      </div>
+
+                      <div className="detail-item">
+                        <span className="detail-label">Numéro SIRET *</span>
+                        <div className="detail-value">{candidature.structureSiret}</div>
+                      </div>
+                    </div>
+
+                    <div className="detail-item">
+                      <span className="detail-label">Statut juridique *</span>
+                      <div className="choice-cards-display">
+                        <div className="choice-card-display">
+                          <div className="choice-card-title">
+                            {candidature.structureStatus === 'autre' 
+                              ? candidature.structureStatusOther 
+                              : {
+                                  'association': 'Association',
+                                  'cooperative': 'Coopérative',
+                                  'societe_ess': 'Société commerciale de l\'ESS',
+                                  'societe_hors_ess': 'Société commerciale hors ESS'
+                                }[candidature.structureStatus] || candidature.structureStatus}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="detail-item">
+                      <span className="detail-label">Date de création *</span>
+                      <div className="detail-value">
+                        {new Date(candidature.structureCreationDate).toLocaleDateString('fr-FR')}
+                      </div>
+                    </div>
+
+                    <div className="detail-item">
+                      <span className="detail-label">Dans quel cadre la structure candidate-t-elle à l'incubateur ? *</span>
+                      <div className="choice-cards-display">
+                        <div className="choice-card-display">
+                          <div className="choice-card-title">
+                            {candidature.structureContext === 'autre' 
+                              ? candidature.structureContextOther
+                              : {
+                                  'nouvelle_activite': 'Développement d\'une nouvelle activité',
+                                  'implantation': 'Implantation en Normandie'
+                                }[candidature.structureContext] || candidature.structureContext}
+                          </div>
+                          <div className="choice-card-description">
+                            {candidature.structureContext === 'nouvelle_activite' 
+                              ? 'Vous souhaitez développer une nouvelle activité au sein de votre structure'
+                              : candidature.structureContext === 'implantation'
+                                ? 'Vous souhaitez implanter votre activité en Normandie'
+                                : ''}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="existing-structure-grid">
+                      <div className="detail-item">
+                        <span className="detail-label">La personne référente pour le projet est-elle salariée par la structure ou bénévole ? *</span>
+                        <div className="detail-value">{candidature.referenceEmploymentType}</div>
+                      </div>
+
+                      <div className="detail-item">
+                        <span className="detail-label">Depuis combien de temps ? *</span>
+                        <div className="detail-value">{candidature.referenceEmploymentDuration}</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -274,10 +443,7 @@ const CandidatureDetail = () => {
                   <span className="detail-label">Clients :</span>
                   <div className="detail-text">{candidature.clients}</div>
                 </div>
-                <div className="detail-item">
-                  <span className="detail-label">Quantification :</span>
-                  <div className="detail-text">{candidature.clientsQuantification}</div>
-                </div>
+
                 <div className="detail-item">
                   <span className="detail-label">Solution proposée :</span>
                   <div className="detail-text">{candidature.proposedSolution}</div>
@@ -399,8 +565,16 @@ const CandidatureDetail = () => {
                       <span className="detail-value">{candidature.structureName}</span>
                     </div>
                     <div className="detail-item">
+                      <span className="detail-label">SIRET :</span>
+                      <span className="detail-value">{candidature.structureSiret}</span>
+                    </div>
+                    <div className="detail-item">
                       <span className="detail-label">Statut :</span>
-                      <span className="detail-value">{candidature.structureStatus}</span>
+                      <span className="detail-value">
+                        {candidature.structureStatus === 'autre' 
+                          ? candidature.structureStatusOther 
+                          : candidature.structureStatus}
+                      </span>
                     </div>
                     <div className="detail-item">
                       <span className="detail-label">Date de création :</span>
@@ -433,6 +607,248 @@ const CandidatureDetail = () => {
                   <span className="detail-label">Rôle à long terme :</span>
                   <div className="detail-text">{candidature.projectRoleLongTerm}</div>
                 </div>
+                <div className="detail-item">
+                  <span className="detail-label">Présentation de l'équipe :</span>
+                  <div className="detail-text">{candidature.teamPresentation}</div>
+                </div>
+
+                <div className="detail-item">
+                  <span className="detail-label">Situation professionnelle actuelle :</span>
+                  <div className="detail-text">{candidature.currentProfessionalSituation}</div>
+                </div>
+
+                <div className="detail-item">
+                  <span className="detail-label">Revenus pendant la période d'incubation :</span>
+                  <div className="detail-text">{candidature.incubationPeriodIncome}</div>
+                </div>
+
+                <div className="detail-item">
+                  <span className="detail-label">Temps hebdomadaire consacré :</span>
+                  <div className="detail-text">{candidature.weeklyTimeCommitment}</div>
+                </div>
+
+                <div className="detail-item">
+                  <span className="detail-label">Motivation pour l'incubateur :</span>
+                  <div className="detail-text">{candidature.incubatorMotivation}</div>
+                </div>
+
+                <div className="detail-item">
+                  <span className="detail-label">Contribution à l'incubateur :</span>
+                  <div className="detail-text">{candidature.contributionToIncubator}</div>
+                </div>
+
+                {candidature.projectMembersRoles && candidature.projectMembersRoles.length > 0 && (
+                  <div className="detail-item">
+                    <span className="detail-label">Rôles des membres du projet</span>
+                    <div className="roles-timeline">
+                      {candidature.projectMembersRoles.map((member, index) => (
+                        <div key={index} className="member-roles">
+                          <div className="member-roles-header">
+                            <h4>{member.name || 'Membre ' + (index + 1)}</h4>
+                          </div>
+                          <div className="role-periods">
+                            <div className="role-period">
+                              <div className="role-period-header">Court terme</div>
+                              <div className="role-period-content">
+                                <div className="role-field">
+                                  <span className="role-label">Type :</span>
+                                  <div className="role-value">{member.shortTerm?.type || '-'}</div>
+                                </div>
+                                <div className="role-field">
+                                  <span className="role-label">Détails :</span>
+                                  <div className="role-value">{member.shortTerm?.details || '-'}</div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="role-period">
+                              <div className="role-period-header">Moyen terme</div>
+                              <div className="role-period-content">
+                                <div className="role-field">
+                                  <span className="role-label">Type :</span>
+                                  <div className="role-value">{member.mediumTerm?.type || '-'}</div>
+                                </div>
+                                <div className="role-field">
+                                  <span className="role-label">Détails :</span>
+                                  <div className="role-value">{member.mediumTerm?.details || '-'}</div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="role-period">
+                              <div className="role-period-header">Long terme</div>
+                              <div className="role-period-content">
+                                <div className="role-field">
+                                  <span className="role-label">Type :</span>
+                                  <div className="role-value">{member.longTerm?.type || '-'}</div>
+                                </div>
+                                <div className="role-field">
+                                  <span className="role-label">Détails :</span>
+                                  <div className="role-value">{member.longTerm?.details || '-'}</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Section 7: État d'avancement */}
+            <div className="detail-section">
+              <h2 className="section-title">7. État d'avancement</h2>
+              <div className="section-content">
+                <div className="detail-item">
+                  <span className="detail-label">Autres accompagnements :</span>
+                  <div className="detail-text">{candidature.otherSupport}</div>
+                </div>
+
+                <h3>Diagnostic</h3>
+                <div className="detail-item">
+                  <span className="detail-label">Statut :</span>
+                  <span className="detail-value">{candidature.diagnostic.status}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Détails :</span>
+                  <div className="detail-text">{candidature.diagnostic.details}</div>
+                </div>
+
+                <h3>Collectif</h3>
+                <div className="detail-item">
+                  <span className="detail-label">Statut :</span>
+                  <span className="detail-value">{candidature.collectif.status}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Détails :</span>
+                  <div className="detail-text">{candidature.collectif.details}</div>
+                </div>
+
+                <h3>Expérimentation</h3>
+                <div className="detail-item">
+                  <span className="detail-label">Statut :</span>
+                  <span className="detail-value">{candidature.experimentation.status}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Détails :</span>
+                  <div className="detail-text">{candidature.experimentation.details}</div>
+                </div>
+
+                <h3>Étude de marché</h3>
+                <div className="detail-item">
+                  <span className="detail-label">Statut :</span>
+                  <span className="detail-value">{candidature.etudeMarche.status}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Détails :</span>
+                  <div className="detail-text">{candidature.etudeMarche.details}</div>
+                </div>
+
+                <h3>Offre</h3>
+                <div className="detail-item">
+                  <span className="detail-label">Statut :</span>
+                  <span className="detail-value">{candidature.offre.status}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Détails :</span>
+                  <div className="detail-text">{candidature.offre.details}</div>
+                </div>
+
+                <h3>Chiffrage</h3>
+                <div className="detail-item">
+                  <span className="detail-label">Statut :</span>
+                  <span className="detail-value">{candidature.chiffrage.status}</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Détails :</span>
+                  <div className="detail-text">{candidature.chiffrage.details}</div>
+                </div>
+
+                <h3>Analyse SWOT</h3>
+                <div className="detail-item">
+                  <span className="detail-label">Forces :</span>
+                  <div className="detail-text">{candidature.swot.strengths}</div>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Faiblesses :</span>
+                  <div className="detail-text">{candidature.swot.weaknesses}</div>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Opportunités :</span>
+                  <div className="detail-text">{candidature.swot.opportunities}</div>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Menaces :</span>
+                  <div className="detail-text">{candidature.swot.threats}</div>
+                </div>
+
+                <div className="detail-item">
+                  <span className="detail-label">Premier risque identifié :</span>
+                  <div className="detail-text">{candidature.firstRisk}</div>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Stratégie face aux faiblesses et menaces :</span>
+                  <div className="detail-text">{candidature.weaknessesAndThreatsStrategy}</div>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Calendrier de création :</span>
+                  <div className="detail-text">{candidature.creationTimeline}</div>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Prêt à voyager :</span>
+                  <div className="detail-text">{candidature.readyToTravel}</div>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Prêt à communiquer :</span>
+                  <div className="detail-text">{candidature.readyToCommunicate}</div>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Prêt à s'engager :</span>
+                  <div className="detail-text">{candidature.readyToCommit}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 8: Documents */}
+            <div className="detail-section">
+              <h2 className="section-title">8. Documents</h2>
+              <div className="section-content">
+                <div className="detail-item">
+                  <span className="detail-label">Business Plan :</span>
+                  <span className="detail-value">
+                    {candidature.businessPlan ? (
+                      <a href={candidature.businessPlan} target="_blank" rel="noopener noreferrer">
+                        Voir le document
+                      </a>
+                    ) : 'Non fourni'}
+                  </span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Projections financières :</span>
+                  <span className="detail-value">
+                    {candidature.financialProjections ? (
+                      <a href={candidature.financialProjections} target="_blank" rel="noopener noreferrer">
+                        Voir le document
+                      </a>
+                    ) : 'Non fourni'}
+                  </span>
+                </div>
+                {candidature.additionalDocuments && candidature.additionalDocuments.length > 0 && (
+                  <div className="detail-item">
+                    <span className="detail-label">Documents additionnels :</span>
+                    <ul className="detail-list">
+                      {candidature.additionalDocuments.map((doc, index) => (
+                        <li key={index}>
+                          <a href={doc} target="_blank" rel="noopener noreferrer">
+                            Document {index + 1}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             </div>
           </div>

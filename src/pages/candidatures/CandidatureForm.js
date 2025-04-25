@@ -24,6 +24,12 @@ const CandidatureForm = () => {
   // Référence pour accéder aux valeurs Formik dans des fonctions externes
   const formikRef = useRef(null);
 
+  const structureContextLabels = {
+    nouvelle_activite: 'Développement d\'une nouvelle activité',
+    implantation: 'Implantation en Normandie',
+    autre: 'Autre'
+  };
+
   // Définition des 8 étapes du formulaire avec numérotation (les chiffres seront affichés dans la navigation)
   const steps = [
     { id: 1, name: "Fiche d'identité", icon: 'fa-id-card' },
@@ -2736,10 +2742,9 @@ const CandidatureForm = () => {
                                 <p>Veuillez vérifier attentivement toutes les informations ci-dessous avant de soumettre votre candidature.</p>
                                 <p>En cliquant sur "Soumettre ma candidature", votre dossier sera soumis définitivement après votre confirmation. <strong>Une fois soumise, la candidature ne pourra plus être modifiée.</strong></p>
                               </div>
-                              <p>Résumé de votre candidature :</p>
                               
                               <div className="recap-container">
-                                {/* Étape 1 : Fiche d'identité */}
+                                {/* Section 1: Fiche d'identité */}
                                 <div className="recap-section">
                                   <h3 className="recap-title">1. Fiche d'identité</h3>
                                   <div className="recap-content">
@@ -2749,7 +2754,11 @@ const CandidatureForm = () => {
                                     </div>
                                     <div className="recap-item">
                                       <span className="recap-label">Secteur d'activité :</span>
-                                      <span className="recap-value">{formik.values.sector}</span>
+                                      <span className="recap-value">
+                                        {formik.values.sector === 'autre' 
+                                          ? formik.values.sectorOther 
+                                          : formik.values.sector}
+                                      </span>
                                     </div>
                                     <div className="recap-item">
                                       <span className="recap-label">Territoire d'implantation :</span>
@@ -2759,10 +2768,34 @@ const CandidatureForm = () => {
                                       <span className="recap-label">Zone géographique d'intervention :</span>
                                       <span className="recap-value">{formik.values.interventionZone}</span>
                                     </div>
+                                    <div className="recap-item">
+                                      <span className="recap-label">Comment avez-vous eu connaissance de l'appel à candidatures :</span>
+                                      <div className="recap-value">
+                                        <ul className="recap-list">
+                                          {formik.values.referral_facebook_adress && <li>Page Facebook de l'ADRESS</li>}
+                                          {formik.values.referral_linkedin_adress && <li>Page LinkedIn de l'ADRESS</li>}
+                                          {formik.values.referral_instagram_adress && <li>Page Instagram de l'ADRESS</li>}
+                                          {formik.values.referral_web_adress && <li>Site internet de l'ADRESS</li>}
+                                          {formik.values.referral_mail_adress && <li>Par un mail de l'ADRESS</li>}
+                                        </ul>
+                                      </div>
+                                    </div>
+                                    {formik.values.hasExistingStructure && (
+                                      <div className="recap-item">
+                                        <span className="recap-label">Structure existante :</span>
+                                        <div className="recap-value">
+                                          <p><strong>Nom de la structure :</strong> {formik.values.structureName}</p>
+                                          <p><strong>SIRET :</strong> {formik.values.structureSiret}</p>
+                                          <p><strong>Statut juridique :</strong> {formik.values.structureStatus === 'autre' ? formik.values.structureStatusOther : formik.values.structureStatus}</p>
+                                          <p><strong>Date de création :</strong> {formik.values.structureCreationDate}</p>
+                                          <p><strong>Contexte :</strong> {formik.values.structureContext === 'autre' ? formik.values.structureContextOther : formik.values.structureContext}</p>
+                                        </div>
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
 
-                                {/* Étape 2 : Votre projet et son utilité sociale */}
+                                {/* Section 2: Projet et utilité sociale */}
                                 <div className="recap-section">
                                   <h3 className="recap-title">2. Votre projet et son utilité sociale</h3>
                                   <div className="recap-content">
@@ -2781,7 +2814,7 @@ const CandidatureForm = () => {
                                   </div>
                                 </div>
 
-                                {/* Étape 3 : Qui est concerné */}
+                                {/* Section 3: Qui est concerné */}
                                 <div className="recap-section">
                                   <h3 className="recap-title">3. Qui est concerné ?</h3>
                                   <div className="recap-content">
@@ -2794,10 +2827,6 @@ const CandidatureForm = () => {
                                       <span className="recap-value">{formik.values.clients}</span>
                                     </div>
                                     <div className="recap-item">
-                                      <span className="recap-label">Quantification :</span>
-                                      <span className="recap-value">{formik.values.clientsQuantification}</span>
-                                    </div>
-                                    <div className="recap-item">
                                       <span className="recap-label">Solution proposée :</span>
                                       <span className="recap-value">{formik.values.proposedSolution}</span>
                                     </div>
@@ -2807,18 +2836,20 @@ const CandidatureForm = () => {
                                     </div>
                                     <div className="recap-item">
                                       <span className="recap-label">Indicateurs d'impact :</span>
-                                      <ul className="recap-list">
-                                        <li>{formik.values.indicator1}</li>
-                                        <li>{formik.values.indicator2}</li>
-                                        <li>{formik.values.indicator3}</li>
-                                        <li>{formik.values.indicator4}</li>
-                                        <li>{formik.values.indicator5}</li>
-                                      </ul>
+                                      <div className="recap-value">
+                                        <ul className="recap-list">
+                                          {formik.values.indicator1 && <li>{formik.values.indicator1}</li>}
+                                          {formik.values.indicator2 && <li>{formik.values.indicator2}</li>}
+                                          {formik.values.indicator3 && <li>{formik.values.indicator3}</li>}
+                                          {formik.values.indicator4 && <li>{formik.values.indicator4}</li>}
+                                          {formik.values.indicator5 && <li>{formik.values.indicator5}</li>}
+                                        </ul>
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
 
-                                {/* Étape 4 : Le modèle économique */}
+                                {/* Section 4: Le modèle économique */}
                                 <div className="recap-section">
                                   <h3 className="recap-title">4. Le modèle économique</h3>
                                   <div className="recap-content">
@@ -2831,8 +2862,16 @@ const CandidatureForm = () => {
                                       <span className="recap-value">{formik.values.employmentCreation}</span>
                                     </div>
                                     <div className="recap-item">
-                                      <span className="recap-label">Viabilité économique :</span>
-                                      <span className="recap-value">{formik.values.economicViability}</span>
+                                      <span className="recap-label">Éléments de viabilité économique :</span>
+                                      <div className="recap-value">
+                                        <ul className="recap-list">
+                                          {formik.values.viabilityElement1 && <li>{formik.values.viabilityElement1}</li>}
+                                          {formik.values.viabilityElement2 && <li>{formik.values.viabilityElement2}</li>}
+                                          {formik.values.viabilityElement3 && <li>{formik.values.viabilityElement3}</li>}
+                                          {formik.values.viabilityElement4 && <li>{formik.values.viabilityElement4}</li>}
+                                          {formik.values.viabilityElement5 && <li>{formik.values.viabilityElement5}</li>}
+                                        </ul>
+                                      </div>
                                     </div>
                                     <div className="recap-item">
                                       <span className="recap-label">Projets de diversification :</span>
@@ -2841,7 +2880,7 @@ const CandidatureForm = () => {
                                   </div>
                                 </div>
 
-                                {/* Étape 5 : La place des parties prenantes */}
+                                {/* Section 5: La place des parties prenantes */}
                                 <div className="recap-section">
                                   <h3 className="recap-title">5. La place des parties prenantes</h3>
                                   <div className="recap-content">
@@ -2860,7 +2899,7 @@ const CandidatureForm = () => {
                                   </div>
                                 </div>
 
-                                {/* Étape 6 : L'équipe projet et parcours d'incubation */}
+                                {/* Section 6: L'équipe projet */}
                                 <div className="recap-section">
                                   <h3 className="recap-title">6. L'équipe projet et parcours d'incubation</h3>
                                   <div className="recap-content">
@@ -2868,34 +2907,62 @@ const CandidatureForm = () => {
                                       <span className="recap-label">Personne référente :</span>
                                       <div className="recap-subitem">
                                         <span>{formik.values.referenceFirstName} {formik.values.referenceLastName}</span>
+                                        <span>Date de naissance : {formik.values.referenceDOB}</span>
+                                        <span>Adresse : {formik.values.referenceAddress}</span>
                                         <span>Email : {formik.values.referenceEmail}</span>
                                         <span>Téléphone : {formik.values.referenceTelephone}</span>
+                                        {formik.values.hasExistingStructure && (
+                                          <span>Type d'emploi : {formik.values.referenceEmploymentType}</span>
+                                        )}
                                       </div>
                                     </div>
                                     
                                     <div className="recap-item">
-                                      <span className="recap-label">Présentation Équipe :</span>
+                                      <span className="recap-label">Présentation de l'équipe :</span>
                                       <span className="recap-value">{formik.values.teamPresentation}</span>
                                     </div>
+
+                                    {formik.values.teamMembers && formik.values.teamMembers.length > 0 && (
+                                      <div className="recap-item">
+                                        <span className="recap-label">Membres de l'équipe :</span>
+                                        <div className="recap-value">
+                                          {formik.values.teamMembers.map((member, index) => (
+                                            <div key={index} className="recap-subitem">
+                                              <span>{member.firstName} {member.lastName}</span>
+                                              <span>Email : {member.email}</span>
+                                              <span>Rôle : {member.role}</span>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+
                                     <div className="recap-item">
                                       <span className="recap-label">Expérience entrepreneuriale :</span>
-                                      <span className="recap-value">{formik.values.hasEntrepreneurialExperience ? `Oui - ${formik.values.entrepreneurialExperience}` : 'Non'}</span>
+                                      <span className="recap-value">
+                                        {formik.values.hasEntrepreneurialExperience 
+                                          ? `Oui - ${formik.values.entrepreneurialExperience}` 
+                                          : 'Non'}
+                                      </span>
                                     </div>
+
                                     <div className="recap-item">
                                       <span className="recap-label">Entrepreneur social inspirant :</span>
                                       <span className="recap-value">{formik.values.inspiringEntrepreneur}</span>
                                     </div>
+
                                     <div className="recap-item">
                                       <span className="recap-label">Compétences manquantes :</span>
                                       <span className="recap-value">{formik.values.missingTeamSkills}</span>
                                     </div>
+
                                     <div className="recap-item">
                                       <span className="recap-label">Participants à l'incubation :</span>
                                       <span className="recap-value">{formik.values.incubationParticipants}</span>
                                     </div>
 
                                     <div className="recap-item">
-                                      <span className="recap-label">Place des porteurs de projet :</span>
+                                    <span className="recap-label">Place des porteurs de projet :</span>
                                       {Array.isArray(formik.values.projectMembersRoles) && formik.values.projectMembersRoles.length > 0 ? (
                                         <>
                                           {formik.values.projectMembersRoles.map((member, index) => (
@@ -2927,11 +2994,18 @@ const CandidatureForm = () => {
                                       ) : (
                                         <span className="recap-value">Aucun porteur défini</span>
                                       )}
+                                      <span className="recap-label">Revenus pendant l'incubation :</span>
+                                      <span className="recap-value">{formik.values.incubationPeriodIncome}</span>
+                                    </div>
+
+                                    <div className="recap-item">
+                                      <span className="recap-label">Motivation pour l'incubateur :</span>
+                                      <span className="recap-value">{formik.values.incubatorMotivation}</span>
                                     </div>
                                   </div>
                                 </div>
 
-                                {/* Étape 7 : État d'avancement */}
+                                {/* Section 7: État d'avancement */}
                                 <div className="recap-section">
                                     <h3 className="recap-title">7. État d'avancement du projet</h3>
                                     <div className="recap-content">
@@ -2986,13 +3060,15 @@ const CandidatureForm = () => {
                                     </div>
                                 </div>
 
-                                {/* Étape 8 : Documents justificatifs */}
+                                {/* Section 8: Documents justificatifs */}
                                 <div className="recap-section">
                                   <h3 className="recap-title">8. Documents justificatifs</h3>
                                   <div className="recap-content">
                                     <div className="recap-item">
                                       <span className="recap-label">Document(s) :</span>
-                                      <span className="recap-value">{formik.values.document ? formik.values.document.name : 'Aucun document'}</span>
+                                      <span className="recap-value">
+                                        {formik.values.document ? formik.values.document.name : 'Aucun document'}
+                                      </span>
                                     </div>
                                   </div>
                                 </div>
