@@ -275,7 +275,7 @@ const AdminCandidatureDetail = () => {
           {/* Gestion du statut avec boutons */}
           <div className="admin-actions mt-3 card">
             <div className="card-body">
-              <h5>Modifier le statut de la candidature</h5>
+              <h3>Modifier le statut de la candidature</h3>
               <div className="status-buttons-container">
                 <button 
                   className={getStatusButtonClass('brouillon', candidature.status)}
