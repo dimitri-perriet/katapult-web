@@ -24,7 +24,8 @@ const AdminCandidatureList = () => {
         headers: authService.authHeader(),
         params: filters
       });
-      setCandidatures(response.data.candidatures || []);
+      const candidaturesData = response.data.candidatures || [];
+      setCandidatures(candidaturesData);
       setLoading(false);
     } catch (err) {
       console.error('Erreur lors de la récupération des candidatures:', err);
@@ -188,8 +189,6 @@ const AdminCandidatureList = () => {
                   <th>ID</th>
                   <th>Projet</th>
                   <th>Candidat</th>
-                  <th>Email</th>
-                  <th>Secteur</th>
                   <th>Statut</th>
                   <th>Date de soumission</th>
                   <th>Actions</th>
@@ -201,12 +200,6 @@ const AdminCandidatureList = () => {
                     <td>{candidature.id}</td>
                     <td><strong>{candidature.projectName || 'Sans nom'}</strong></td>
                     <td>{candidature.applicant}</td>
-                    <td>
-                      <a href={`mailto:${candidature.email}`} className="email-link">
-                        {candidature.email}
-                      </a>
-                    </td>
-                    <td>{candidature.sector || 'Non spécifié'}</td>
                     <td>
                       <span className={getStatusBadgeClass(candidature.status)}>
                         {getStatusLabel(candidature.status)}

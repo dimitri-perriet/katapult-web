@@ -19,6 +19,7 @@
 
 .dashboard-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
 }
 
@@ -202,3 +203,18 @@
     text-align: center;
   }
 } 
+
+/* Filtres */
+.filter-section {
+  margin-bottom: 20px;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter-item label {
+  margin-right: 10px;
+}
