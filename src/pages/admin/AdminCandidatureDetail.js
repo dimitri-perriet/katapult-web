@@ -210,7 +210,7 @@ const AdminCandidatureDetail = () => {
     switch (status) {
       case 'brouillon': return '#6c757d'; // secondary
       case 'soumise': return '#0d6efd'; // primary
-      case 'en_evaluation': return '#0dcaf0'; // info
+      case 'en_evaluation': return '#856404'; // info
       case 'acceptee': return '#198754'; // success
       case 'rejetee': return '#dc3545'; // danger
       default: return '#6c757d'; // secondary
