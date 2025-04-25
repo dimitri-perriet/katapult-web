@@ -64,21 +64,23 @@ const getUserById = async (userId) => {
 
 const createUser = async (userData) => {
   try {
-    // Transformer les données du format frontend au format API
+    // Les noms de champs doivent être en camelCase pour correspondre à la validation du backend
     const apiData = {
-      first_name: userData.firstName,
-      last_name: userData.lastName,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
       email: userData.email,
       password: userData.password,
-      role: userData.role,
-      phone: userData.phone,
-      street: userData.street,
-      city: userData.city,
-      postal_code: userData.postalCode,
-      country: userData.country,
-      notification_email: userData.notificationEmail,
-      notification_app: userData.notificationApp
+      role: userData.role
     };
+    
+    // Ajouter uniquement les champs optionnels qui sont définis
+    if (userData.phone) apiData.phone = userData.phone;
+    if (userData.street) apiData.street = userData.street;
+    if (userData.city) apiData.city = userData.city;
+    if (userData.postalCode) apiData.postalCode = userData.postalCode;
+    if (userData.country) apiData.country = userData.country;
+    if (userData.notificationEmail !== undefined) apiData.notificationEmail = userData.notificationEmail;
+    if (userData.notificationApp !== undefined) apiData.notificationApp = userData.notificationApp;
     
     const response = await apiClient.post(USERS_URL, apiData);
     return transformUserData(response.data);
@@ -124,6 +126,11 @@ const deleteUser = async (userId) => {
 // Obtenir tous les rôles disponibles
 const getRoles = async () => {
   try {
+    // Retourner directement les rôles valides sans appeler l'API
+    // Cela évitera l'erreur 404 car la route /users/roles n'existe pas dans le backend
+    return ['candidat', 'evaluateur', 'admin'];
+    
+    /* Ancien code qui causait l'erreur 404
     const response = await apiClient.get(`${USERS_URL}/roles`);
     
     // S'assurer que nous renvoyons un tableau de rôles
@@ -134,9 +141,7 @@ const getRoles = async () => {
         return response.data.roles;
       }
     }
-    
-    // Si aucun format approprié n'est trouvé, renvoyer un tableau par défaut
-    return ['candidat', 'evaluateur', 'admin'];
+    */
   } catch (error) {
     console.error('Erreur dans getRoles:', error);
     // Renvoyer les rôles par défaut en cas d'erreur
