@@ -37,7 +37,6 @@ const AdminCandidatureDetail = () => {
         const response = await candidatureService.getCandidatureById(id);
         
         if (response && response.candidature) {
-          console.log('Données brutes reçues de l\'API:', response.candidature);
           
           // Parser les données JSON si elles sont stockées sous forme de chaînes
           const parsedFicheIdentite = typeof response.candidature.fiche_identite === 'string' 
@@ -121,7 +120,6 @@ const AdminCandidatureDetail = () => {
             structureContext: parsedStructureJuridique?.structureContext || '',
           };
           
-          console.log('Données transformées pour l\'affichage:', flattenedData);
           setCandidature(flattenedData);
         } else {
           setError("La candidature n'a pas pu être chargée. Format de réponse non reconnu.");
