@@ -387,11 +387,29 @@ const CandidatureForm = () => {
 
   // Mettre à jour le pourcentage de complétion à chaque changement d'étape
   useEffect(() => {
-    if (candidature) {
+    if (candidature && !formikRef.current) {
       const percentage = calculateCompletionPercentage(candidature);
+      setProgressPercentage(percentage);
+    } else if (formikRef.current && formikRef.current.values) {
+      const percentage = calculateCompletionPercentage(formikRef.current.values);
       setProgressPercentage(percentage);
     }
   }, [currentStep, candidature]);
+
+  // Mettre à jour le pourcentage de complétion à chaque changement d'étape
+  useEffect(() => {
+    // Seulement si la progression n'est pas déjà définie
+    // Cela évite de remettre à zéro lors du changement d'étape
+    if (progressPercentage === 0) {
+      if (candidature && !formikRef.current) {
+        const percentage = calculateCompletionPercentage(candidature);
+        setProgressPercentage(percentage);
+      } else if (formikRef.current && formikRef.current.values) {
+        const percentage = calculateCompletionPercentage(formikRef.current.values);
+        setProgressPercentage(percentage);
+      }
+    }
+  }, [currentStep, candidature, progressPercentage]);
 
   // Sauvegarder automatiquement en brouillon quand on arrive à l'étape de récapitulatif
   useEffect(() => {
