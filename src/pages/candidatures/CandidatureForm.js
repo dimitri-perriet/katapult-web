@@ -32,8 +32,9 @@ const CandidatureForm = () => {
     { id: 4, name: "Le modèle économique", icon: 'fa-chart-line' },
     { id: 5, name: "La place des parties prenantes", icon: 'fa-handshake' },
     { id: 6, name: "L'équipe projet et parcours d'incubation", icon: 'fa-user-friends' },
-    { id: 7, name: "Documents justificatifs", icon: 'fa-file-upload' },
-    { id: 8, name: "Récapitulatif", icon: 'fa-check-circle' }
+    { id: 7, name: "État d'avancement du projet", icon: 'fa-tasks' },
+    { id: 8, name: "Documents justificatifs", icon: 'fa-file-upload' },
+    { id: 9, name: "Récapitulatif", icon: 'fa-check-circle' }
   ];
 
   // Valeurs initiales regroupant toutes les questions du PDF, mémorisées pour éviter les recréations à chaque rendu
@@ -41,27 +42,41 @@ const CandidatureForm = () => {
     // Étape 1 : Fiche d'identité
     projectName: '',
     sector: '',
+    sectorOther: '', // Ajouté pour le secteur "Autre"
     territory: '',
     interventionZone: '',
-    // Provenance de l'appel à candidatures (checkboxes)
-    referral_boucheOreille: false,
-    referral_facebook: false,
-    referral_linkedin: false,
-    referral_web: false,
-    referral_tiers: false,
-    referral_presse: false,
+    // Provenance (mis à jour selon le formulaire)
+    referral_facebook_adress: false,
+    referral_linkedin_adress: false,
+    referral_instagram_adress: false,
+    referral_web_adress: false,
+    referral_mail_adress: false,
+    referral_salarie_adress: false,
+    referral_medias: false,
+    referral_tiers_hors_adress: false,
+    // Structure juridique (ajout des champs manquants)
+    hasExistingStructure: false,
+    structureName: '',
+    structureSiret: '', // Ajouté
+    structureStatus: '',
+    structureStatusOther: '', // Ajouté
+    structureCreationDate: '',
+    structureContext: '',
+    structureContextOther: '', // Ajouté
+    referenceEmploymentType: '', // Gardé pour compatibilité ? Ou à intégrer dans projectMembersRoles ? Revérifier la logique d'affichage/sauvegarde
+    referenceEmploymentDuration: '', // Gardé pour compatibilité ?
 
     // Étape 2 : Votre projet et son utilité sociale
-    projectGenesis: '',         // "Expliquez la genèse de votre projet (environ 10 lignes)"
-    projectSummary: '',         // "Résumez votre projet (10 lignes maximum)"
-    problemDescription: '',     // "À quel problème social et/ou environnemental souhaitez-vous répondre ? ... (environ 20 lignes)"
+    projectGenesis: '',
+    projectSummary: '',
+    problemDescription: '',
 
     // Étape 3 : Qui est concerné ?
-    beneficiaries: '',          // "Qui seront les bénéficiaires de votre projet ?"
-    clients: '',                // "Qui seront les clients (s'ils sont différents des bénéficiaires) ?"
-    clientsQuantification: '',  // "Pouvez-vous les quantifier, définir le périmètre géographique touché… ?"
-    proposedSolution: '',       // "Quelle solution souhaitez-vous proposer ? Quelle sera votre offre ?"
-    projectDifferentiation: '', // "En quoi votre projet est-il différent et/ou complémentaire des solutions existantes ?"
+    beneficiaries: '',
+    clients: '',
+    // clientsQuantification: '', // Semble intégré dans beneficiaries/clients, supprimé pour éviter confusion
+    proposedSolution: '',
+    projectDifferentiation: '',
     indicator1: '',
     indicator2: '',
     indicator3: '',
@@ -69,46 +84,79 @@ const CandidatureForm = () => {
     indicator5: '',
 
     // Étape 4 : Le modèle économique
-    revenueSources: '',         // "Quelles sont les sources de revenus envisagées pour votre projet ? ... "
-    employmentCreation: '',     // "Combien d'emplois pensez-vous créer sur les premières années d'activités ? ..."
-    economicViability: '',      // "À ce stade, quels sont les éléments vous permettant d'affirmer la viabilité économique du projet ?"
-    diversification: '',        // "Quels pourraient être les projets de diversification et de développement économique ..."
+    revenueSources: '',
+    employmentCreation: '',
+    // economicViability: '', // Remplacé par les 5 éléments
+    viabilityElement1: '', // Ajouté
+    viabilityElement2: '', // Ajouté
+    viabilityElement3: '', // Ajouté
+    viabilityElement4: '', // Ajouté
+    viabilityElement5: '', // Ajouté
+    diversification: '',
 
     // Étape 5 : La place des parties prenantes
-    existingPartnerships: '',   // "Avez-vous déjà établi des contacts ou partenariats pour contribuer au projet ? Si oui, de quelle manière ?"
-    desiredPartnerships: '',    // "Quels autres contacts ou partenariats recherchez-vous aujourd'hui ?"
-    stakeholderRole: '',        // "Quel rôle voudriez-vous que jouent ces différents acteurs dans le projet à terme ?"
+    existingPartnerships: '',
+    desiredPartnerships: '',
+    stakeholderRole: '',
 
     // Étape 6 : L'équipe projet et parcours d'incubation
-    // Personne référente
+    // Personne référente (gardé pour l'instant, voir si pertinent vs projectMembersRoles)
     referenceLastName: '',
     referenceFirstName: '',
     referenceDOB: '',
     referenceAddress: '',
     referenceEmail: '',
     referenceTelephone: '',
-    // Autres personnes impliquées dans le projet
+    // Anciens teamMembers (gardé pour l'instant)
     teamMembers: [],
-    // Structure juridique existante
-    hasExistingStructure: false,
-    structureName: '',
-    structureStatus: '',        // Options : Association, Coopérative, Société commerciale de l'ESS, Société commerciale hors ESS, Autre
-    structureCreationDate: '',
-    structureContext: '',       // "Dans quel cadre la structure candidate-t-elle à l'incubateur ?" (ex: Développement d'une nouvelle activité, Implantation en Normandie, Autre)
-    // Statut de la personne référente dans la structure
-    referenceEmploymentType: '', // "La personne référente pour le projet est-elle salariée par la structure ou bénévole ?"
-    referenceEmploymentDuration: '', // "Depuis combien de temps ?"
-    // Expérience entrepreneuriale et complément
+    // Nouveaux champs Étape 6
+    teamPresentation: '',
+    hasEntrepreneurialExperience: false, // Note: utilisé comme booléen
     entrepreneurialExperience: '',
     inspiringEntrepreneur: '',
     missingTeamSkills: '',
     incubationParticipants: '',
-    projectRoleLongTerm: '',
+    projectMembersRoles: [{ // S'assurer que c'est bien initialisé comme tableau
+      name: '',
+      shortTerm: { type: '', details: '' },
+      mediumTerm: { type: '', details: '' },
+      longTerm: { type: '', details: '' }
+    }],
+    currentProfessionalSituation: '',
+    incubationPeriodIncome: '',
+    weeklyTimeCommitment: '',
+    incubatorMotivation: '',
+    contributionToIncubator: '',
 
-    // Étape 7 : Documents justificatifs
-    document: null,
+    // Étape 7 : État d'avancement du projet
+    otherSupport: '',
+    diagnostic: { status: '', details: '' },
+    collectif: { status: '', details: '' },
+    experimentation: { status: '', details: '' },
+    etudeMarche: { status: '', details: '' },
+    offre: { status: '', details: '' },
+    chiffrage: { status: '', details: '' },
+    firstRisk: '',
+    swot: {
+      strengths: '',
+      weaknesses: '',
+      opportunities: '',
+      threats: ''
+    },
+    weaknessesAndThreatsStrategy: '',
+    creationTimeline: '',
+    readyToTravel: '', // Devrait être un booléen ou 'oui'/'non'? Actuellement string via radio
+    readyToCommunicate: '', // Devrait être un booléen ou 'oui'/'non'? Actuellement string via radio
+    readyToCommit: '', // Devrait être un booléen ou 'oui'/'non'? Actuellement string via radio
 
-    // (D'autres champs pourraient être ajoutés pour la suite du parcours si besoin)
+    // Étape 8 : Documents justificatifs
+    document: null, // Pour le fichier unique
+    // financialProjections: null, // Supprimé, non présent dans le formulaire
+    // additionalDocuments: [], // Supprimé, non présent dans le formulaire
+
+    // Autres champs potentiels (non visibles dans le form actuel mais peut-être utiles ?)
+    user: null, // Gardé pour lier à l'utilisateur
+    status: 'brouillon', // Statut initial
   }), []); // Tableau de dépendances vide signifie que cette valeur ne changera jamais
 
   // Schémas de validation par étape
@@ -117,6 +165,35 @@ const CandidatureForm = () => {
     sector: Yup.string().required('Ce champ est requis'),
     territory: Yup.string().required('Ce champ est requis'),
     interventionZone: Yup.string().required('Ce champ est requis'),
+    // Validation pour les champs de structure si hasExistingStructure est vrai
+    hasExistingStructure: Yup.boolean().required('Veuillez indiquer si la structure existe'),
+    structureName: Yup.string().when('hasExistingStructure', {
+      is: true, then: (schema) => schema.required('Le nom de la structure est requis'), otherwise: (schema) => schema.notRequired()
+    }),
+    structureSiret: Yup.string().when('hasExistingStructure', {
+      is: true, then: (schema) => schema.required('Le SIRET est requis').matches(/^[0-9]{14}$/, 'Le SIRET doit contenir 14 chiffres'), otherwise: (schema) => schema.notRequired()
+    }),
+    structureStatus: Yup.string().when('hasExistingStructure', {
+      is: true, then: (schema) => schema.required('Le statut juridique est requis'), otherwise: (schema) => schema.notRequired()
+    }),
+    structureStatusOther: Yup.string().when('structureStatus', {
+      is: 'autre', then: (schema) => schema.required('Veuillez préciser le statut'), otherwise: (schema) => schema.notRequired()
+    }),
+    structureCreationDate: Yup.string().when('hasExistingStructure', {
+      is: true, then: (schema) => schema.required('La date de création est requise'), otherwise: (schema) => schema.notRequired()
+    }),
+    structureContext: Yup.string().when('hasExistingStructure', {
+      is: true, then: (schema) => schema.required('Le contexte est requis'), otherwise: (schema) => schema.notRequired()
+    }),
+    structureContextOther: Yup.string().when('structureContext', {
+      is: 'autre', then: (schema) => schema.required('Veuillez préciser le contexte'), otherwise: (schema) => schema.notRequired()
+    }),
+    referenceEmploymentType: Yup.string().when('hasExistingStructure', {
+      is: true, then: (schema) => schema.required('Le type d\'emploi est requis'), otherwise: (schema) => schema.notRequired()
+    }),
+    referenceEmploymentDuration: Yup.string().when('hasExistingStructure', {
+      is: true, then: (schema) => schema.required('La durée est requise'), otherwise: (schema) => schema.notRequired()
+    }),
   });
 
   const step2ValidationSchema = Yup.object({
@@ -141,7 +218,12 @@ const CandidatureForm = () => {
   const step4ValidationSchema = Yup.object({
     revenueSources: Yup.string().required('Ce champ est requis'),
     employmentCreation: Yup.string().required('Ce champ est requis'),
-    economicViability: Yup.string().required('Ce champ est requis'),
+    // Remplacer la validation de economicViability par les 5 éléments
+    viabilityElement1: Yup.string().required('Élément 1 requis'),
+    viabilityElement2: Yup.string().notRequired(), // Les autres sont optionnels mais recommandés
+    viabilityElement3: Yup.string().notRequired(),
+    viabilityElement4: Yup.string().notRequired(),
+    viabilityElement5: Yup.string().notRequired(),
     diversification: Yup.string().required('Ce champ est requis'),
   });
 
@@ -152,25 +234,83 @@ const CandidatureForm = () => {
   });
 
   const step6ValidationSchema = Yup.object({
+    // Ajout validation personne référente
     referenceLastName: Yup.string().required('Ce champ est requis'),
     referenceFirstName: Yup.string().required('Ce champ est requis'),
-    referenceDOB: Yup.string().required('Ce champ est requis'),
+    referenceDOB: Yup.string().required('Ce champ est requis'), // Changé en string, la validation de date peut être complexe
     referenceAddress: Yup.string().required('Ce champ est requis'),
     referenceEmail: Yup.string().email('Email invalide').required('Ce champ est requis'),
     referenceTelephone: Yup.string().required('Ce champ est requis'),
-    // Pour les membres de l'équipe (s'ils sont ajoutés)
+    // Ajout validation autres membres
     teamMembers: Yup.array().of(
       Yup.object().shape({
-        lastName: Yup.string().required('Ce champ est requis'),
-        firstName: Yup.string().required('Ce champ est requis'),
-        email: Yup.string().email('Email invalide').required('Ce champ est requis'),
-        telephone: Yup.string().required('Ce champ est requis'),
+        lastName: Yup.string().required('Nom requis'),
+        firstName: Yup.string().required('Prénom requis'),
+        email: Yup.string().email('Email invalide').required('Email requis'),
+        telephone: Yup.string().required('Téléphone requis'),
       })
-    )
+    ),
+    // Validation existante pour les autres champs de l'étape 6
+    teamPresentation: Yup.string().required("Veuillez présenter l'équipe."),
+    hasEntrepreneurialExperience: Yup.boolean().required('Veuillez indiquer si vous avez une expérience entrepreneuriale.'),
+    entrepreneurialExperience: Yup.string().when('hasEntrepreneurialExperience', {
+      is: true,
+      then: (schema) => schema.required('Veuillez préciser votre expérience.'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    inspiringEntrepreneur: Yup.string().required('Ce champ est requis.'),
+    missingTeamSkills: Yup.string().required('Ce champ est requis.'),
+    incubationParticipants: Yup.string().required('Ce champ est requis.'),
+    projectMembersRoles: Yup.array().of(
+      Yup.object().shape({
+        name: Yup.string().required('Nom et prénom requis'),
+        shortTerm: Yup.object().shape({
+          type: Yup.string().required('Type requis'),
+          details: Yup.string().required('Détails requis'),
+        }),
+        mediumTerm: Yup.object().shape({
+          type: Yup.string().required('Type requis'),
+          details: Yup.string().required('Détails requis'),
+        }),
+        longTerm: Yup.object().shape({
+          type: Yup.string().required('Type requis'),
+          details: Yup.string().required('Détails requis'),
+        }),
+      })
+    ).min(1, 'Veuillez ajouter au moins un porteur de projet.').typeError('Veuillez ajouter au moins un porteur de projet.'),
+    currentProfessionalSituation: Yup.string().required('Ce champ est requis.'),
+    incubationPeriodIncome: Yup.string().required('Ce champ est requis.'),
+    weeklyTimeCommitment: Yup.string().required('Ce champ est requis.'),
+    incubatorMotivation: Yup.string().required('Ce champ est requis.'),
+    contributionToIncubator: Yup.string().required('Ce champ est requis.'),
   });
 
-  // Pour l'étape 7 (Documents justificatifs) : aucun champ requis dans cet exemple
-  const step7ValidationSchema = Yup.object({});
+  const step7ValidationSchema = Yup.object({
+    otherSupport: Yup.string().notRequired(),
+    diagnostic: Yup.object().shape({ status: Yup.string().required('Veuillez sélectionner une option') }),
+    collectif: Yup.object().shape({ status: Yup.string().required('Veuillez sélectionner une option') }),
+    experimentation: Yup.object().shape({ status: Yup.string().required('Veuillez sélectionner une option') }),
+    etudeMarche: Yup.object().shape({ status: Yup.string().required('Veuillez sélectionner une option') }),
+    offre: Yup.object().shape({ status: Yup.string().required('Veuillez sélectionner une option') }),
+    chiffrage: Yup.object().shape({ status: Yup.string().required('Veuillez sélectionner une option') }),
+    firstRisk: Yup.string().required('Ce champ est requis.'),
+    swot: Yup.object().shape({
+      strengths: Yup.string().required('Forces requises'),
+      weaknesses: Yup.string().required('Faiblesses requises'),
+      opportunities: Yup.string().required('Opportunités requises'),
+      threats: Yup.string().required('Menaces requises'),
+    }),
+    weaknessesAndThreatsStrategy: Yup.string().required('Ce champ est requis.'),
+    creationTimeline: Yup.string().required('Ce champ est requis.'),
+    readyToTravel: Yup.string().required('Veuillez sélectionner une option'),
+    readyToCommunicate: Yup.string().required('Veuillez sélectionner une option'),
+    readyToCommit: Yup.string().required('Veuillez sélectionner une option'),
+  });
+
+  const step8ValidationSchema = Yup.object({
+    // Validation pour l'étape 8 (Documents justificatifs)
+    // Ajustez selon vos besoins si le document est requis ou non
+  });
 
   const getValidationSchema = () => {
     switch (currentStep) {
@@ -188,6 +328,8 @@ const CandidatureForm = () => {
         return step6ValidationSchema;
       case 7:
         return step7ValidationSchema;
+      case 8:
+        return step8ValidationSchema; // Ajout du schéma pour l'étape 8
       default:
         return Yup.object({});
     }
@@ -287,9 +429,22 @@ const CandidatureForm = () => {
               // Structure juridique
               hasExistingStructure: parsedStructureJuridique?.hasExistingStructure || false,
               structureName: parsedStructureJuridique?.structureName || '',
+              structureSiret: parsedStructureJuridique?.structureSiret || '', // Ajouté
               structureStatus: parsedStructureJuridique?.structureStatus || '',
-              structureCreationDate: parsedStructureJuridique?.structureCreationDate || '',
+              structureStatusOther: parsedStructureJuridique?.structureStatusOther || '', // Ajouté
+              structureCreationDate: parsedStructureJuridique?.structureCreationDate ? parsedStructureJuridique.structureCreationDate.substring(0, 10) : '', // Formatage date
               structureContext: parsedStructureJuridique?.structureContext || '',
+              structureContextOther: parsedStructureJuridique?.structureContextOther || '', // Ajouté
+              
+              // Référents (migration depuis l'ancien format si présent)
+              referral_facebook_adress: parsedFicheIdentite?.referral_facebook_adress ?? parsedFicheIdentite?.referral_facebook ?? false,
+              referral_linkedin_adress: parsedFicheIdentite?.referral_linkedin_adress ?? parsedFicheIdentite?.referral_linkedin ?? false,
+              referral_instagram_adress: parsedFicheIdentite?.referral_instagram_adress ?? false,
+              referral_web_adress: parsedFicheIdentite?.referral_web_adress ?? parsedFicheIdentite?.referral_web ?? false,
+              referral_mail_adress: parsedFicheIdentite?.referral_mail_adress ?? false,
+              referral_salarie_adress: parsedFicheIdentite?.referral_salarie_adress ?? false,
+              referral_medias: parsedFicheIdentite?.referral_medias ?? parsedFicheIdentite?.referral_presse ?? false,
+              referral_tiers_hors_adress: parsedFicheIdentite?.referral_tiers_hors_adress ?? parsedFicheIdentite?.referral_tiers ?? false,
             };
             
             console.log('Données transformées pour le formulaire:', flattenedData);
@@ -319,6 +474,14 @@ const CandidatureForm = () => {
         } catch (err) {
           console.error('Erreur lors de la récupération de la candidature:', err);
           setError("Erreur lors de la récupération de la candidature.");
+          // En cas d'erreur 404 ou autre, initialiser avec les valeurs par défaut
+          if (err.response && err.response.status === 404) {
+            console.log("Candidature non trouvée, initialisation d'un nouveau formulaire.");
+            setCandidature({ ...initialValues, user: currentUser._id });
+          } else {
+            // Autre type d'erreur, afficher le message
+            setError("Erreur lors de la récupération des données.");
+          }
         } finally {
           setLoading(false);
         }
@@ -335,7 +498,17 @@ const CandidatureForm = () => {
     if (!data) return 0;
     
     // Nombre total de champs requis
-    const totalRequiredFields = 30; // ajustez ce nombre selon vos besoins réels
+    const totalRequiredFields = 50; // Mettre à jour ce nombre total! Recompter précisément tous les champs requis.
+                                   // Step 1: 4 base + 1 hasStruct + (7 si hasStruct=true) = 5 à 12
+                                   // Step 2: 3
+                                   // Step 3: 5 + 5 indicateurs = 10
+                                   // Step 4: 3 + 1 viab + 1 div = 5
+                                   // Step 5: 3
+                                   // Step 6: 1 teamPres + 1 hasExp + (1 si hasExp=true) + 1 inspiring + 1 missing + 1 participants + 1 projectMembers + 1 currentProf + 1 income + 1 time + 1 motiv + 1 contrib = 11 à 12
+                                   // Step 7: 6 status + 1 firstRisk + 1 swot + 1 strategy + 1 timeline + 3 ready = 14
+                                   // Total Min = 5+3+10+5+3+11+14 = 51
+                                   // Total Max = 12+3+10+5+3+12+14 = 59
+                                   // Utilisons une moyenne ou un nombre fixe raisonnable. 55 ?
     
     // Compter les champs remplis
     let filledFields = 0;
@@ -345,6 +518,17 @@ const CandidatureForm = () => {
     if (data.sector) filledFields++;
     if (data.territory) filledFields++;
     if (data.interventionZone) filledFields++;
+    // Structure (si requise)
+    if (typeof data.hasExistingStructure === 'boolean') filledFields++; // Check if defined
+    if (data.hasExistingStructure) {
+      if (data.structureName) filledFields++;
+      if (data.structureSiret) filledFields++;
+      if (data.structureStatus) filledFields++;
+      if (data.structureCreationDate) filledFields++;
+      if (data.structureContext) filledFields++;
+      if (data.referenceEmploymentType) filledFields++;
+      if (data.referenceEmploymentDuration) filledFields++;
+    }
     
     // Étape 2
     if (data.projectGenesis) filledFields++;
@@ -354,7 +538,6 @@ const CandidatureForm = () => {
     // Étape 3
     if (data.beneficiaries) filledFields++;
     if (data.clients) filledFields++;
-    if (data.clientsQuantification) filledFields++;
     if (data.proposedSolution) filledFields++;
     if (data.projectDifferentiation) filledFields++;
     if (data.indicator1) filledFields++;
@@ -366,7 +549,7 @@ const CandidatureForm = () => {
     // Étape 4
     if (data.revenueSources) filledFields++;
     if (data.employmentCreation) filledFields++;
-    if (data.economicViability) filledFields++;
+    if (data.viabilityElement1) filledFields++; // Au moins le premier est requis
     if (data.diversification) filledFields++;
     
     // Étape 5
@@ -381,6 +564,41 @@ const CandidatureForm = () => {
     if (data.referenceAddress) filledFields++;
     if (data.referenceEmail) filledFields++;
     if (data.referenceTelephone) filledFields++;
+    if (data.teamPresentation) filledFields++;
+    if (typeof data.hasEntrepreneurialExperience === 'boolean') filledFields++; // Vérifie si défini
+    if (data.hasEntrepreneurialExperience && data.entrepreneurialExperience) filledFields++; // Compte seulement si oui et rempli
+    if (data.inspiringEntrepreneur) filledFields++;
+    if (data.missingTeamSkills) filledFields++;
+    if (data.incubationParticipants) filledFields++;
+    if (Array.isArray(data.projectMembersRoles) && data.projectMembersRoles.length > 0) {
+       // Check if at least one member has minimal info (name and one type)
+       const hasValidMember = data.projectMembersRoles.some(m => m.name && (m.shortTerm?.type || m.mediumTerm?.type || m.longTerm?.type));
+       if (hasValidMember) filledFields++;
+    }
+    if (data.currentProfessionalSituation) filledFields++;
+    if (data.incubationPeriodIncome) filledFields++;
+    if (data.weeklyTimeCommitment) filledFields++;
+    if (data.incubatorMotivation) filledFields++;
+    if (data.contributionToIncubator) filledFields++;
+    
+    // Étape 7
+    // Ajouter ici les vérifications pour les champs de l'étape 7
+    if (data.diagnostic?.status) filledFields++;
+    if (data.collectif?.status) filledFields++;
+    if (data.experimentation?.status) filledFields++;
+    if (data.etudeMarche?.status) filledFields++;
+    if (data.offre?.status) filledFields++;
+    if (data.chiffrage?.status) filledFields++;
+    if (data.firstRisk) filledFields++;
+    if (data.swot?.strengths && data.swot?.weaknesses && data.swot?.opportunities && data.swot?.threats) filledFields++;
+    if (data.weaknessesAndThreatsStrategy) filledFields++;
+    if (data.creationTimeline) filledFields++;
+    if (data.readyToTravel) filledFields++;
+    if (data.readyToCommunicate) filledFields++;
+    if (data.readyToCommit) filledFields++;
+    
+    // Étape 8 (si des champs y sont requis)
+    // if (data.document) filledFields++;
     
     return Math.round((filledFields / totalRequiredFields) * 100);
   };
@@ -413,7 +631,7 @@ const CandidatureForm = () => {
 
   // Sauvegarder automatiquement en brouillon quand on arrive à l'étape de récapitulatif
   useEffect(() => {
-    if (currentStep === 8 && candidature && !loading) {
+    if (currentStep === 9 && candidature && !loading) { // Changé 8 à 9
       const autoSaveDraft = async () => {
         try {
           // Vérifier si la candidature est complète et a été soumise
@@ -473,7 +691,11 @@ const CandidatureForm = () => {
             modele_economique: {
               revenueSources: formValues.revenueSources || '',
               employmentCreation: formValues.employmentCreation || '',
-              economicViability: formValues.economicViability || '',
+              viabilityElement1: formValues.viabilityElement1 || '',
+              viabilityElement2: formValues.viabilityElement2 || '',
+              viabilityElement3: formValues.viabilityElement3 || '',
+              viabilityElement4: formValues.viabilityElement4 || '',
+              viabilityElement5: formValues.viabilityElement5 || '',
               diversification: formValues.diversification || '',
             },
             
@@ -486,6 +708,18 @@ const CandidatureForm = () => {
             
             // Équipe projet
             equipe_projet: {
+              teamPresentation: formValues.teamPresentation || '',
+              hasEntrepreneurialExperience: !!formValues.hasEntrepreneurialExperience,
+              entrepreneurialExperience: formValues.entrepreneurialExperience || '',
+              inspiringEntrepreneur: formValues.inspiringEntrepreneur || '',
+              missingTeamSkills: formValues.missingTeamSkills || '',
+              incubationParticipants: formValues.incubationParticipants || '',
+              projectMembersRoles: Array.isArray(formValues.projectMembersRoles) ? formValues.projectMembersRoles : [],
+              currentProfessionalSituation: formValues.currentProfessionalSituation || '',
+              incubationPeriodIncome: formValues.incubationPeriodIncome || '',
+              weeklyTimeCommitment: formValues.weeklyTimeCommitment || '',
+              incubatorMotivation: formValues.incubatorMotivation || '',
+              contributionToIncubator: formValues.contributionToIncubator || '',
               reference: {
                 lastName: formValues.referenceLastName || '',
                 firstName: formValues.referenceFirstName || '',
@@ -496,24 +730,62 @@ const CandidatureForm = () => {
                 employmentType: formValues.referenceEmploymentType || '',
                 employmentDuration: formValues.referenceEmploymentDuration || '',
               },
-              members: Array.isArray(formValues.teamMembers) ? formValues.teamMembers : [],
-              entrepreneurialExperience: formValues.entrepreneurialExperience || '',
-              inspiringEntrepreneur: formValues.inspiringEntrepreneur || '',
-              missingTeamSkills: formValues.missingTeamSkills || '',
-              incubationParticipants: formValues.incubationParticipants || '',
-              projectRoleLongTerm: formValues.projectRoleLongTerm || '',
+              teamMembers: Array.isArray(formValues.teamMembers) ? formValues.teamMembers : [],
+            },
+            
+            // État d'avancement du projet
+            etat_avancement: {
+              otherSupport: formValues.otherSupport || '',
+              diagnostic: formValues.diagnostic || { status: '', details: '' },
+              collectif: formValues.collectif || { status: '', details: '' },
+              experimentation: formValues.experimentation || { status: '', details: '' },
+              etudeMarche: formValues.etudeMarche || { status: '', details: '' },
+              offre: formValues.offre || { status: '', details: '' },
+              chiffrage: formValues.chiffrage || { status: '', details: '' },
+              firstRisk: formValues.firstRisk || '',
+              swot: formValues.swot || {
+                strengths: '',
+                weaknesses: '',
+                opportunities: '',
+                threats: ''
+              },
+              weaknessesAndThreatsStrategy: formValues.weaknessesAndThreatsStrategy || '',
+              creationTimeline: formValues.creationTimeline || '',
+              readyToTravel: formValues.readyToTravel || '',
+              readyToCommunicate: formValues.readyToCommunicate || '',
+              readyToCommit: formValues.readyToCommit || '',
+            },
+            
+            // Documents justificatifs
+            documents: {
+              businessPlan: formValues.document || null,
+              financialProjections: formValues.financialProjections || null,
+              additionalDocuments: Array.isArray(formValues.additionalDocuments) ? formValues.additionalDocuments : [],
             },
             
             // Structure juridique
             structure_juridique: {
               hasExistingStructure: !!formValues.hasExistingStructure,
               structureName: formValues.structureName || '',
+              structureSiret: formValues.structureSiret || '', // Ajouté
               structureStatus: formValues.structureStatus || '',
+              structureStatusOther: formValues.structureStatusOther || '', // Ajouté
               structureCreationDate: formValues.structureCreationDate || '',
               structureContext: formValues.structureContext || '',
+              structureContextOther: formValues.structureContextOther || '', // Ajouté
+              // Ajout des champs liés à la personne référente SI structure existe
+              referenceEmploymentType: formValues.referenceEmploymentType || '',
+              referenceEmploymentDuration: formValues.referenceEmploymentDuration || '',
             },
             
-            // Conserver les champs supplémentaires qui pourraient être nécessaires
+            // Métadonnées
+            metadata: {
+              lastSaved: new Date().toISOString(),
+              completionPercentage: calculateCompletionPercentage(formValues),
+              currentStep: currentStep,
+            },
+            
+            // ID utilisateur
             user_id: formValues.user || formValues.user_id
           };
           
@@ -542,11 +814,12 @@ const CandidatureForm = () => {
               setId(candidatureId);
               setIsEditMode(true);
               
-              // Afficher un message de succès
-              setSuccessMessage('Votre candidature a été automatiquement sauvegardée en brouillon.');
-              setTimeout(() => {
-                setSuccessMessage('');
-              }, 5000);
+              // Afficher un message de succès doux
+              setSuccessMessage('Brouillon sauvegardé automatiquement.');
+              // Ne pas faire disparaître ce message, car c'est une info utile
+              // setTimeout(() => {
+              //  setSuccessMessage('');
+              // }, 5000);
             } else {
               console.warn('Impossible de déterminer l\'ID de la candidature à partir de la réponse:', response);
             }
@@ -569,8 +842,8 @@ const CandidatureForm = () => {
   const nextStep = () => {
     if (currentStep < steps.length) {
       // Empêcher toute tentative de soumission si on n'est pas à la dernière étape
-      if (currentStep === steps.length - 1) {
-        // Si on passe de l'étape 7 à 8, simplement changer d'étape sans soumettre
+      if (currentStep === steps.length - 1) { // Étape 8 -> 9
+        // Si on passe de l'étape 8 à 9, simplement changer d'étape sans soumettre
         console.log('Passage à l\'étape de récapitulatif');
       }
       
@@ -641,7 +914,11 @@ const CandidatureForm = () => {
         modele_economique: {
           revenueSources: values.revenueSources || '',
           employmentCreation: values.employmentCreation || '',
-          economicViability: values.economicViability || '',
+          viabilityElement1: values.viabilityElement1 || '',
+          viabilityElement2: values.viabilityElement2 || '',
+          viabilityElement3: values.viabilityElement3 || '',
+          viabilityElement4: values.viabilityElement4 || '',
+          viabilityElement5: values.viabilityElement5 || '',
           diversification: values.diversification || '',
         },
         
@@ -654,6 +931,18 @@ const CandidatureForm = () => {
         
         // Équipe projet
         equipe_projet: {
+          teamPresentation: values.teamPresentation || '',
+          hasEntrepreneurialExperience: !!values.hasEntrepreneurialExperience,
+          entrepreneurialExperience: values.entrepreneurialExperience || '',
+          inspiringEntrepreneur: values.inspiringEntrepreneur || '',
+          missingTeamSkills: values.missingTeamSkills || '',
+          incubationParticipants: values.incubationParticipants || '',
+          projectMembersRoles: Array.isArray(values.projectMembersRoles) ? values.projectMembersRoles : [],
+          currentProfessionalSituation: values.currentProfessionalSituation || '',
+          incubationPeriodIncome: values.incubationPeriodIncome || '',
+          weeklyTimeCommitment: values.weeklyTimeCommitment || '',
+          incubatorMotivation: values.incubatorMotivation || '',
+          contributionToIncubator: values.contributionToIncubator || '',
           reference: {
             lastName: values.referenceLastName || '',
             firstName: values.referenceFirstName || '',
@@ -664,24 +953,62 @@ const CandidatureForm = () => {
             employmentType: values.referenceEmploymentType || '',
             employmentDuration: values.referenceEmploymentDuration || '',
           },
-          members: Array.isArray(values.teamMembers) ? values.teamMembers : [],
-          entrepreneurialExperience: values.entrepreneurialExperience || '',
-          inspiringEntrepreneur: values.inspiringEntrepreneur || '',
-          missingTeamSkills: values.missingTeamSkills || '',
-          incubationParticipants: values.incubationParticipants || '',
-          projectRoleLongTerm: values.projectRoleLongTerm || '',
+          teamMembers: Array.isArray(values.teamMembers) ? values.teamMembers : [],
+        },
+        
+        // État d'avancement du projet
+        etat_avancement: {
+          otherSupport: values.otherSupport || '',
+          diagnostic: values.diagnostic || { status: '', details: '' },
+          collectif: values.collectif || { status: '', details: '' },
+          experimentation: values.experimentation || { status: '', details: '' },
+          etudeMarche: values.etudeMarche || { status: '', details: '' },
+          offre: values.offre || { status: '', details: '' },
+          chiffrage: values.chiffrage || { status: '', details: '' },
+          firstRisk: values.firstRisk || '',
+          swot: values.swot || {
+            strengths: '',
+            weaknesses: '',
+            opportunities: '',
+            threats: ''
+          },
+          weaknessesAndThreatsStrategy: values.weaknessesAndThreatsStrategy || '',
+          creationTimeline: values.creationTimeline || '',
+          readyToTravel: values.readyToTravel || '',
+          readyToCommunicate: values.readyToCommunicate || '',
+          readyToCommit: values.readyToCommit || '',
+        },
+        
+        // Documents justificatifs
+        documents: {
+          businessPlan: values.document || null,
+          financialProjections: values.financialProjections || null,
+          additionalDocuments: Array.isArray(values.additionalDocuments) ? values.additionalDocuments : [],
         },
         
         // Structure juridique
         structure_juridique: {
           hasExistingStructure: !!values.hasExistingStructure,
           structureName: values.structureName || '',
+          structureSiret: values.structureSiret || '', // Ajouté
           structureStatus: values.structureStatus || '',
+          structureStatusOther: values.structureStatusOther || '', // Ajouté
           structureCreationDate: values.structureCreationDate || '',
           structureContext: values.structureContext || '',
+          structureContextOther: values.structureContextOther || '', // Ajouté
+          // Ajout des champs liés à la personne référente SI structure existe
+          referenceEmploymentType: values.referenceEmploymentType || '',
+          referenceEmploymentDuration: values.referenceEmploymentDuration || '',
         },
         
-        // Conserver les champs supplémentaires qui pourraient être nécessaires
+        // Métadonnées
+        metadata: {
+          lastSaved: new Date().toISOString(),
+          completionPercentage: calculateCompletionPercentage(values),
+          currentStep: currentStep,
+        },
+        
+        // ID utilisateur
         user_id: values.user || values.user_id
       };
       
@@ -741,9 +1068,9 @@ const CandidatureForm = () => {
 
   const submitCandidature = async (values) => {
     try {
-      // Étape 1: Vérifier que nous sommes bien à l'étape du récapitulatif (étape 8)
-      if (currentStep !== 8) {
-        setCurrentStep(8); // Rediriger vers le récapitulatif si ce n'est pas déjà le cas
+      // Étape 1: Vérifier que nous sommes bien à l'étape du récapitulatif (étape 9)
+      if (currentStep !== 9) { // Changé 8 à 9
+        setCurrentStep(9); // Rediriger vers le récapitulatif si ce n'est pas déjà le cas
         return; // On sort immédiatement pour éviter d'afficher l'alerte de confirmation
       }
 
@@ -794,7 +1121,11 @@ const CandidatureForm = () => {
           modele_economique: {
             revenueSources: values.revenueSources || '',
             employmentCreation: values.employmentCreation || '',
-            economicViability: values.economicViability || '',
+            viabilityElement1: values.viabilityElement1 || '',
+            viabilityElement2: values.viabilityElement2 || '',
+            viabilityElement3: values.viabilityElement3 || '',
+            viabilityElement4: values.viabilityElement4 || '',
+            viabilityElement5: values.viabilityElement5 || '',
             diversification: values.diversification || '',
           },
           
@@ -807,6 +1138,18 @@ const CandidatureForm = () => {
           
           // Équipe projet
           equipe_projet: {
+            teamPresentation: values.teamPresentation || '',
+            hasEntrepreneurialExperience: !!values.hasEntrepreneurialExperience,
+            entrepreneurialExperience: values.entrepreneurialExperience || '',
+            inspiringEntrepreneur: values.inspiringEntrepreneur || '',
+            missingTeamSkills: values.missingTeamSkills || '',
+            incubationParticipants: values.incubationParticipants || '',
+            projectMembersRoles: Array.isArray(values.projectMembersRoles) ? values.projectMembersRoles : [],
+            currentProfessionalSituation: values.currentProfessionalSituation || '',
+            incubationPeriodIncome: values.incubationPeriodIncome || '',
+            weeklyTimeCommitment: values.weeklyTimeCommitment || '',
+            incubatorMotivation: values.incubatorMotivation || '',
+            contributionToIncubator: values.contributionToIncubator || '',
             reference: {
               lastName: values.referenceLastName || '',
               firstName: values.referenceFirstName || '',
@@ -817,24 +1160,62 @@ const CandidatureForm = () => {
               employmentType: values.referenceEmploymentType || '',
               employmentDuration: values.referenceEmploymentDuration || '',
             },
-            members: Array.isArray(values.teamMembers) ? values.teamMembers : [],
-            entrepreneurialExperience: values.entrepreneurialExperience || '',
-            inspiringEntrepreneur: values.inspiringEntrepreneur || '',
-            missingTeamSkills: values.missingTeamSkills || '',
-            incubationParticipants: values.incubationParticipants || '',
-            projectRoleLongTerm: values.projectRoleLongTerm || '',
+            teamMembers: Array.isArray(values.teamMembers) ? values.teamMembers : [],
+          },
+          
+          // État d'avancement du projet
+          etat_avancement: {
+            otherSupport: values.otherSupport || '',
+            diagnostic: values.diagnostic || { status: '', details: '' },
+            collectif: values.collectif || { status: '', details: '' },
+            experimentation: values.experimentation || { status: '', details: '' },
+            etudeMarche: values.etudeMarche || { status: '', details: '' },
+            offre: values.offre || { status: '', details: '' },
+            chiffrage: values.chiffrage || { status: '', details: '' },
+            firstRisk: values.firstRisk || '',
+            swot: values.swot || {
+              strengths: '',
+              weaknesses: '',
+              opportunities: '',
+              threats: ''
+            },
+            weaknessesAndThreatsStrategy: values.weaknessesAndThreatsStrategy || '',
+            creationTimeline: values.creationTimeline || '',
+            readyToTravel: values.readyToTravel || '',
+            readyToCommunicate: values.readyToCommunicate || '',
+            readyToCommit: values.readyToCommit || '',
+          },
+          
+          // Documents justificatifs
+          documents: {
+            businessPlan: values.document || null,
+            financialProjections: values.financialProjections || null,
+            additionalDocuments: Array.isArray(values.additionalDocuments) ? values.additionalDocuments : [],
           },
           
           // Structure juridique
           structure_juridique: {
             hasExistingStructure: !!values.hasExistingStructure,
             structureName: values.structureName || '',
+            structureSiret: values.structureSiret || '', // Ajouté
             structureStatus: values.structureStatus || '',
+            structureStatusOther: values.structureStatusOther || '', // Ajouté
             structureCreationDate: values.structureCreationDate || '',
             structureContext: values.structureContext || '',
+            structureContextOther: values.structureContextOther || '', // Ajouté
+            // Ajout des champs liés à la personne référente SI structure existe
+            referenceEmploymentType: values.referenceEmploymentType || '',
+            referenceEmploymentDuration: values.referenceEmploymentDuration || '',
           },
           
-          // Conserver les champs supplémentaires qui pourraient être nécessaires
+          // Métadonnées
+          metadata: {
+            lastSaved: new Date().toISOString(),
+            completionPercentage: calculateCompletionPercentage(values),
+            currentStep: currentStep,
+          },
+          
+          // ID utilisateur
           user_id: values.user || values.user_id
         };
         
@@ -1033,6 +1414,104 @@ const CandidatureForm = () => {
                       <span className="recap-value">Aucun membre supplémentaire</span>
                     )}
                   </div>
+                  
+                  {/* Afficher les porteurs de projet */}
+                  {Array.isArray(candidature.projectMembersRoles) && candidature.projectMembersRoles && candidature.projectMembersRoles.length > 0 && (
+                    <div className="recap-item">
+                      <span className="recap-label">Place des porteurs de projet :</span>
+                      {candidature.projectMembersRoles.map((member, index) => (
+                        <div key={index} className="recap-subitem mb-3 border-bottom pb-3">
+                          <strong>{member.name || 'Porteur sans nom'}</strong>
+                          <table className="table table-sm table-bordered mt-2">
+                            <thead><tr><th>Période</th><th>Type</th><th>Missions</th></tr></thead>
+                            <tbody>
+                              <tr>
+                                <td>Court terme</td>
+                                <td>{member.shortTerm && member.shortTerm.type ? member.shortTerm.type : 'Non défini'}</td>
+                                <td>{member.shortTerm && member.shortTerm.details ? member.shortTerm.details : 'Non défini'}</td>
+                              </tr>
+                              <tr>
+                                <td>Moyen terme</td>
+                                <td>{member.mediumTerm && member.mediumTerm.type ? member.mediumTerm.type : 'Non défini'}</td>
+                                <td>{member.mediumTerm && member.mediumTerm.details ? member.mediumTerm.details : 'Non défini'}</td>
+                              </tr>
+                              <tr>
+                                <td>Long terme</td>
+                                <td>{member.longTerm && member.longTerm.type ? member.longTerm.type : 'Non défini'}</td>
+                                <td>{member.longTerm && member.longTerm.details ? member.longTerm.details : 'Non défini'}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Section 7: État d'avancement */}
+              <div className="recap-section">
+                <h3 className="recap-title">7. État d'avancement du projet</h3>
+                <div className="recap-content">
+                  <div className="recap-item">
+                    <span className="recap-label">Accompagnement(s) autre(s) :</span>
+                    <span className="recap-value">{candidature.otherSupport || 'Non renseigné'}</span>
+                  </div>
+                  <div className="recap-item">
+                    <span className="recap-label">Étapes réalisées :</span>
+                    <ul className="recap-list">
+                      <li>Diagnostic territorial : {candidature.diagnostic?.status} {candidature.diagnostic?.details && `(${candidature.diagnostic.details})`}</li>
+                      <li>Constitution collectif : {candidature.collectif?.status} {candidature.collectif?.details && `(${candidature.collectif.details})`}</li>
+                      <li>Expérimentation terrain : {candidature.experimentation?.status} {candidature.experimentation?.details && `(${candidature.experimentation.details})`}</li>
+                      <li>Étude de marché : {candidature.etudeMarche?.status} {candidature.etudeMarche?.details && `(${candidature.etudeMarche.details})`}</li>
+                      <li>Formalisation offre : {candidature.offre?.status} {candidature.offre?.details && `(${candidature.offre.details})`}</li>
+                      <li>Premier chiffrage : {candidature.chiffrage?.status} {candidature.chiffrage?.details && `(${candidature.chiffrage.details})`}</li>
+                    </ul>
+                  </div>
+                  <div className="recap-item">
+                    <span className="recap-label">Premier risque pris :</span>
+                    <span className="recap-value">{candidature.firstRisk}</span>
+                  </div>
+                  <div className="recap-item">
+                    <span className="recap-label">Analyse SWOT :</span>
+                    <div className="recap-subitem">
+                      <p><strong>Forces :</strong> {candidature.swot?.strengths}</p>
+                      <p><strong>Faiblesses :</strong> {candidature.swot?.weaknesses}</p>
+                      <p><strong>Opportunités :</strong> {candidature.swot?.opportunities}</p>
+                      <p><strong>Menaces :</strong> {candidature.swot?.threats}</p>
+                    </div>
+                  </div>
+                  <div className="recap-item">
+                    <span className="recap-label">Stratégie faiblesses/menaces :</span>
+                    <span className="recap-value">{candidature.weaknessesAndThreatsStrategy}</span>
+                  </div>
+                  <div className="recap-item">
+                    <span className="recap-label">Échéance création / Plan d'action :</span>
+                    <span className="recap-value">{candidature.creationTimeline}</span>
+                  </div>
+                  <div className="recap-item">
+                    <span className="recap-label">Prêt à se déplacer :</span>
+                    <span className="recap-value">{candidature.readyToTravel}</span>
+                  </div>
+                  <div className="recap-item">
+                    <span className="recap-label">Prêt à communiquer :</span>
+                    <span className="recap-value">{candidature.readyToCommunicate}</span>
+                  </div>
+                  <div className="recap-item">
+                    <span className="recap-label">Prêt à s'engager :</span>
+                    <span className="recap-value">{candidature.readyToCommit}</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Section 8: Documents justificatifs */}
+              <div className="recap-section">
+                <h3 className="recap-title">8. Documents justificatifs</h3>
+                <div className="recap-content">
+                  <div className="recap-item">
+                    <span className="recap-label">Document(s) :</span>
+                    <span className="recap-value">{candidature.document ? candidature.document.name : 'Aucun document'}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1166,6 +1645,17 @@ const CandidatureForm = () => {
                                   <option value="autre">Autre</option>
                                 </Field>
                                 <ErrorMessage name="sector" component="div" className="form-error" />
+                                {formik.values.sector === "autre" && (
+                                  <div className="mt-2">
+                                    <Field 
+                                      type="text" 
+                                      name="sectorOther" 
+                                      className="form-control" 
+                                      placeholder="Précisez le secteur d'activité" 
+                                    />
+                                    <ErrorMessage name="sectorOther" component="div" className="form-error" />
+                                  </div>
+                                )}
                               </div>
                               <div className="form-group">
                                 <label htmlFor="territory">Territoire d'implantation *</label>
@@ -1190,40 +1680,235 @@ const CandidatureForm = () => {
                                 <label>Comment avez-vous eu connaissance de l'appel à candidatures ?</label>
                                 <div className="checkbox-group">
                                   <label>
-                                    <Field type="checkbox" name="referral_boucheOreille" />
-                                    Bouche à oreilles (réseau personnel ou professionnel)
+                                    <Field type="checkbox" name="referral_facebook_adress" />
+                                    Page Facebook de l'ADRESS
                                   </label>
                                 </div>
                                 <div className="checkbox-group">
                                   <label>
-                                    <Field type="checkbox" name="referral_facebook" />
-                                    Contenu sur Facebook
+                                    <Field type="checkbox" name="referral_linkedin_adress" />
+                                    Page LinkedIn de l'ADRESS
                                   </label>
                                 </div>
                                 <div className="checkbox-group">
                                   <label>
-                                    <Field type="checkbox" name="referral_linkedin" />
-                                    Contenu sur LinkedIn
+                                    <Field type="checkbox" name="referral_instagram_adress" />
+                                    Page Instagram de l'ADRESS
                                   </label>
                                 </div>
                                 <div className="checkbox-group">
                                   <label>
-                                    <Field type="checkbox" name="referral_web" />
-                                    Contenu sur le web
+                                    <Field type="checkbox" name="referral_web_adress" />
+                                    Site internet de l'ADRESS
                                   </label>
                                 </div>
                                 <div className="checkbox-group">
                                   <label>
-                                    <Field type="checkbox" name="referral_tiers" />
-                                    Information par un tiers (structure d'accompagnement, collectivité…)
+                                    <Field type="checkbox" name="referral_mail_adress" />
+                                    Par un mail de l'ADRESS
                                   </label>
                                 </div>
                                 <div className="checkbox-group">
                                   <label>
-                                    <Field type="checkbox" name="referral_presse" />
-                                    Presse / Radio
+                                    <Field type="checkbox" name="referral_salarie_adress" />
+                                    Par un salarié de l'ADRESS
                                   </label>
                                 </div>
+                                <div className="checkbox-group">
+                                  <label>
+                                    <Field type="checkbox" name="referral_medias" />
+                                    Par les médias (radio, presse, agenda en ligne)
+                                  </label>
+                              </div>
+                                <div className="checkbox-group">
+                                  <label>
+                                    <Field type="checkbox" name="referral_tiers_hors_adress" />
+                                    Information par un tiers hors ADRESS (structure d'accompagnement, collectivité…)
+                                  </label>
+                            </div>
+                          </div>
+
+                              <div className="form-group mt-4">
+                                <h3 className="form-subsection-title mb-3">Structure juridique déjà existante</h3>
+                                <div className="form-group mb-3">
+                                  <label className="mb-2">
+                                    Le projet est-il porté par une entreprise déjà en activité ? *
+                                  </label>
+                                  <div className="choice-cards-container">
+                                    <label 
+                                      className={`choice-card ${formik.values.hasExistingStructure === true ? 'selected' : ''}`}
+                                    >
+                                      <Field 
+                                        type="radio" 
+                                        name="hasExistingStructure" 
+                                        value={true}
+                                        checked={formik.values.hasExistingStructure === true}
+                                        onChange={() => formik.setFieldValue('hasExistingStructure', true)}
+                                      />
+                                      <div className="choice-card-title">Oui</div>
+                                      <div className="choice-card-description">
+                                        Le projet est porté par une structure existante déjà en activité
+                                      </div>
+                                    </label>
+                                    <label 
+                                      className={`choice-card ${formik.values.hasExistingStructure === false ? 'selected' : ''}`}
+                                    >
+                                      <Field 
+                                        type="radio" 
+                                        name="hasExistingStructure" 
+                                        value={false}
+                                        checked={formik.values.hasExistingStructure === false}
+                                        onChange={() => formik.setFieldValue('hasExistingStructure', false)}
+                                      />
+                                      <div className="choice-card-title">Non</div>
+                                      <div className="choice-card-description">
+                                        Le projet nécessite la création d'une nouvelle structure
+                                      </div>
+                                    </label>
+                                  </div>
+                                  <ErrorMessage name="hasExistingStructure" component="div" className="form-error" />
+                                </div>
+                                
+                                {formik.values.hasExistingStructure && (
+                                  <div className="existing-structure-details">
+                                    <div className="existing-structure-grid">
+                                      <div className="form-group">
+                                        <label htmlFor="structureName">
+                                          Nom de la structure *
+                                        </label>
+                                        <Field
+                                          type="text"
+                                          id="structureName"
+                                          name="structureName"
+                                          placeholder="Nom de l'entreprise existante"
+                                        />
+                                        <ErrorMessage name="structureName" component="div" className="form-error" />
+                                      </div>
+                                      
+                                      <div className="form-group">
+                                        <label htmlFor="structureSiret">
+                                          Numéro de SIRET *
+                                        </label>
+                                        <Field
+                                          type="text"
+                                          id="structureSiret"
+                                          name="structureSiret"
+                                          placeholder="Numéro SIRET de la structure"
+                                        />
+                                        <ErrorMessage name="structureSiret" component="div" className="form-error" />
+                                      </div>
+                                    </div>
+
+                                    <div className="form-group">
+                                      <label className="mb-2">Statut juridique *</label>
+                                      <div className="choice-cards-container">
+                                        {[
+                                          { value: 'association', label: 'Association' },
+                                          { value: 'cooperative', label: 'Coopérative' },
+                                          { value: 'societe_ess', label: 'Société commerciale de l\'ESS' },
+                                          { value: 'societe_hors_ess', label: 'Société commerciale hors ESS' },
+                                          { value: 'autre', label: 'Autre' }
+                                        ].map((option) => (
+                                          <label 
+                                            key={option.value}
+                                            className={`choice-card ${formik.values.structureStatus === option.value ? 'selected' : ''}`}
+                                          >
+                                            <Field
+                                              type="radio"
+                                              name="structureStatus"
+                                              value={option.value}
+                                            />
+                                            <div className="choice-card-title">{option.label}</div>
+                                          </label>
+                                        ))}
+                                      </div>
+                                      {formik.values.structureStatus === "autre" && (
+                                        <Field
+                                          type="text"
+                                          name="structureStatusOther"
+                                          placeholder="Précisez..."
+                                          className="mt-2"
+                                        />
+                                      )}
+                                      <ErrorMessage name="structureStatus" component="div" className="form-error" />
+                                    </div>
+
+                                    <div className="existing-structure-grid">
+                                      <div className="form-group">
+                                        <label htmlFor="structureCreationDate">
+                                          Date de création *
+                                        </label>
+                                        <Field
+                                          type="date"
+                                          id="structureCreationDate"
+                                          name="structureCreationDate"
+                                        />
+                                        <ErrorMessage name="structureCreationDate" component="div" className="form-error" />
+                                      </div>
+                                    </div>
+
+                                    <div className="form-group">
+                                      <label className="mb-2">Dans quel cadre la structure candidate-t-elle à l'incubateur ? *</label>
+                                      <div className="choice-cards-container">
+                                        {[
+                                          { value: 'nouvelle_activite', label: 'Développement d\'une nouvelle activité', description: 'Vous souhaitez développer une nouvelle activité au sein de votre structure' },
+                                          { value: 'implantation', label: 'Implantation en Normandie', description: 'Vous souhaitez implanter votre activité en Normandie' },
+                                          { value: 'autre', label: 'Autre', description: 'Autre contexte' }
+                                        ].map((option) => (
+                                          <label 
+                                            key={option.value}
+                                            className={`choice-card ${formik.values.structureContext === option.value ? 'selected' : ''}`}
+                                          >
+                                            <Field
+                                              type="radio"
+                                              name="structureContext"
+                                              value={option.value}
+                                            />
+                                            <div className="choice-card-title">{option.label}</div>
+                                            <div className="choice-card-description">{option.description}</div>
+                                          </label>
+                                        ))}
+                                      </div>
+                                      {formik.values.structureContext === "autre" && (
+                                        <Field
+                                          type="text"
+                                          name="structureContextOther"
+                                          placeholder="Précisez..."
+                                          className="mt-2"
+                                        />
+                                      )}
+                                      <ErrorMessage name="structureContext" component="div" className="form-error" />
+                                    </div>
+
+                                    <div className="existing-structure-grid">
+                                      <div className="form-group">
+                                        <label htmlFor="referenceEmploymentType">
+                                          La personne référente pour le projet est-elle salariée par la structure ou bénévole ? *
+                                        </label>
+                                        <Field
+                                          type="text"
+                                          id="referenceEmploymentType"
+                                          name="referenceEmploymentType"
+                                          placeholder="Ex: Salarié(e), Bénévole..."
+                                        />
+                                        <ErrorMessage name="referenceEmploymentType" component="div" className="form-error" />
+                                      </div>
+
+                                      <div className="form-group">
+                                        <label htmlFor="referenceEmploymentDuration">
+                                          Depuis combien de temps ? *
+                                        </label>
+                                        <Field
+                                          type="text"
+                                          id="referenceEmploymentDuration"
+                                          name="referenceEmploymentDuration"
+                                          placeholder="Ex: 2 ans, 6 mois..."
+                                        />
+                                        <ErrorMessage name="referenceEmploymentDuration" component="div" className="form-error" />
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -1238,7 +1923,7 @@ const CandidatureForm = () => {
                                 <label htmlFor="projectGenesis">
                                   Expliquez la genèse de votre projet (environ 10 lignes) *
                                 </label>
-                                <Field as="textarea" id="projectGenesis" name="projectGenesis" className="form-control" placeholder="Décrivez la genèse de votre projet" rows="5" />
+                                <Field as="textarea" id="projectGenesis" name="projectGenesis" className="form-control" placeholder="Décrivez la genèse de votre projet" rows="10" />
                                 <ErrorMessage name="projectGenesis" component="div" className="form-error" />
                               </div>
                               <div className="form-group">
@@ -1252,7 +1937,7 @@ const CandidatureForm = () => {
                                 <label htmlFor="problemDescription">
                                   À quel problème social et/ou environnemental souhaitez-vous répondre ? Décrivez précisément l'ampleur du problème (environ 20 lignes) *
                                 </label>
-                                <Field as="textarea" id="problemDescription" name="problemDescription" className="form-control" placeholder="Description détaillée du problème" rows="8" />
+                                <Field as="textarea" id="problemDescription" name="problemDescription" className="form-control" placeholder="Décrivez précisément l'ampleur du problème auquel vous souhaitez apporter une solution, à l'échelle globale mais aussi et surtout précisez le besoin à l'échelle de votre territoire d'intervention. Soyez le plus précis possible (chiffres parlants à l'appui si vous en avez) !" rows="20" />
                                 <ErrorMessage name="problemDescription" component="div" className="form-error" />
                               </div>
                             </div>
@@ -1266,35 +1951,28 @@ const CandidatureForm = () => {
                               <h2 className="form-section-title">3. Qui est concerné ?</h2>
                               <div className="form-group">
                                 <label htmlFor="beneficiaries">
-                                  Qui seront les bénéficiaires de votre projet ? *
+                                  Qui seront les bénéficiaires de votre projet (ceux à qui le projet va profiter) ? *
                                 </label>
-                                <Field as="textarea" id="beneficiaries" name="beneficiaries" className="form-control" placeholder="Décrivez les bénéficiaires" rows="4" />
+                                <Field as="textarea" id="beneficiaries" name="beneficiaries" className="form-control" placeholder="Soyez le plus précis possible : les réponses « tout le monde » et « le grand public » sont à proscrire. Pouvez-vous les quantifier, définir le périmètre géographique touché… ?" rows="4" />
                                 <ErrorMessage name="beneficiaries" component="div" className="form-error" />
                               </div>
                               <div className="form-group">
                                 <label htmlFor="clients">
-                                  Qui seront les clients (s'ils sont différents des bénéficiaires) ? *
+                                  Qui seront les clients (ceux qui vont payer - s'ils sont différents des bénéficiaires) ? *
                                 </label>
-                                <Field as="textarea" id="clients" name="clients" className="form-control" placeholder="Décrivez les clients" rows="3" />
+                                <Field as="textarea" id="clients" name="clients" className="form-control" placeholder="Soyez le plus précis possible : les réponses « tout le monde » et « le grand public » sont à proscrire. Pouvez-vous les quantifier, définir le périmètre géographique touché… ?" rows="3" />
                                 <ErrorMessage name="clients" component="div" className="form-error" />
-                              </div>
-                              <div className="form-group">
-                                <label htmlFor="clientsQuantification">
-                                  Pouvez-vous les quantifier, définir le périmètre géographique touché ? *
-                                </label>
-                                <Field as="textarea" id="clientsQuantification" name="clientsQuantification" className="form-control" placeholder="Quantifiez et décrivez le périmètre" rows="3" />
-                                <ErrorMessage name="clientsQuantification" component="div" className="form-error" />
                               </div>
                               <div className="form-group">
                                 <label htmlFor="proposedSolution">
                                   Quelle solution souhaitez-vous proposer ? Quelle sera votre offre ? *
                                 </label>
-                                <Field as="textarea" id="proposedSolution" name="proposedSolution" className="form-control" placeholder="Décrivez votre offre" rows="4" />
+                                <Field as="textarea" id="proposedSolution" name="proposedSolution" className="form-control" placeholder="Décrivez ce que vous imaginez comme offre, ce que vous pensez proposer à vos clients / bénéficiaires. Vous pouvez imaginer plusieurs phases de développement de l'activité." rows="4" />
                                 <ErrorMessage name="proposedSolution" component="div" className="form-error" />
                               </div>
                               <div className="form-group">
                                 <label htmlFor="projectDifferentiation">
-                                  En quoi votre projet est-il différent et/ou complémentaire des solutions existantes ? *
+                                  En quoi votre projet est-il différent et/ou complémentaire des solutions existantes sur le territoire considéré ? *
                                 </label>
                                 <Field as="textarea" id="projectDifferentiation" name="projectDifferentiation" className="form-control" placeholder="Expliquez ce qui rend votre projet unique" rows="4" />
                                 <ErrorMessage name="projectDifferentiation" component="div" className="form-error" />
@@ -1343,9 +2021,30 @@ const CandidatureForm = () => {
                                 <label htmlFor="economicViability">
                                   À ce stade, quels sont les éléments vous permettant d'affirmer la viabilité économique du projet ? *
                                 </label>
-                                <Field as="textarea" id="economicViability" name="economicViability" className="form-control" placeholder="Précisez les éléments de viabilité" rows="4" />
-                                <ErrorMessage name="economicViability" component="div" className="form-error" />
+                                <p className="field-description mt-2">
+                                  Citez maximum 5 éléments dont vous disposez sur :
+                                  <br />★ L'état du marché (acteurs principaux, volumes, tendances)
+                                  <br />★ Vos concurrents directs et indirects. Que proposent-ils ? En quoi votre offre se différencie-t-elle ?
+                                  <br />★ Des facteurs réglementaires en votre faveur
+                                  <br />★ ...
+                                  <br /><br />… qui vous permettent de penser que votre projet peut avoir une place sur le marché.
+                                </p>
+                                <Field type="text" id="viabilityElement1" name="viabilityElement1" className="form-control mb-2" placeholder="1. ..." />
+                                <ErrorMessage name="viabilityElement1" component="div" className="form-error" />
+                                
+                                <Field type="text" id="viabilityElement2" name="viabilityElement2" className="form-control mb-2" placeholder="2. ..." />
+                                <ErrorMessage name="viabilityElement2" component="div" className="form-error" />
+                                
+                                <Field type="text" id="viabilityElement3" name="viabilityElement3" className="form-control mb-2" placeholder="3. ..." />
+                                <ErrorMessage name="viabilityElement3" component="div" className="form-error" />
+                                
+                                <Field type="text" id="viabilityElement4" name="viabilityElement4" className="form-control mb-2" placeholder="4. ..." />
+                                <ErrorMessage name="viabilityElement4" component="div" className="form-error" />
+                                
+                                <Field type="text" id="viabilityElement5" name="viabilityElement5" className="form-control mb-2" placeholder="5. ..." />
+                                <ErrorMessage name="viabilityElement5" component="div" className="form-error" />
                               </div>
+                              
                               <div className="form-group">
                                 <label htmlFor="diversification">
                                   Quels pourraient être les projets de diversification et de développement économique de l'activité à moyen/long terme ? *
@@ -1366,7 +2065,7 @@ const CandidatureForm = () => {
                                 <label htmlFor="existingPartnerships">
                                   Avez-vous déjà établi des contacts ou partenariats pour contribuer au projet ? Si oui, de quelle manière ? *
                                 </label>
-                                <Field as="textarea" id="existingPartnerships" name="existingPartnerships" className="form-control" placeholder="Décrivez vos partenariats existants" rows="4" />
+                                <Field as="textarea" id="existingPartnerships" name="existingPartnerships" className="form-control" placeholder="Ce peut être des futurs clients, bénéficiaires, financeurs, partenaires opérationnels… toute personne qui aurait un intérêt dans votre projet. Par exemple, vous pourriez avoir sollicité une mairie pour obtenir un prêt ponctuel de locaux, des habitants pour vous aider à organiser un événement…" rows="4" />
                                 <ErrorMessage name="existingPartnerships" component="div" className="form-error" />
                               </div>
                               <div className="form-group">
@@ -1380,7 +2079,7 @@ const CandidatureForm = () => {
                                 <label htmlFor="stakeholderRole">
                                   Quel rôle voudriez-vous que jouent ces différents acteurs dans le projet à terme ? *
                                 </label>
-                                <Field as="textarea" id="stakeholderRole" name="stakeholderRole" className="form-control" placeholder="Décrivez le rôle des acteurs" rows="4" />
+                                <Field as="textarea" id="stakeholderRole" name="stakeholderRole" className="form-control" placeholder="Ex: Structuration d'un collectif restreint sur la prise de décisions stratégiques pour le projet, ou au contraire souhait d'une gouvernance très large, impliquant plusieurs des acteurs précités." rows="4" />
                                 <ErrorMessage name="stakeholderRole" component="div" className="form-error" />
                               </div>
                             </div>
@@ -1392,79 +2091,617 @@ const CandidatureForm = () => {
                           <div id="step-6">
                             <div className="form-section">
                               <h2 className="form-section-title">6. L'équipe projet et parcours d'incubation</h2>
-                              <div className="form-group">
-                                <h3>Personne référente</h3>
-                                <label htmlFor="referenceLastName">Nom *</label>
-                                <Field type="text" id="referenceLastName" name="referenceLastName" className="form-control" placeholder="Nom" />
-                                <ErrorMessage name="referenceLastName" component="div" className="form-error" />
-                                <label htmlFor="referenceFirstName">Prénom *</label>
-                                <Field type="text" id="referenceFirstName" name="referenceFirstName" className="form-control" placeholder="Prénom" />
-                                <ErrorMessage name="referenceFirstName" component="div" className="form-error" />
-                                <label htmlFor="referenceDOB">Date de naissance *</label>
-                                <Field type="date" id="referenceDOB" name="referenceDOB" className="form-control" />
-                                <ErrorMessage name="referenceDOB" component="div" className="form-error" />
-                                <label htmlFor="referenceAddress">Adresse *</label>
-                                <Field type="text" id="referenceAddress" name="referenceAddress" className="form-control" placeholder="Adresse" />
-                                <ErrorMessage name="referenceAddress" component="div" className="form-error" />
-                                <label htmlFor="referenceEmail">E-mail *</label>
-                                <Field type="email" id="referenceEmail" name="referenceEmail" className="form-control" placeholder="Email" />
-                                <ErrorMessage name="referenceEmail" component="div" className="form-error" />
-                                <label htmlFor="referenceTelephone">Téléphone *</label>
-                                <Field type="text" id="referenceTelephone" name="referenceTelephone" className="form-control" placeholder="Téléphone" />
-                                <ErrorMessage name="referenceTelephone" component="div" className="form-error" />
+                              
+                              {/* Nouvelle section Personne Référente */}
+                              <div className="form-subsection">
+                                <h3 className="form-subsection-title">Personne référente</h3>
+                                <div className="form-group">
+                                  <label htmlFor="referenceLastName">Nom *</label>
+                                  <Field type="text" id="referenceLastName" name="referenceLastName" className="form-control" placeholder="Nom" />
+                                  <ErrorMessage name="referenceLastName" component="div" className="form-error" />
+                                </div>
+                                <div className="form-group">
+                                  <label htmlFor="referenceFirstName">Prénom *</label>
+                                  <Field type="text" id="referenceFirstName" name="referenceFirstName" className="form-control" placeholder="Prénom" />
+                                  <ErrorMessage name="referenceFirstName" component="div" className="form-error" />
+                                </div>
+                                <div className="form-group">
+                                  <label htmlFor="referenceDOB">Date de naissance *</label>
+                                  <Field type="date" id="referenceDOB" name="referenceDOB" className="form-control" />
+                                  <ErrorMessage name="referenceDOB" component="div" className="form-error" />
+                                </div>
+                                <div className="form-group">
+                                  <label htmlFor="referenceAddress">Adresse *</label>
+                                  <Field type="text" id="referenceAddress" name="referenceAddress" className="form-control" placeholder="Adresse" />
+                                  <ErrorMessage name="referenceAddress" component="div" className="form-error" />
+                                </div>
+                                <div className="form-group">
+                                  <label htmlFor="referenceEmail">E-mail *</label>
+                                  <Field type="email" id="referenceEmail" name="referenceEmail" className="form-control" placeholder="Email" />
+                                  <ErrorMessage name="referenceEmail" component="div" className="form-error" />
+                                </div>
+                                <div className="form-group">
+                                  <label htmlFor="referenceTelephone">Téléphone *</label>
+                                  <Field type="text" id="referenceTelephone" name="referenceTelephone" className="form-control" placeholder="Téléphone" />
+                                  <ErrorMessage name="referenceTelephone" component="div" className="form-error" />
+                                </div>
                               </div>
-                              <div className="form-group">
-                                <h3>Autres personnes impliquées dans le projet</h3>
+                              
+                              {/* Nouvelle section Autres Personnes Impliquées */}
+                              <div className="form-subsection mt-4">
+                                <h3 className="form-subsection-title">Autres personnes impliquées dans le projet</h3>
+                                <p className="field-description">Qui participeront potentiellement au parcours d'incubation</p>
                                 <FieldArray
                                   name="teamMembers"
                                   render={arrayHelpers => (
                                     <div>
                                       {formik.values.teamMembers && formik.values.teamMembers.length > 0 ? (
                                         formik.values.teamMembers.map((member, index) => (
-                                          <div key={index} className="team-member">
-                                            <label htmlFor={`teamMembers.${index}.lastName`}>Nom *</label>
-                                            <Field type="text" id={`teamMembers.${index}.lastName`} name={`teamMembers.${index}.lastName`} className="form-control" placeholder="Nom" />
-                                            <ErrorMessage name={`teamMembers.${index}.lastName`} component="div" className="form-error" />
-                                            <label htmlFor={`teamMembers.${index}.firstName`}>Prénom *</label>
-                                            <Field type="text" id={`teamMembers.${index}.firstName`} name={`teamMembers.${index}.firstName`} className="form-control" placeholder="Prénom" />
-                                            <ErrorMessage name={`teamMembers.${index}.firstName`} component="div" className="form-error" />
-                                            <label htmlFor={`teamMembers.${index}.email`}>E-mail *</label>
-                                            <Field type="email" id={`teamMembers.${index}.email`} name={`teamMembers.${index}.email`} className="form-control" placeholder="Email" />
-                                            <ErrorMessage name={`teamMembers.${index}.email`} component="div" className="form-error" />
-                                            <label htmlFor={`teamMembers.${index}.telephone`}>Téléphone *</label>
-                                            <Field type="text" id={`teamMembers.${index}.telephone`} name={`teamMembers.${index}.telephone`} className="form-control" placeholder="Téléphone" />
-                                            <ErrorMessage name={`teamMembers.${index}.telephone`} component="div" className="form-error" />
-                                            <button type="button" onClick={() => arrayHelpers.remove(index)} className="btn-remove">
-                                              <i className="fa fa-times"></i> Supprimer
-                                            </button>
+                                          <div key={index} className="team-member-card mb-3 p-3 border rounded">
+                                            <div className="d-flex justify-content-between align-items-center mb-2">
+                                                <h4 className="mb-0">Membre {index + 1}</h4>
+                                                <button 
+                                                  type="button" 
+                                                  onClick={() => arrayHelpers.remove(index)} 
+                                                  className="btn btn-sm btn-outline-danger"
+                                                  title="Supprimer ce membre"
+                                                >
+                                                  <i className="fa fa-trash-alt"></i> Supprimer
+                                                </button>
+                                            </div>
+                                            <div className="row">
+                                              <div className="col-md-6 form-group">
+                                                <label htmlFor={`teamMembers.${index}.lastName`}>Nom *</label>
+                                                <Field type="text" id={`teamMembers.${index}.lastName`} name={`teamMembers.${index}.lastName`} className="form-control" placeholder="Nom" />
+                                                <ErrorMessage name={`teamMembers.${index}.lastName`} component="div" className="form-error" />
+                                              </div>
+                                              <div className="col-md-6 form-group">
+                                                <label htmlFor={`teamMembers.${index}.firstName`}>Prénom *</label>
+                                                <Field type="text" id={`teamMembers.${index}.firstName`} name={`teamMembers.${index}.firstName`} className="form-control" placeholder="Prénom" />
+                                                <ErrorMessage name={`teamMembers.${index}.firstName`} component="div" className="form-error" />
+                                              </div>
+                                            </div>
+                                            <div className="row">
+                                                <div className="col-md-6 form-group">
+                                                  <label htmlFor={`teamMembers.${index}.email`}>E-mail *</label>
+                                                  <Field type="email" id={`teamMembers.${index}.email`} name={`teamMembers.${index}.email`} className="form-control" placeholder="Email" />
+                                                  <ErrorMessage name={`teamMembers.${index}.email`} component="div" className="form-error" />
+                                                </div>
+                                                <div className="col-md-6 form-group">
+                                                  <label htmlFor={`teamMembers.${index}.telephone`}>Téléphone *</label>
+                                                  <Field type="text" id={`teamMembers.${index}.telephone`} name={`teamMembers.${index}.telephone`} className="form-control" placeholder="Téléphone" />
+                                                  <ErrorMessage name={`teamMembers.${index}.telephone`} component="div" className="form-error" />
+                                                </div>
+                                            </div>
                                           </div>
                                         ))
                                       ) : (
-                                        <p>Aucun membre ajouté.</p>
+                                        <div className="alert alert-light text-center">Aucune autre personne ajoutée.</div>
                                       )}
-                                      <button type="button" onClick={() => {
-                                        arrayHelpers.push({ lastName: '', firstName: '', email: '', telephone: '' });
-                                        // Mise à jour de la progression après l'ajout d'un membre
-                                        setTimeout(() => {
-                                          const percentage = calculateCompletionPercentage(formik.values);
-                                          setProgressPercentage(percentage);
-                                        }, 100);
-                                      }} className="btn-add-more">
-                                        <i className="fa fa-plus"></i> Ajouter un membre
+                                      <button 
+                                        type="button" 
+                                        onClick={() => arrayHelpers.push({ lastName: '', firstName: '', email: '', telephone: '' })} 
+                                        className="btn-add-more mt-2"
+                                      >
+                                        <i className="fa fa-plus"></i> Ajouter une personne
                                       </button>
                                     </div>
                                   )}
                                 />
                               </div>
+                              
+                              {/* Sections existantes */}
+                              <div className="form-subsection mt-4">
+                                <h3 className="form-subsection-title">Présentation de l'équipe et expérience</h3>
+                                <div className="form-group">
+                                  <label htmlFor="teamPresentation">
+                                    Présentez-vous succinctement (1 paragraphe par personne réellement impliquée dans le projet, max 8 lignes) *
+                                  </label>
+                                  <p className="field-description">
+                                    Parcours (formation, professionnel et bénévole), compétences et motivations, ainsi que ceux des membres de l'équipe, 
+                                    en mettant en évidence vos compétences et atouts pour mener à bien le projet (joindre les CV).
+                                  </p>
+                                  <Field as="textarea" id="teamPresentation" name="teamPresentation" className="form-control" rows="8" />
+                                  <ErrorMessage name="teamPresentation" component="div" className="form-error" />
+                                </div>
+                                
+                                <div className="form-group">
+                                  <label className="mb-2">Avez-vous une expérience entrepreneuriale ? *</label>
+                                  <div className="radio-button-group">
+                                    <label className={`radio-button ${formik.values.hasEntrepreneurialExperience === true ? 'selected' : ''}`}>
+                                      <Field
+                                        type="radio"
+                                        name="hasEntrepreneurialExperience"
+                                        checked={formik.values.hasEntrepreneurialExperience === true}
+                                        onChange={() => formik.setFieldValue('hasEntrepreneurialExperience', true)}
+                                      /> Oui
+                                    </label>
+                                    <label className={`radio-button ${formik.values.hasEntrepreneurialExperience === false ? 'selected' : ''}`}>
+                                      <Field
+                                        type="radio"
+                                        name="hasEntrepreneurialExperience"
+                                        checked={formik.values.hasEntrepreneurialExperience === false}
+                                        onChange={() => {
+                                          formik.setFieldValue('hasEntrepreneurialExperience', false);
+                                          formik.setFieldValue('entrepreneurialExperience', ''); // Reset details if 'No'
+                                        }}
+                                      /> Non
+                                    </label>
+                                  </div>
+                                  <ErrorMessage name="hasEntrepreneurialExperience" component="div" className="form-error" />
+
+                                  {formik.values.hasEntrepreneurialExperience === true && (
+                                    <div className="mt-3">
+                                      <label htmlFor="entrepreneurialExperience">Si oui, laquelle ? *</label>
+                                      <Field
+                                        as="textarea"
+                                        id="entrepreneurialExperience"
+                                        name="entrepreneurialExperience"
+                                        className="form-control"
+                                        placeholder="Précisez votre expérience entrepreneuriale"
+                                        rows="3"
+                                      />
+                                      <ErrorMessage name="entrepreneurialExperience" component="div" className="form-error" />
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                <div className="form-group">
+                                  <label htmlFor="inspiringEntrepreneur">
+                                    Citez un entrepreneur social qui vous inspire particulièrement
+                                  </label>
+                                  <Field type="text" id="inspiringEntrepreneur" name="inspiringEntrepreneur" className="form-control" />
+                                  <ErrorMessage name="inspiringEntrepreneur" component="div" className="form-error" />
+                                </div>
+                                
+                                <div className="form-group">
+                                  <label htmlFor="missingTeamSkills">
+                                    Quelles sont selon vous les compétences manquantes dans l'équipe pour mener à bien ce projet ? Comment comptez-vous y pallier ?
+                                  </label>
+                                  <Field as="textarea" id="missingTeamSkills" name="missingTeamSkills" className="form-control" rows="3" />
+                                  <ErrorMessage name="missingTeamSkills" component="div" className="form-error" />
+                                </div>
+                                
+                                <div className="form-group">
+                                  <label htmlFor="incubationParticipants">
+                                    Qui suivra le parcours d'incubation ? Une ou plusieurs personnes ?
+                                  </label>
+                                  <p className="field-description">
+                                    Vous pouvez suivre le parcours, participer aux rdv individuels, événements, formations à plusieurs 
+                                    (sauf restrictions ponctuelles dues à certains lieux). L'important est d'assurer une continuité dans 
+                                    la construction du projet.
+                                  </p>
+                                  <Field as="textarea" id="incubationParticipants" name="incubationParticipants" className="form-control" placeholder="★ ... &#10;★ ... &#10;★ ..." rows="4" />
+                                  <ErrorMessage name="incubationParticipants" component="div" className="form-error" />
+                                </div>
+                              </div>
+                              
+                              <div className="form-subsection mt-4">
+                                <h3 className="form-subsection-title mb-3">Place de chacun des membres de l'équipe projet</h3>
+                                
+                                <div className="form-group">
+                                  <label>
+                                    Quelle place chaque porteur de projet envisage-t-il au sein du projet court, moyen, long terme ? *
+                                  </label>
+                                  <p className="field-description mb-3">
+                                    De manière individuelle, considérez-vous ce projet comme :
+                                    <ul>
+                                      <li>Une activité principale rémunérée - Vous espérez vivre de ce projet en tant qu'activité principale, vous n'aurez pas d'autre activité professionnelle à priori</li>
+                                      <li>Une activité secondaire rémunérée - Vous espérez en tirer une rémunération mais cela restera une activité secondaire (car vous souhaitez maintenir une autre activité en parallèle)</li>
+                                      <li>Une activité bénévole - Vous n'attendez pas de vous rémunérer sur cette activité</li>
+                                    </ul>
+                                  </p>
+                                  
+                                  <div className="project-members">
+                                    <FieldArray name="projectMembersRoles">
+                                      {({ push, remove }) => (
+                                        <>
+                                          {formik.values.projectMembersRoles && formik.values.projectMembersRoles.length > 0 ? (
+                                            <>
+                                              {formik.values.projectMembersRoles.map((member, index) => (
+                                                <div key={index} className="project-member-card mb-4 p-3 border rounded">
+                                                  <div className="project-member-header">
+                                                    <h4 className="project-member-title">Porteur de projet {index + 1}</h4>
+                                                    {formik.values.projectMembersRoles.length > 1 && (
+                                                      <button
+                                                        type="button"
+                                                        className="project-member-remove"
+                                                        onClick={() => remove(index)}
+                                                      >
+                                                        <i className="fa fa-trash-alt"></i> Retirer
+                                                      </button>
+                                                    )}
+                                                  </div>
+                                                  <div className="form-group">
+                                                    <label htmlFor={`projectMembersRoles.${index}.name`}>Nom Prénom *</label>
+                                                    <Field
+                                                      name={`projectMembersRoles.${index}.name`}
+                                                      type="text"
+                                                      className="form-control"
+                                                      placeholder="Nom et Prénom du porteur"
+                                                    />
+                                                    <ErrorMessage name={`projectMembersRoles.${index}.name`} component="div" className="form-error" />
+                                                  </div>
+                                                  
+                                                  <div className="role-timeline mt-3">
+                                                    <label>Rôle et Missions</label>
+                                                    <div className="timeline-grid">
+                                                      <div className="timeline-header"></div>
+                                                      <div className="timeline-header">Court terme (1 an)</div>
+                                                      <div className="timeline-header">Moyen terme (3 ans)</div>
+                                                      <div className="timeline-header">Long terme (10 ans)</div>
+
+                                                      <div className="timeline-label">Type d'activité *</div>
+                                                      <div>
+                                                        <Field as="select" name={`projectMembersRoles.${index}.shortTerm.type`} className="form-control">
+                                                          <option value="">Sélectionner</option>
+                                                          <option value="principale">Principale rémunérée</option>
+                                                          <option value="secondaire">Secondaire rémunérée</option>
+                                                          <option value="benevole">Bénévole</option>
+                                                        </Field>
+                                                        <ErrorMessage name={`projectMembersRoles.${index}.shortTerm.type`} component="div" className="form-error" />
+                                                      </div>
+                                                      <div>
+                                                        <Field as="select" name={`projectMembersRoles.${index}.mediumTerm.type`} className="form-control">
+                                                          <option value="">Sélectionner</option>
+                                                          <option value="principale">Principale rémunérée</option>
+                                                          <option value="secondaire">Secondaire rémunérée</option>
+                                                          <option value="benevole">Bénévole</option>
+                                                        </Field>
+                                                        <ErrorMessage name={`projectMembersRoles.${index}.mediumTerm.type`} component="div" className="form-error" />
+                                                      </div>
+                                                      <div>
+                                                        <Field as="select" name={`projectMembersRoles.${index}.longTerm.type`} className="form-control">
+                                                          <option value="">Sélectionner</option>
+                                                          <option value="principale">Principale rémunérée</option>
+                                                          <option value="secondaire">Secondaire rémunérée</option>
+                                                          <option value="benevole">Bénévole</option>
+                                                        </Field>
+                                                        <ErrorMessage name={`projectMembersRoles.${index}.longTerm.type`} component="div" className="form-error" />
+                                                      </div>
+
+                                                      <div className="timeline-label">Précisions sur vos missions *</div>
+                                                      <div>
+                                                        <Field
+                                                          as="textarea"
+                                                          name={`projectMembersRoles.${index}.shortTerm.details`}
+                                                          className="form-control"
+                                                          rows="3"
+                                                        />
+                                                        <ErrorMessage name={`projectMembersRoles.${index}.shortTerm.details`} component="div" className="form-error" />
+                                                      </div>
+                                                      <div>
+                                                        <Field
+                                                          as="textarea"
+                                                          name={`projectMembersRoles.${index}.mediumTerm.details`}
+                                                          className="form-control"
+                                                          rows="3"
+                                                        />
+                                                        <ErrorMessage name={`projectMembersRoles.${index}.mediumTerm.details`} component="div" className="form-error" />
+                                                      </div>
+                                                      <div>
+                                                        <Field
+                                                          as="textarea"
+                                                          name={`projectMembersRoles.${index}.longTerm.details`}
+                                                          className="form-control"
+                                                          rows="3"
+                                                        />
+                                                        <ErrorMessage name={`projectMembersRoles.${index}.longTerm.details`} component="div" className="form-error" />
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              ))}
+                                            </>
+                                          ) : (
+                                            <div className="alert alert-light text-center">
+                                              Cliquez sur le bouton ci-dessous pour ajouter le premier porteur de projet.
+                                            </div>
+                                          )}
+                                          <ErrorMessage 
+                                            name="projectMembersRoles" 
+                                            render={(errorMsg) => (
+                                              <div className="form-error mb-2">
+                                                {typeof errorMsg === 'string' ? errorMsg : 'Veuillez ajouter au moins un porteur de projet.'}
+                                              </div>
+                                            )}
+                                          />
+                                          <button
+                                            type="button"
+                                            className="btn-add-more mt-2"
+                                            onClick={() => push({
+                                              name: '',
+                                              shortTerm: { type: '', details: '' },
+                                              mediumTerm: { type: '', details: '' },
+                                              longTerm: { type: '', details: '' }
+                                            })}
+                                          >
+                                            <i className="fa fa-plus"></i> Ajouter un porteur de projet
+                                          </button>
+                                        </>
+                                      )}
+                                    </FieldArray>
+                                  </div>
+                                </div>
+                                
+                                <div className="form-group mt-4">
+                                  <label htmlFor="currentProfessionalSituation">
+                                    Quelle est votre situation professionnelle actuelle ? *
+                                  </label>
+                                  <Field 
+                                    as="textarea" 
+                                    id="currentProfessionalSituation" 
+                                    name="currentProfessionalSituation" 
+                                    className="form-control" 
+                                    placeholder="Si vous êtes en activité, veuillez préciser le volume horaire dédié à cette activité. Avez-vous des jours particuliers d'indisponibilité ? Si oui lesquels ?" 
+                                    rows="3" 
+                                  />
+                                  <ErrorMessage name="currentProfessionalSituation" component="div" className="form-error" />
+                              </div>
+                                
+                                <div className="form-group">
+                                  <label htmlFor="incubationPeriodIncome">
+                                    Afin d'adapter au mieux l'accompagnement et de fixer avec vous les objectifs temporels en termes de création, pouvez-vous nous indiquer quels seront vos revenus durant la période d'incubation ? *
+                                  </label>
+                                  <Field 
+                                    as="textarea" 
+                                    id="incubationPeriodIncome" 
+                                    name="incubationPeriodIncome" 
+                                    className="form-control" 
+                                    placeholder="Salaire à temps plein /partiel, indemnités pôle emploi, allocations, revenus locatifs, RSA, etc." 
+                                    rows="3" 
+                                  />
+                                  <ErrorMessage name="incubationPeriodIncome" component="div" className="form-error" />
+                                </div>
+                                
+                                <div className="form-group">
+                                  <label htmlFor="weeklyTimeCommitment">
+                                    Quel volume horaire hebdomadaire pouvez-vous dédier au parcours d'incubation incluant les rendez-vous Katapult, la formalisation du projet et les temps de rencontre partenaires afin de réaliser votre projet ? *
+                                  </label>
+                                  <Field 
+                                    as="textarea" 
+                                    id="weeklyTimeCommitment" 
+                                    name="weeklyTimeCommitment" 
+                                    className="form-control" 
+                                    rows="3" 
+                                  />
+                                  <ErrorMessage name="weeklyTimeCommitment" component="div" className="form-error" />
+                                </div>
+                              </div>
+                              
+                              <div className="form-subsection mt-4">
+                                <h3 className="form-subsection-title">L'équipe et le parcours d'incubation</h3>
+                                
+                                <div className="form-group">
+                                  <label htmlFor="incubatorMotivation">
+                                    Pourquoi souhaitez-vous intégrer l'incubateur de l'ADRESS ? Quels sont vos besoins et vos attentes en termes d'accompagnement ? *
+                                  </label>
+                                  <Field 
+                                    as="textarea" 
+                                    id="incubatorMotivation" 
+                                    name="incubatorMotivation" 
+                                    className="form-control" 
+                                    placeholder="Donnez des exemples concrets : Formuler la charte de projet, étoffer l'étude de marché, formaliser le plan de développement commercial, travailler la gouvernance ...." 
+                                    rows="4" 
+                                  />
+                                  <ErrorMessage name="incubatorMotivation" component="div" className="form-error" />
+                                </div>
+                                
+                                <div className="form-group">
+                                  <label htmlFor="contributionToIncubator">
+                                    Que pouvez-vous apporter à l'incubateur et aux incubés ? *
+                                  </label>
+                                  <Field 
+                                    as="textarea" 
+                                    id="contributionToIncubator" 
+                                    name="contributionToIncubator" 
+                                    className="form-control" 
+                                    rows="3" 
+                                  />
+                                  <ErrorMessage name="contributionToIncubator" component="div" className="form-error" />
+                                </div>
+                              </div>
                             </div>
                           </div>
                         )}
 
-                        {/* Étape 7 : Documents justificatifs */}
+                        {/* Étape 7 : État d'avancement du projet */}
                         {currentStep === 7 && (
                           <div id="step-7">
                             <div className="form-section">
-                              <h2 className="form-section-title">7. Documents justificatifs</h2>
+                              <h2 className="form-section-title">7. État d'avancement du projet</h2>
+                            
+                              <div className="form-group">
+                                <label htmlFor="otherSupport">
+                                  Avez-vous été ou êtes-vous accompagnés par ailleurs ? Si oui, par quel organisme et sur quels sujets ?
+                                </label>
+                                <Field 
+                                  as="textarea" 
+                                  id="otherSupport" 
+                                  name="otherSupport" 
+                                  className="form-control" 
+                                  rows="3" 
+                                />
+                                <ErrorMessage name="otherSupport" component="div" className="form-error" />
+                              </div>
+                              
+                              <div className="form-group">
+                                <label className="mb-3">Quelles sont les étapes déjà réalisées ? *</label>
+                                <div className="advancement-steps-container">
+                                  {[
+                                    { name: 'diagnostic', label: 'Diagnostic territorial, étude du besoin social / environnemental' },
+                                    { name: 'collectif', label: 'Constitution d\'un collectif moteur' },
+                                    { name: 'experimentation', label: 'Expérimentation terrain - 1ers résultats' },
+                                    { name: 'etudeMarche', label: 'Etude de marché' },
+                                    { name: 'offre', label: 'Formalisation de l\'offre' },
+                                    { name: 'chiffrage', label: 'Premier chiffrage' },
+                                  ].map(step => (
+                                    <div key={step.name} className="advancement-step">
+                                      <label className="advancement-step-label">{step.label}</label>
+                                      <div className="radio-button-group">
+                                        <label className={`radio-button ${formik.values[step.name]?.status === 'oui' ? 'selected' : ''}`}>
+                                          <Field type="radio" name={`${step.name}.status`} value="oui" /> Oui
+                                        </label>
+                                        <label className={`radio-button ${formik.values[step.name]?.status === 'non' ? 'selected' : ''}`}>
+                                          <Field type="radio" name={`${step.name}.status`} value="non" /> Non
+                                        </label>
+                                        <label className={`radio-button ${formik.values[step.name]?.status === 'en_cours' ? 'selected' : ''}`}>
+                                          <Field type="radio" name={`${step.name}.status`} value="en_cours" /> En cours
+                                        </label>
+                                      </div>
+                                      <ErrorMessage name={`${step.name}.status`} component="div" className="form-error" />
+                                      <Field 
+                                        type="text" 
+                                        name={`${step.name}.details`} 
+                                        className="form-control mt-2" 
+                                        placeholder="Précisions si besoin..." 
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                              
+                              <div className="form-group">
+                                <label htmlFor="firstRisk">
+                                  Quel est le premier risque que vous ayez pris à ce jour pour votre projet ? *
+                                </label>
+                                <Field 
+                                  as="textarea" 
+                                  id="firstRisk" 
+                                  name="firstRisk" 
+                                  className="form-control" 
+                                  rows="3" 
+                                />
+                                <ErrorMessage name="firstRisk" component="div" className="form-error" />
+                              </div>
+                              
+                              <div className="form-group">
+                                <label>Quelle analyse faites-vous de votre projet à ce stade ? (Analyse SWOT) *</label>
+                                <div className="swot-analysis-grid">
+                                  <div className="swot-box swot-strengths">
+                                    <label>Forces</label>
+                                    <p className="swot-description">Les points forts internes de votre projet</p>
+                                    <Field 
+                                      as="textarea" 
+                                      name="swot.strengths" 
+                                      placeholder="Ex: Expertise unique, réseau solide, innovation..."
+                                    />
+                                    <ErrorMessage name="swot.strengths" component="div" className="form-error" />
+                                  </div>
+                                  <div className="swot-box swot-weaknesses">
+                                    <label>Faiblesses</label>
+                                    <p className="swot-description">Les points à améliorer en interne</p>
+                                    <Field 
+                                      as="textarea" 
+                                      name="swot.weaknesses" 
+                                      placeholder="Ex: Manque d'expérience, ressources limitées..."
+                                    />
+                                    <ErrorMessage name="swot.weaknesses" component="div" className="form-error" />
+                                  </div>
+                                  <div className="swot-box swot-opportunities">
+                                    <label>Opportunités</label>
+                                    <p className="swot-description">Les facteurs externes favorables</p>
+                                    <Field 
+                                      as="textarea" 
+                                      name="swot.opportunities" 
+                                      placeholder="Ex: Marché en croissance, nouveaux besoins..."
+                                    />
+                                    <ErrorMessage name="swot.opportunities" component="div" className="form-error" />
+                                  </div>
+                                  <div className="swot-box swot-threats">
+                                    <label>Menaces</label>
+                                    <p className="swot-description">Les risques externes à anticiper</p>
+                                    <Field 
+                                      as="textarea" 
+                                      name="swot.threats" 
+                                      placeholder="Ex: Concurrence, changements réglementaires..."
+                                    />
+                                    <ErrorMessage name="swot.threats" component="div" className="form-error" />
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              <div className="form-group">
+                                <label htmlFor="weaknessesAndThreatsStrategy">
+                                  Comment palliez-vous vos faiblesses et contournez-vous les menaces ? *
+                                </label>
+                                <Field 
+                                  as="textarea" 
+                                  id="weaknessesAndThreatsStrategy" 
+                                  name="weaknessesAndThreatsStrategy" 
+                                  className="form-control" 
+                                  rows="3" 
+                                />
+                                <ErrorMessage name="weaknessesAndThreatsStrategy" component="div" className="form-error" />
+                              </div>
+                              
+                              <div className="form-group">
+                                <label htmlFor="creationTimeline">
+                                  A quelle échéance souhaitez-vous créer ? Pour ce faire, quel est votre plan d'action / calendrier prévisionnel ? *
+                                </label>
+                                <Field 
+                                  as="textarea" 
+                                  id="creationTimeline" 
+                                  name="creationTimeline" 
+                                  className="form-control" 
+                                  rows="4" 
+                                />
+                                <ErrorMessage name="creationTimeline" component="div" className="form-error" />
+                              </div>
+                              
+                              <div className="form-group">
+                                <label className="mb-2">
+                                  Êtes-vous prêts à vous déplacer en Normandie pour suivre les formations collectives, des événementiels pour présenter votre projet, favoriser la mise en réseau, le développement de votre projet ? *
+                                </label>
+                                <div className="radio-button-group">
+                                   <label className={`radio-button ${formik.values.readyToTravel === 'oui' ? 'selected' : ''}`}>
+                                      <Field type="radio" name="readyToTravel" value="oui" /> Oui
+                                   </label>
+                                   <label className={`radio-button ${formik.values.readyToTravel === 'non' ? 'selected' : ''}`}>
+                                      <Field type="radio" name="readyToTravel" value="non" /> Non
+                                   </label>
+                                </div>
+                                <ErrorMessage name="readyToTravel" component="div" className="form-error" />
+                              </div>
+                              
+                              <div className="form-group">
+                                <label className="mb-2">
+                                  Afin de favoriser le développement du projet, des présentations du projet et des mises en relation auront lieu, êtes-vous prêt à communiquer sur votre projet ? *
+                                </label>
+                                <div className="radio-button-group">
+                                   <label className={`radio-button ${formik.values.readyToCommunicate === 'oui' ? 'selected' : ''}`}>
+                                      <Field type="radio" name="readyToCommunicate" value="oui" /> Oui
+                                   </label>
+                                   <label className={`radio-button ${formik.values.readyToCommunicate === 'non' ? 'selected' : ''}`}>
+                                      <Field type="radio" name="readyToCommunicate" value="non" /> Non
+                                   </label>
+                                </div>
+                                <ErrorMessage name="readyToCommunicate" component="div" className="form-error" />
+                              </div>
+                              
+                              <div className="form-group">
+                                <label className="mb-2">
+                                  Le parcours d'incubation proposé est un accompagnement intensif et renforcé ayant pour objectif de développer la création d'entreprises sociales innovantes, viables et pérennes. Avez-vous bien pris connaissance de l'offre et êtes-vous prêt à vous engager dans un parcours intensif d'un an ? *
+                                </label>
+                                <div className="radio-button-group">
+                                   <label className={`radio-button ${formik.values.readyToCommit === 'oui' ? 'selected' : ''}`}>
+                                      <Field type="radio" name="readyToCommit" value="oui" /> Oui
+                                   </label>
+                                   <label className={`radio-button ${formik.values.readyToCommit === 'non' ? 'selected' : ''}`}>
+                                      <Field type="radio" name="readyToCommit" value="non" /> Non
+                                   </label>
+                                </div>
+                                <ErrorMessage name="readyToCommit" component="div" className="form-error" />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Étape 8 : Documents justificatifs */}
+                        {currentStep === 8 && (
+                          <div id="step-8">
+                            <div className="form-section">
+                              <h2 className="form-section-title">8. Documents justificatifs</h2>
                               <div className="form-group">
                                 <label htmlFor="document">
                                   Téléchargez les documents justificatifs pour appuyer votre candidature
@@ -1489,11 +2726,11 @@ const CandidatureForm = () => {
                           </div>
                         )}
 
-                        {/* Étape 8 : Récapitulatif */}
-                        {currentStep === 8 && (
-                          <div id="step-8">
+                        {/* Étape 9 : Récapitulatif */}
+                        {currentStep === 9 && (
+                          <div id="step-9">
                             <div className="form-section">
-                              <h2 className="form-section-title">8. Récapitulatif</h2>
+                              <h2 className="form-section-title">9. Récapitulatif</h2>
                               <div className="alert alert-info" style={{ marginBottom: '20px' }}>
                                 <p><strong>Information :</strong> Votre candidature a été automatiquement sauvegardée en brouillon.</p>
                                 <p>Veuillez vérifier attentivement toutes les informations ci-dessous avant de soumettre votre candidature.</p>
@@ -1637,30 +2874,126 @@ const CandidatureForm = () => {
                                     </div>
                                     
                                     <div className="recap-item">
-                                      <span className="recap-label">Membres de l'équipe :</span>
-                                      {formik.values.teamMembers && formik.values.teamMembers.length > 0 ? (
-                                        <ul className="recap-list">
-                                          {formik.values.teamMembers.map((member, index) => (
-                                            <li key={index}>
-                                              {member.firstName} {member.lastName} - {member.email}
-                                            </li>
-                                          ))}
-                                        </ul>
-                                      ) : (
-                                        <span className="recap-value">Aucun membre supplémentaire</span>
-                                      )}
+                                      <span className="recap-label">Présentation Équipe :</span>
+                                      <span className="recap-value">{formik.values.teamPresentation}</span>
+                                    </div>
+                                    <div className="recap-item">
+                                      <span className="recap-label">Expérience entrepreneuriale :</span>
+                                      <span className="recap-value">{formik.values.hasEntrepreneurialExperience ? `Oui - ${formik.values.entrepreneurialExperience}` : 'Non'}</span>
+                                    </div>
+                                    <div className="recap-item">
+                                      <span className="recap-label">Entrepreneur social inspirant :</span>
+                                      <span className="recap-value">{formik.values.inspiringEntrepreneur}</span>
+                                    </div>
+                                    <div className="recap-item">
+                                      <span className="recap-label">Compétences manquantes :</span>
+                                      <span className="recap-value">{formik.values.missingTeamSkills}</span>
+                                    </div>
+                                    <div className="recap-item">
+                                      <span className="recap-label">Participants à l'incubation :</span>
+                                      <span className="recap-value">{formik.values.incubationParticipants}</span>
                                     </div>
 
-                                    {formik.values.hasExistingStructure && (
+                                    <div className="recap-item">
+                                      <span className="recap-label">Place des porteurs de projet :</span>
+                                      {Array.isArray(formik.values.projectMembersRoles) && formik.values.projectMembersRoles.length > 0 ? (
+                                        <>
+                                          {formik.values.projectMembersRoles.map((member, index) => (
+                                            <div key={index} className="recap-subitem mb-3 border-bottom pb-3">
+                                              <strong>{member.name || 'Porteur sans nom'}</strong>
+                                              <table className="table table-sm table-bordered mt-2">
+                                                <thead><tr><th>Période</th><th>Type</th><th>Missions</th></tr></thead>
+                                                <tbody>
+                                                  <tr>
+                                                    <td>Court terme</td>
+                                                    <td>{member.shortTerm && member.shortTerm.type ? member.shortTerm.type : 'Non défini'}</td>
+                                                    <td>{member.shortTerm && member.shortTerm.details ? member.shortTerm.details : 'Non défini'}</td>
+                                                  </tr>
+                                                  <tr>
+                                                    <td>Moyen terme</td>
+                                                    <td>{member.mediumTerm && member.mediumTerm.type ? member.mediumTerm.type : 'Non défini'}</td>
+                                                    <td>{member.mediumTerm && member.mediumTerm.details ? member.mediumTerm.details : 'Non défini'}</td>
+                                                  </tr>
+                                                  <tr>
+                                                    <td>Long terme</td>
+                                                    <td>{member.longTerm && member.longTerm.type ? member.longTerm.type : 'Non défini'}</td>
+                                                    <td>{member.longTerm && member.longTerm.details ? member.longTerm.details : 'Non défini'}</td>
+                                                  </tr>
+                                                </tbody>
+                                              </table>
+                                            </div>
+                                          ))}
+                                        </>
+                                      ) : (
+                                        <span className="recap-value">Aucun porteur défini</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Étape 7 : État d'avancement */}
+                                <div className="recap-section">
+                                    <h3 className="recap-title">7. État d'avancement du projet</h3>
+                                    <div className="recap-content">
                                       <div className="recap-item">
-                                        <span className="recap-label">Structure juridique :</span>
+                                        <span className="recap-label">Accompagnement(s) autre(s) :</span>
+                                        <span className="recap-value">{formik.values.otherSupport || 'Non renseigné'}</span>
+                                      </div>
+                                      <div className="recap-item">
+                                        <span className="recap-label">Étapes réalisées :</span>
+                                        <ul className="recap-list">
+                                          <li>Diagnostic territorial : {formik.values.diagnostic?.status} {formik.values.diagnostic?.details && `(${formik.values.diagnostic.details})`}</li>
+                                          <li>Constitution collectif : {formik.values.collectif?.status} {formik.values.collectif?.details && `(${formik.values.collectif.details})`}</li>
+                                          <li>Expérimentation terrain : {formik.values.experimentation?.status} {formik.values.experimentation?.details && `(${formik.values.experimentation.details})`}</li>
+                                          <li>Étude de marché : {formik.values.etudeMarche?.status} {formik.values.etudeMarche?.details && `(${formik.values.etudeMarche.details})`}</li>
+                                          <li>Formalisation offre : {formik.values.offre?.status} {formik.values.offre?.details && `(${formik.values.offre.details})`}</li>
+                                          <li>Premier chiffrage : {formik.values.chiffrage?.status} {formik.values.chiffrage?.details && `(${formik.values.chiffrage.details})`}</li>
+                                        </ul>
+                                      </div>
+                                      <div className="recap-item">
+                                        <span className="recap-label">Premier risque pris :</span>
+                                        <span className="recap-value">{formik.values.firstRisk}</span>
+                                      </div>
+                                      <div className="recap-item">
+                                        <span className="recap-label">Analyse SWOT :</span>
                                         <div className="recap-subitem">
-                                          <span>Nom : {formik.values.structureName}</span>
-                                          <span>Statut : {formik.values.structureStatus}</span>
-                                          <span>Date de création : {formik.values.structureCreationDate}</span>
+                                          <p><strong>Forces :</strong> {formik.values.swot?.strengths}</p>
+                                          <p><strong>Faiblesses :</strong> {formik.values.swot?.weaknesses}</p>
+                                          <p><strong>Opportunités :</strong> {formik.values.swot?.opportunities}</p>
+                                          <p><strong>Menaces :</strong> {formik.values.swot?.threats}</p>
                                         </div>
                                       </div>
-                                    )}
+                                      <div className="recap-item">
+                                        <span className="recap-label">Stratégie faiblesses/menaces :</span>
+                                        <span className="recap-value">{formik.values.weaknessesAndThreatsStrategy}</span>
+                                      </div>
+                                      <div className="recap-item">
+                                        <span className="recap-label">Échéance création / Plan d'action :</span>
+                                        <span className="recap-value">{formik.values.creationTimeline}</span>
+                                      </div>
+                                      <div className="recap-item">
+                                        <span className="recap-label">Prêt à se déplacer :</span>
+                                        <span className="recap-value">{formik.values.readyToTravel}</span>
+                                      </div>
+                                      <div className="recap-item">
+                                        <span className="recap-label">Prêt à communiquer :</span>
+                                        <span className="recap-value">{formik.values.readyToCommunicate}</span>
+                                      </div>
+                                      <div className="recap-item">
+                                        <span className="recap-label">Prêt à s'engager :</span>
+                                        <span className="recap-value">{formik.values.readyToCommit}</span>
+                                      </div>
+                                    </div>
+                                </div>
+
+                                {/* Étape 8 : Documents justificatifs */}
+                                <div className="recap-section">
+                                  <h3 className="recap-title">8. Documents justificatifs</h3>
+                                  <div className="recap-content">
+                                    <div className="recap-item">
+                                      <span className="recap-label">Document(s) :</span>
+                                      <span className="recap-value">{formik.values.document ? formik.values.document.name : 'Aucun document'}</span>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
@@ -1690,7 +3023,11 @@ const CandidatureForm = () => {
                               Suivant <i className="fa fa-arrow-right"></i>
                             </button>
                           ) : (
-                            <button type="submit" className="btn-submit">
+                            <button 
+                              type="button" // Change type to button
+                              onClick={() => submitCandidature(formik.values)} // Call submit explicitly
+                              className="btn-submit"
+                            >
                               <i className="fa fa-paper-plane"></i> Soumettre ma candidature
                             </button>
                           )}
