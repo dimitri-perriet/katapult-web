@@ -8,13 +8,19 @@ const CANDIDATURES_URL = '/candidatures';
 // Obtenir toutes les candidatures (avec filtre optionnel)
 const getAllCandidatures = async (filters = {}) => {
   try {
+    console.log('Appel de getAllCandidatures avec filtres:', filters);
     const response = await apiClient.get(`/users/candidatures`, {
       params: filters,
       headers: authService.authHeader()
     });
+    console.log('Réponse candidatures:', response.data);
     return response.data;
   } catch (error) {
     console.error("Erreur lors de la récupération des candidatures", error);
+    if (error.response) {
+      console.error("Détails de l'erreur:", error.response.data);
+      console.error("Status:", error.response.status);
+    }
     throw error;
   }
 };
@@ -148,11 +154,14 @@ const syncWithMonday = async (id) => {
 // Obtenir des statistiques sur les candidatures
 const getCandidatureStats = async () => {
   try {
+    console.log('Appel de getCandidatureStats');
     const response = await apiClient.get(`${CANDIDATURES_URL}/stats`, {
       headers: authService.authHeader()
     });
+    console.log('Réponse statistiques:', response.data);
     return response.data;
   } catch (error) {
+    console.error('Erreur lors de la récupération des statistiques:', error);
     throw error;
   }
 };

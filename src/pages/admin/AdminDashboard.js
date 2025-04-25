@@ -39,7 +39,11 @@ const AdminDashboard = () => {
         setError('');
 
         // Récupérer les statistiques des candidatures
-        const statsData = await candidatureService.getCandidatureStats();
+        const statsResponse = await candidatureService.getCandidatureStats();
+        console.log('Données statistiques reçues:', statsResponse);
+        
+        // Extraire les statistiques de la réponse
+        const statsData = statsResponse.stats || {}; 
 
         // Récupérer les candidatures récentes (10 dernières)
         const candidaturesData = await candidatureService.getAllCandidatures({
@@ -47,6 +51,7 @@ const AdminDashboard = () => {
           sort: 'createdAt',
           order: 'desc',
         });
+        console.log('Données candidatures reçues:', candidaturesData);
 
         // Mettre à jour l'état
         setStats({
@@ -58,6 +63,7 @@ const AdminDashboard = () => {
         });
         setRecentCandidatures(candidaturesData.candidatures || []);
       } catch (error) {
+        console.error('Erreur dashboard:', error);
         setError(
           error.response?.data?.message ||
             'Une erreur est survenue lors du chargement des données'
@@ -145,12 +151,12 @@ const AdminDashboard = () => {
                 <tbody>
                   {recentCandidatures.length > 0 ? (
                     recentCandidatures.map((candidature) => (
-                      <tr key={candidature._id}>
-                        <td>{candidature.projectInfo?.name || 'N/A'}</td>
+                      <tr key={candidature.id || candidature._id}>
+                        <td>{candidature.projectName || candidature.projectInfo?.name || 'N/A'}</td>
                         <td>
-                          {candidature.user?.firstName} {candidature.user?.lastName}
+                          {candidature.user?.firstName || candidature.user?.first_name} {candidature.user?.lastName || candidature.user?.last_name}
                         </td>
-                        <td>{formatDate(candidature.createdAt)}</td>
+                        <td>{formatDate(candidature.createdAt || candidature.created_at)}</td>
                         <td>
                           <span
                             className={`status-badge status-${candidature.status}`}
@@ -159,20 +165,20 @@ const AdminDashboard = () => {
                               ? 'Brouillon'
                               : candidature.status === 'soumise'
                               ? 'Soumise'
-                              : candidature.status === 'en_cours_d_evaluation'
+                              : candidature.status === 'en_evaluation'
                               ? 'En évaluation'
                               : candidature.status === 'présélectionnée'
                               ? 'Présélectionnée'
-                              : candidature.status === 'acceptée'
+                              : candidature.status === 'acceptee'
                               ? 'Acceptée'
-                              : candidature.status === 'refusée'
+                              : candidature.status === 'rejetee'
                               ? 'Refusée'
                               : 'Inconnue'}
                           </span>
                         </td>
                         <td>
                           <Link
-                            to={`/admin/candidatures/${candidature._id}`}
+                            to={`/admin/candidatures/${candidature.id || candidature._id}`}
                             className="btn-action btn-view"
                             title="Voir détails"
                           >
