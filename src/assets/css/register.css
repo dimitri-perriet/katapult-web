@@ -88,16 +88,44 @@
 
 .checkbox-container {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   cursor: pointer;
   font-size: 16px;
   user-select: none;
   margin-bottom: 20px;
+  gap: 12px;
 }
 
-.checkbox-container input {
-  margin-right: 8px;
-  margin-top: 3px;
+.checkbox-container input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--primary-color);
+  border-radius: 4px;
+  margin: 0;
+  cursor: pointer;
+  position: relative;
+  background-color: white;
+  opacity: 1;
+}
+
+.checkbox-container input[type="checkbox"]:checked {
+  background-color: var(--primary-color);
+}
+
+.checkbox-container input[type="checkbox"]:checked::after {
+  content: "✓";
+  position: absolute;
+  color: white;
+  font-size: 14px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.checkbox-container input[type="checkbox"]:hover {
+  border-color: var(--primary-dark);
 }
 
 .checkbox-label {
