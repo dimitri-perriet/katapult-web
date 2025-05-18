@@ -12,6 +12,8 @@ const AdminCandidatureList = () => {
     status: '',
     promotion: ''
   });
+  const [pdfError, setPdfError] = useState('');
+  const [pdfLoadingStates, setPdfLoadingStates] = useState({}); // Pour suivre le chargement par ID
 
   useEffect(() => {
     fetchCandidatures();
@@ -67,6 +69,51 @@ const AdminCandidatureList = () => {
       case 'acceptee': return 'Validée';
       case 'rejetee': return 'Rejetée';
       default: return 'Inconnu';
+    }
+  };
+
+  const handleDownloadPDF = async (candidatureId, projectName) => {
+    setPdfLoadingStates(prev => ({ ...prev, [candidatureId]: true }));
+    setPdfError('');
+    try {
+      const response = await apiClient.get(`/candidatures/${candidatureId}/download-pdf`, {
+        headers: authService.authHeader(),
+        responseType: 'blob',
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = `candidature_${projectName ? projectName.replace(/[^a-z0-9]/gi, '_') : candidatureId}.pdf`;
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?(.+[^\"])"?/i);
+        if (filenameMatch && filenameMatch.length > 1) {
+          filename = filenameMatch[1];
+        }
+      }
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+    } catch (err) {
+      console.error("Erreur lors du téléchargement du PDF:", err);
+      if (err.response && err.response.data) {
+        const errorData = await err.response.data.text();
+        try {
+            const errorJson = JSON.parse(errorData);
+            setPdfError(errorJson.message || `Échec du téléchargement pour la candidature ${candidatureId}.`);
+        } catch (parseError) {
+            setPdfError(`Échec du téléchargement pour la candidature ${candidatureId}. Réponse non standard.`);
+        }
+      } else {
+        setPdfError(`Échec du téléchargement pour la candidature ${candidatureId}. Vérifiez la connexion.`);
+      }
+    } finally {
+      setPdfLoadingStates(prev => ({ ...prev, [candidatureId]: false }));
     }
   };
 
@@ -175,6 +222,7 @@ const AdminCandidatureList = () => {
 
       {/* Affichage des candidatures */}
       {error && <div className="alert alert-danger">{error}</div>}
+      {pdfError && <div className="alert alert-danger mt-2">{pdfError}</div>}
 
       {loading ? (
         <div className="loading">Chargement des données...</div>
@@ -192,6 +240,7 @@ const AdminCandidatureList = () => {
                   <th>Statut</th>
                   <th>Date de soumission</th>
                   <th>Actions</th>
+                  <th>PDF</th>
                 </tr>
               </thead>
               <tbody>
@@ -214,6 +263,24 @@ const AdminCandidatureList = () => {
                       >
                         <i className="fas fa-eye"></i>
                       </Link>
+                    </td>
+                    <td>
+                      {candidature.generated_pdf_url ? (
+                        <button 
+                          onClick={() => handleDownloadPDF(candidature.id, candidature.projectName)}
+                          className="btn-action" 
+                          title="Télécharger le PDF"
+                          disabled={pdfLoadingStates[candidature.id]}
+                        >
+                          {pdfLoadingStates[candidature.id] ? (
+                            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                          ) : (
+                            <i className="fas fa-file-pdf"></i>
+                          )}
+                        </button>
+                      ) : (
+                        <span>-</span>
+                      )}
                     </td>
                   </tr>
                 ))}

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import candidatureService from '../../services/candidatureService';
+import apiClient from '../../services/apiConfig';
+import authService from '../../services/authService';
 import '../../assets/css/candidature-detail.css';
 
 const CandidatureDetail = () => {
@@ -12,6 +14,8 @@ const CandidatureDetail = () => {
   const [candidature, setCandidature] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [pdfError, setPdfError] = useState('');
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   // Format de date
   const formatDate = (dateString) => {
@@ -186,6 +190,52 @@ const CandidatureDetail = () => {
     
     fetchCandidature();
   }, [id]);
+
+  const handleDownloadPDF = async () => {
+    if (!candidature || !candidature.generated_pdf_url) return;
+
+    setPdfLoading(true);
+    setPdfError('');
+    try {
+      const response = await apiClient.get(`/candidatures/${candidature.id}/download-pdf`, {
+        headers: authService.authHeader(),
+        responseType: 'blob',
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = `candidature-${candidature.id}.pdf`;
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?(.+[^\"])"?/i);
+        if (filenameMatch && filenameMatch.length > 1) {
+          filename = filenameMatch[1];
+        }
+      }
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+    } catch (err) {
+      console.error("Erreur lors du téléchargement du PDF:", err);
+      if (err.response && err.response.data) {
+        const errorData = await err.response.data.text();
+        try {
+            const errorJson = JSON.parse(errorData);
+            setPdfError(errorJson.message || "Le téléchargement du PDF a échoué.");
+        } catch (parseError) {
+            setPdfError("Le téléchargement du PDF a échoué. Réponse d'erreur non standard.");
+        }
+      } else {
+        setPdfError("Le téléchargement du PDF a échoué. Vérifiez votre connexion ou réessayez plus tard.");
+      }
+    } finally {
+      setPdfLoading(false);
+    }
+  };
 
   // Fonction pour obtenir le texte du statut
   const getStatusText = (status) => {
@@ -864,6 +914,21 @@ const CandidatureDetail = () => {
               <i className="fa fa-edit"></i> Modifier
             </Link>
           )}
+
+          {candidature && candidature.generated_pdf_url && (
+            <button 
+              onClick={handleDownloadPDF}
+              className="btn btn-info"
+              disabled={pdfLoading}
+            >
+              {pdfLoading ? (
+                <><span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Chargement...</>
+              ) : (
+                <><i className="fa fa-download"></i> Télécharger le PDF</>
+              )}
+            </button>
+          )}
+          {pdfError && <div className="alert alert-danger mt-2">{pdfError}</div>}
         </div>
       </div>
     </div>

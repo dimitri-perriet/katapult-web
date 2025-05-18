@@ -15,6 +15,8 @@ const AdminCandidatureDetail = () => {
   const [error, setError] = useState('');
   const [updateLoading, setUpdateLoading] = useState(false);
   const [updateMessage, setUpdateMessage] = useState({ type: '', text: '' });
+  const [pdfError, setPdfError] = useState('');
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   // Format de date
   const formatDate = (dateString) => {
@@ -118,6 +120,7 @@ const AdminCandidatureDetail = () => {
             structureStatus: parsedStructureJuridique?.structureStatus || '',
             structureCreationDate: parsedStructureJuridique?.structureCreationDate || '',
             structureContext: parsedStructureJuridique?.structureContext || '',
+            generated_pdf_url: response.candidature.generated_pdf_url || null
           };
           
           setCandidature(flattenedData);
@@ -134,6 +137,52 @@ const AdminCandidatureDetail = () => {
     
     fetchCandidature();
   }, [id]);
+
+  const handleDownloadPDF = async () => {
+    if (!candidature || !candidature.generated_pdf_url) return;
+
+    setPdfLoading(true);
+    setPdfError('');
+    try {
+      const response = await apiClient.get(`/candidatures/${candidature.id}/download-pdf`, {
+        headers: authService.authHeader(),
+        responseType: 'blob', 
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = `candidature-${candidature.id}.pdf`; 
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?(.+[^\"])"?/i);
+        if (filenameMatch && filenameMatch.length > 1) {
+          filename = filenameMatch[1];
+        }
+      }
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url); 
+
+    } catch (err) {
+      console.error("Erreur lors du téléchargement du PDF:", err);
+      if (err.response && err.response.data) {
+        const errorData = await err.response.data.text();
+        try {
+            const errorJson = JSON.parse(errorData);
+            setPdfError(errorJson.message || "Le téléchargement du PDF a échoué.");
+        } catch (parseError) {
+            setPdfError("Le téléchargement du PDF a échoué. Réponse d'erreur non standard.");
+        }
+      } else {
+        setPdfError("Le téléchargement du PDF a échoué. Vérifiez votre connexion ou réessayez plus tard.");
+      }
+    } finally {
+      setPdfLoading(false);
+    }
+  };
 
   // Fonction pour mettre à jour le statut de la candidature
   const updateCandidatureStatus = async (newStatus) => {
@@ -577,6 +626,22 @@ const AdminCandidatureDetail = () => {
           <Link to="/admin/candidatures" className="btn btn-secondary">
             <i className="bi bi-arrow-left"></i> Retour à la liste
           </Link>
+
+          {candidature && candidature.generated_pdf_url && (
+            <button 
+              onClick={handleDownloadPDF}
+              className="btn btn-info"
+              disabled={pdfLoading}
+              style={{ marginLeft: '10px' }}
+            >
+              {pdfLoading ? (
+                <><span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Chargement...</>
+              ) : (
+                <><i className="bi bi-cloud-download"></i> Télécharger le PDF</>
+              )}
+            </button>
+          )}
+          {pdfError && <div className="alert alert-danger mt-2">{pdfError}</div>}
         </div>
       </div>
     </div>

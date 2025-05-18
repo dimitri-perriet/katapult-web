@@ -23,6 +23,8 @@ const CandidatureForm = () => {
   
   // Référence pour accéder aux valeurs Formik dans des fonctions externes
   const formikRef = useRef(null);
+  // Référence pour limiter les autosave multiples sur l'étape récapitulative (Étape 9)
+  const autoSaveOnceOnStep9Ref = useRef(false);
 
   const structureContextLabels = {
     nouvelle_activite: 'Développement d\'une nouvelle activité',
@@ -637,8 +639,20 @@ const CandidatureForm = () => {
 
   // Sauvegarder automatiquement en brouillon quand on arrive à l'étape de récapitulatif
   useEffect(() => {
-    if (currentStep === 9 && candidature && !loading) { // Changé 8 à 9
+    // Réinitialiser le drapeau quand on quitte l'étape 9
+    if (currentStep !== 9) {
+      if (autoSaveOnceOnStep9Ref.current) {
+      }
+      autoSaveOnceOnStep9Ref.current = false;
+    }
+
+    if (currentStep === 9 && candidature && !loading && !autoSaveOnceOnStep9Ref.current) {
+      autoSaveOnceOnStep9Ref.current = true; // Empêche les appels multiples pour cette instance d'arrivée à l'étape 9
+      
       const autoSaveDraft = async () => {
+        if (!formikRef.current) {
+          return;
+        }
         try {
           // Vérifier si la candidature est complète et a été soumise
           if (isSubmitted) {
@@ -837,8 +851,10 @@ const CandidatureForm = () => {
       };
       
       autoSaveDraft();
+    } else if (currentStep === 9 && candidature && !loading && autoSaveOnceOnStep9Ref.current) {
+      console.log("[CandidatureForm autoSaveEffect] Step 9 reached, but autoSaveOnceOnStep9Ref is true. Skipping auto-save.");
     }
-  }, [currentStep, candidature, id, isEditMode, loading, navigate, isSubmitted, formikRef]);
+  }, [currentStep, candidature, id, isEditMode, loading, navigate, isSubmitted, formikRef]); // formikRef ajouté aux dépendances si autoSaveDraft l'utilise
 
   const goToStep = (stepId) => {
     setCurrentStep(stepId);
