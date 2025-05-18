@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../context/AuthContext';
+import authService from '../services/authService';
 import './Login.css';
 
 const Login = () => {
@@ -50,8 +51,15 @@ const Login = () => {
       
       await login(values.email, values.password);
       
-      // Redirection vers la page précédente ou le tableau de bord
-      navigate(from, { replace: true });
+      // Récupérer le rôle de l'utilisateur après la connexion
+      const userRole = authService.getUserRole();
+
+      // Redirection conditionnelle
+      if (userRole === 'admin') {
+        navigate('/admin/dashboard', { replace: true });
+      } else {
+        navigate(from, { replace: true });
+      }
     } catch (error) {
       setError(
         error.response?.data?.message || 'Une erreur est survenue lors de la connexion'

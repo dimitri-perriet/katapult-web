@@ -28,9 +28,15 @@ apiClient.interceptors.response.use(
   error => {
     // Gérer les erreurs d'authentification (401)
     if (error.response && error.response.status === 401) {
-      // Si le token est expiré ou invalide, déconnecter l'utilisateur
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      // Vérifier si l'erreur ne provient pas de la page de connexion elle-même
+      // ou d'autres routes d'authentification où un 401 est une réponse attendue (comme register, forgot-password etc.)
+      const isAuthRoute = error.config.url.includes('/auth/');
+      
+      if (!isAuthRoute) {
+        // Si le token est expiré ou invalide sur une route protégée, déconnecter l'utilisateur
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
