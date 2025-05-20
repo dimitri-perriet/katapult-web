@@ -69,6 +69,15 @@ const AdminCandidatureDetail = () => {
             ? JSON.parse(response.candidature.structure_juridique)
             : response.candidature.structure_juridique || {};
           
+          // Nouveaux parse : état d'avancement & documents
+          const parsedEtatAvancement = typeof response.candidature.etat_avancement === 'string'
+            ? JSON.parse(response.candidature.etat_avancement)
+            : response.candidature.etat_avancement || {};
+
+          const parsedDocuments = typeof response.candidature.documents_json === 'string'
+            ? JSON.parse(response.candidature.documents_json)
+            : response.candidature.documents_json || {};
+          
           // Transformer les données imbriquées en structure plate pour l'affichage
           const flattenedData = {
             // Valeurs par défaut
@@ -114,13 +123,46 @@ const AdminCandidatureDetail = () => {
             incubationParticipants: parsedEquipeProjet?.incubationParticipants || '',
             projectRoleLongTerm: parsedEquipeProjet?.projectRoleLongTerm || '',
             
+            // Informations équipe complètes
+            teamPresentation: parsedEquipeProjet?.teamPresentation || '',
+            projectMembersRoles: parsedEquipeProjet?.projectMembersRoles || [],
+            currentProfessionalSituation: parsedEquipeProjet?.currentProfessionalSituation || '',
+            incubationPeriodIncome: parsedEquipeProjet?.incubationPeriodIncome || '',
+            weeklyTimeCommitment: parsedEquipeProjet?.weeklyTimeCommitment || '',
+            incubatorMotivation: parsedEquipeProjet?.incubatorMotivation || '',
+            contributionToIncubator: parsedEquipeProjet?.contributionToIncubator || '',
+            
             // Structure juridique
             hasExistingStructure: parsedStructureJuridique?.hasExistingStructure || false,
             structureName: parsedStructureJuridique?.structureName || '',
             structureStatus: parsedStructureJuridique?.structureStatus || '',
             structureCreationDate: parsedStructureJuridique?.structureCreationDate || '',
             structureContext: parsedStructureJuridique?.structureContext || '',
-            generated_pdf_url: response.candidature.generated_pdf_url || null
+            structureSiret: parsedStructureJuridique?.structureSiret || '',
+            structureStatusOther: parsedStructureJuridique?.structureStatusOther || '',
+            structureContextOther: parsedStructureJuridique?.structureContextOther || '',
+            generated_pdf_url: response.candidature.generated_pdf_url || null,
+            
+            // État d'avancement
+            otherSupport: parsedEtatAvancement?.otherSupport || '',
+            diagnostic: parsedEtatAvancement?.diagnostic || {},
+            collectif: parsedEtatAvancement?.collectif || {},
+            experimentation: parsedEtatAvancement?.experimentation || {},
+            etudeMarche: parsedEtatAvancement?.etudeMarche || {},
+            offre: parsedEtatAvancement?.offre || {},
+            chiffrage: parsedEtatAvancement?.chiffrage || {},
+            firstRisk: parsedEtatAvancement?.firstRisk || '',
+            swot: parsedEtatAvancement?.swot || {},
+            weaknessesAndThreatsStrategy: parsedEtatAvancement?.weaknessesAndThreatsStrategy || '',
+            creationTimeline: parsedEtatAvancement?.creationTimeline || '',
+            readyToTravel: parsedEtatAvancement?.readyToTravel || '',
+            readyToCommunicate: parsedEtatAvancement?.readyToCommunicate || '',
+            readyToCommit: parsedEtatAvancement?.readyToCommit || '',
+            
+            // Documents
+            businessPlan: parsedDocuments?.businessPlan || null,
+            financialProjections: parsedDocuments?.financialProjections || null,
+            additionalDocuments: parsedDocuments?.additionalDocuments || [],
           };
           
           setCandidature(flattenedData);
@@ -617,6 +659,115 @@ const AdminCandidatureDetail = () => {
                   <span className="detail-label">Rôle à long terme :</span>
                   <div className="detail-text">{candidature.projectRoleLongTerm}</div>
                 </div>
+
+                {/* Champs supplémentaires */}
+                <div className="detail-item">
+                  <span className="detail-label">Présentation de l'équipe :</span>
+                  <div className="detail-text">{candidature.teamPresentation}</div>
+                </div>
+
+                <div className="detail-item">
+                  <span className="detail-label">Situation professionnelle actuelle :</span>
+                  <div className="detail-text">{candidature.currentProfessionalSituation}</div>
+                </div>
+
+                <div className="detail-item">
+                  <span className="detail-label">Revenus pendant la période d'incubation :</span>
+                  <div className="detail-text">{candidature.incubationPeriodIncome}</div>
+                </div>
+
+                <div className="detail-item">
+                  <span className="detail-label">Temps hebdomadaire consacré :</span>
+                  <div className="detail-text">{candidature.weeklyTimeCommitment}</div>
+                </div>
+
+                <div className="detail-item">
+                  <span className="detail-label">Motivation pour l'incubateur :</span>
+                  <div className="detail-text">{candidature.incubatorMotivation}</div>
+                </div>
+
+                <div className="detail-item">
+                  <span className="detail-label">Contribution à l'incubateur :</span>
+                  <div className="detail-text">{candidature.contributionToIncubator}</div>
+                </div>
+
+                {candidature.projectMembersRoles && candidature.projectMembersRoles.length > 0 && (
+                  <div className="detail-item">
+                    <span className="detail-label">Rôles des membres du projet</span>
+                    <div className="roles-timeline">
+                      {candidature.projectMembersRoles.map((member, index) => (
+                        <div key={index} className="member-roles">
+                          <div className="member-roles-header">
+                            <h4>{member.name || `Membre ${index + 1}`}</h4>
+                          </div>
+                          <div className="role-periods">
+                            {['shortTerm','mediumTerm','longTerm'].map(period => (
+                              <div className="role-period" key={period}>
+                                <div className="role-period-header">{period === 'shortTerm' ? 'Court terme' : period === 'mediumTerm' ? 'Moyen terme' : 'Long terme'}</div>
+                                <div className="role-period-content">
+                                  <div className="role-field">
+                                    <span className="role-label">Type :</span>
+                                    <div className="role-value">{member[period]?.type || '-'}</div>
+                                  </div>
+                                  <div className="role-field">
+                                    <span className="role-label">Détails :</span>
+                                    <div className="role-value">{member[period]?.details || '-'}</div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Section 7: État d'avancement */}
+            <div className="detail-section">
+              <h2 className="section-title">7. État d'avancement</h2>
+              <div className="section-content">
+                <div className="detail-item">
+                  <span className="detail-label">Autres accompagnements :</span>
+                  <div className="detail-text">{candidature.otherSupport}</div>
+                </div>
+
+                {['diagnostic','collectif','experimentation','etudeMarche','offre','chiffrage'].map(step => (
+                  <div key={step}>
+                    <h3>{{
+                      diagnostic:'Diagnostic',collectif:'Collectif',experimentation:'Expérimentation',etudeMarche:'Étude de marché',offre:'Offre',chiffrage:'Chiffrage'
+                    }[step]}</h3>
+                    <div className="detail-item"><span className="detail-label">Statut :</span><span className="detail-value">{candidature[step]?.status}</span></div>
+                    <div className="detail-item"><span className="detail-label">Détails :</span><div className="detail-text">{candidature[step]?.details}</div></div>
+                  </div>
+                ))}
+
+                <h3>Analyse SWOT</h3>
+                <div className="detail-item"><span className="detail-label">Forces :</span><div className="detail-text">{candidature.swot.strengths}</div></div>
+                <div className="detail-item"><span className="detail-label">Faiblesses :</span><div className="detail-text">{candidature.swot.weaknesses}</div></div>
+                <div className="detail-item"><span className="detail-label">Opportunités :</span><div className="detail-text">{candidature.swot.opportunities}</div></div>
+                <div className="detail-item"><span className="detail-label">Menaces :</span><div className="detail-text">{candidature.swot.threats}</div></div>
+
+                <div className="detail-item"><span className="detail-label">Premier risque identifié :</span><div className="detail-text">{candidature.firstRisk}</div></div>
+                <div className="detail-item"><span className="detail-label">Stratégie faiblesses / menaces :</span><div className="detail-text">{candidature.weaknessesAndThreatsStrategy}</div></div>
+                <div className="detail-item"><span className="detail-label">Calendrier de création :</span><div className="detail-text">{candidature.creationTimeline}</div></div>
+                <div className="detail-item"><span className="detail-label">Prêt à voyager :</span><div className="detail-text">{candidature.readyToTravel}</div></div>
+                <div className="detail-item"><span className="detail-label">Prêt à communiquer :</span><div className="detail-text">{candidature.readyToCommunicate}</div></div>
+                <div className="detail-item"><span className="detail-label">Prêt à s'engager :</span><div className="detail-text">{candidature.readyToCommit}</div></div>
+              </div>
+            </div>
+
+            {/* Section 8: Documents */}
+            <div className="detail-section">
+              <h2 className="section-title">8. Documents</h2>
+              <div className="section-content">
+                <div className="detail-item"><span className="detail-label">Business Plan :</span><span className="detail-value">{candidature.businessPlan ? (<a href={candidature.businessPlan} target="_blank" rel="noopener noreferrer">Voir le document</a>) : 'Non fourni'}</span></div>
+                <div className="detail-item"><span className="detail-label">Projections financières :</span><span className="detail-value">{candidature.financialProjections ? (<a href={candidature.financialProjections} target="_blank" rel="noopener noreferrer">Voir le document</a>) : 'Non fourni'}</span></div>
+                {candidature.additionalDocuments && candidature.additionalDocuments.length > 0 && (
+                  <div className="detail-item"><span className="detail-label">Documents additionnels :</span><ul className="detail-list">{candidature.additionalDocuments.map((doc, idx) => (<li key={idx}><a href={doc} target="_blank" rel="noopener noreferrer">Document {idx + 1}</a></li>))}</ul></div>
+                )}
               </div>
             </div>
           </div>
