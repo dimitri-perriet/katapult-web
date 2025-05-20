@@ -41,6 +41,9 @@ import EvaluationForm from './pages/evaluations/EvaluationForm';
 // Routes protégées
 import ProtectedRoute from './components/ProtectedRoute';
 
+// Import du nouveau composant de redirection
+import RootRedirect from './components/RootRedirect';
+
 // Composant de redirection pour déboguer
 const CandidatureFormWrapper = (props) => {
   console.log('CandidatureForm Wrapper appelé avec props:', props);
@@ -56,7 +59,7 @@ function App() {
           <main className="main-content">
             <Routes>
               {/* Routes publiques */}
-              <Route path="/" element={<Navigate to="/register" replace />} />
+              <Route path="/" element={<RootRedirect />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
