@@ -389,6 +389,11 @@ const CandidatureForm = () => {
               ? JSON.parse(response.candidature.structure_juridique)
               : response.candidature.structure_juridique || {};
             
+            // Nouvel ajout : Étape 7 – État d'avancement
+            const parsedEtatAvancement = typeof response.candidature.etat_avancement === 'string'
+              ? JSON.parse(response.candidature.etat_avancement)
+              : response.candidature.etat_avancement || {};
+            
             // Transformer les données imbriquées en structure plate
             const flattenedData = {
               // Valeurs par défaut
@@ -432,6 +437,12 @@ const CandidatureForm = () => {
               inspiringEntrepreneur: parsedEquipeProjet?.inspiringEntrepreneur || '',
               missingTeamSkills: parsedEquipeProjet?.missingTeamSkills || '',
               incubationParticipants: parsedEquipeProjet?.incubationParticipants || '',
+              projectMembersRoles: parsedEquipeProjet?.projectMembersRoles || [],
+              currentProfessionalSituation: parsedEquipeProjet?.currentProfessionalSituation || '',
+              incubationPeriodIncome: parsedEquipeProjet?.incubationPeriodIncome || '',
+              weeklyTimeCommitment: parsedEquipeProjet?.weeklyTimeCommitment || '',
+              incubatorMotivation: parsedEquipeProjet?.incubatorMotivation || '',
+              contributionToIncubator: parsedEquipeProjet?.contributionToIncubator || '',
               projectRoleLongTerm: parsedEquipeProjet?.projectRoleLongTerm || '',
               
               // Structure juridique
@@ -453,6 +464,7 @@ const CandidatureForm = () => {
               referral_salarie_adress: parsedFicheIdentite?.referral_salarie_adress ?? false,
               referral_medias: parsedFicheIdentite?.referral_medias ?? parsedFicheIdentite?.referral_presse ?? false,
               referral_tiers_hors_adress: parsedFicheIdentite?.referral_tiers_hors_adress ?? parsedFicheIdentite?.referral_tiers ?? false,
+              ...parsedEtatAvancement,
             };
             
             console.log('Données transformées pour le formulaire:', flattenedData);
@@ -676,14 +688,17 @@ const CandidatureForm = () => {
             fiche_identite: {
               projectName: formValues.projectName || '',
               sector: formValues.sector || '',
+              sectorOther: formValues.sectorOther || '',
               territory: formValues.territory || '',
               interventionZone: formValues.interventionZone || '',
-              referral_boucheOreille: !!formValues.referral_boucheOreille,
-              referral_facebook: !!formValues.referral_facebook,
-              referral_linkedin: !!formValues.referral_linkedin,
-              referral_web: !!formValues.referral_web,
-              referral_tiers: !!formValues.referral_tiers,
-              referral_presse: !!formValues.referral_presse,
+              referral_facebook_adress: !!formValues.referral_facebook_adress,
+              referral_linkedin_adress: !!formValues.referral_linkedin_adress,
+              referral_instagram_adress: !!formValues.referral_instagram_adress,
+              referral_web_adress: !!formValues.referral_web_adress,
+              referral_mail_adress: !!formValues.referral_mail_adress,
+              referral_salarie_adress: !!formValues.referral_salarie_adress,
+              referral_medias: !!formValues.referral_medias,
+              referral_tiers_hors_adress: !!formValues.referral_tiers_hors_adress,
             },
             
             // Projet et utilité sociale
@@ -750,7 +765,7 @@ const CandidatureForm = () => {
                 employmentType: formValues.referenceEmploymentType || '',
                 employmentDuration: formValues.referenceEmploymentDuration || '',
               },
-              teamMembers: Array.isArray(formValues.teamMembers) ? formValues.teamMembers : [],
+              members: Array.isArray(formValues.teamMembers) ? formValues.teamMembers : [],
             },
             
             // État d'avancement du projet
@@ -901,14 +916,17 @@ const CandidatureForm = () => {
         fiche_identite: {
           projectName: values.projectName || '',
           sector: values.sector || '',
+          sectorOther: values.sectorOther || '',
           territory: values.territory || '',
           interventionZone: values.interventionZone || '',
-          referral_boucheOreille: !!values.referral_boucheOreille,
-          referral_facebook: !!values.referral_facebook,
-          referral_linkedin: !!values.referral_linkedin,
-          referral_web: !!values.referral_web,
-          referral_tiers: !!values.referral_tiers,
-          referral_presse: !!values.referral_presse,
+          referral_facebook_adress: !!values.referral_facebook_adress,
+          referral_linkedin_adress: !!values.referral_linkedin_adress,
+          referral_instagram_adress: !!values.referral_instagram_adress,
+          referral_web_adress: !!values.referral_web_adress,
+          referral_mail_adress: !!values.referral_mail_adress,
+          referral_salarie_adress: !!values.referral_salarie_adress,
+          referral_medias: !!values.referral_medias,
+          referral_tiers_hors_adress: !!values.referral_tiers_hors_adress,
         },
         
         // Projet et utilité sociale
@@ -975,7 +993,7 @@ const CandidatureForm = () => {
             employmentType: values.referenceEmploymentType || '',
             employmentDuration: values.referenceEmploymentDuration || '',
           },
-          teamMembers: Array.isArray(values.teamMembers) ? values.teamMembers : [],
+          members: Array.isArray(values.teamMembers) ? values.teamMembers : [],
         },
         
         // État d'avancement du projet
@@ -1108,14 +1126,17 @@ const CandidatureForm = () => {
           fiche_identite: {
             projectName: values.projectName || '',
             sector: values.sector || '',
+            sectorOther: values.sectorOther || '',
             territory: values.territory || '',
             interventionZone: values.interventionZone || '',
-            referral_boucheOreille: !!values.referral_boucheOreille,
-            referral_facebook: !!values.referral_facebook,
-            referral_linkedin: !!values.referral_linkedin,
-            referral_web: !!values.referral_web,
-            referral_tiers: !!values.referral_tiers,
-            referral_presse: !!values.referral_presse,
+            referral_facebook_adress: !!values.referral_facebook_adress,
+            referral_linkedin_adress: !!values.referral_linkedin_adress,
+            referral_instagram_adress: !!values.referral_instagram_adress,
+            referral_web_adress: !!values.referral_web_adress,
+            referral_mail_adress: !!values.referral_mail_adress,
+            referral_salarie_adress: !!values.referral_salarie_adress,
+            referral_medias: !!values.referral_medias,
+            referral_tiers_hors_adress: !!values.referral_tiers_hors_adress,
           },
           
           // Projet et utilité sociale
@@ -1182,7 +1203,7 @@ const CandidatureForm = () => {
               employmentType: values.referenceEmploymentType || '',
               employmentDuration: values.referenceEmploymentDuration || '',
             },
-            teamMembers: Array.isArray(values.teamMembers) ? values.teamMembers : [],
+            members: Array.isArray(values.teamMembers) ? values.teamMembers : [],
           },
           
           // État d'avancement du projet

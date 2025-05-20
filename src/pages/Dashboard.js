@@ -127,12 +127,21 @@ const Dashboard = () => {
     return candidatureService.calculateCompletionPercentage(candidature);
   };
 
+  const getGreeting = () => {
+    const currentHour = new Date().getHours();
+    if (currentHour < 18) {
+      return 'Bonjour';
+    } else {
+      return 'Bonsoir';
+    }
+  };
+
   return (
     <div className="dashboard-container">
       <div className="container">
         {/* Message de bienvenue */}
         <div className="welcome-banner">
-          <h1 className="welcome-title">Bienvenue, {currentUser.firstName} !</h1>
+          <h1 className="welcome-title">{getGreeting()} {currentUser && currentUser.firstName ? currentUser.firstName : ''} !</h1>
           <p className="welcome-text">
             Bienvenue sur votre espace personnel Katapult. Gérez vos candidatures, suivez leur avancement et créez de nouvelles demandes pour propulser vos projets d'innovation sociale.
           </p>
