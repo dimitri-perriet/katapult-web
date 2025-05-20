@@ -15,6 +15,7 @@ const AdminUserList = () => {
   const [editingUser, setEditingUser] = useState(null);
   const [updatingRole, setUpdatingRole] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -98,6 +99,19 @@ const AdminUserList = () => {
     setEditingUser(null);
   };
 
+  const handleExportCSV = async () => {
+    setExporting(true);
+    try {
+      await userService.exportUsersCSV();
+      toast.success('Exportation CSV des utilisateurs réussie.');
+    } catch (err) {
+      toast.error('Erreur lors de l\'exportation CSV des utilisateurs.');
+      console.error('Erreur exportation CSV:', err);
+    } finally {
+      setExporting(false);
+    }
+  };
+
   // Vérifier si l'utilisateur est l'utilisateur courant
   const isCurrentUser = (userId) => {
     return currentUser && userId === currentUser.id;
@@ -138,6 +152,18 @@ const AdminUserList = () => {
           <Link to="/admin/users/new" className="btn btn-primary">
             <i className="fas fa-plus"></i> Ajouter un utilisateur
           </Link>
+          <button 
+            onClick={handleExportCSV} 
+            className="btn btn-success" 
+            style={{ marginLeft: '10px' }}
+            disabled={exporting}
+          >
+            {exporting ? (
+              <><i className="fas fa-spinner fa-spin"></i> Exportation...</>
+            ) : (
+              <><i className="fas fa-file-csv"></i> Exporter en CSV</>
+            )}
+          </button>
           <Link to="/admin/dashboard" className="btn btn-secondary">
             <i className="fas fa-arrow-left"></i> Retour au tableau de bord
           </Link>

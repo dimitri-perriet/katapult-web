@@ -34,11 +34,11 @@ const Navbar = () => {
 
         {/* Menu standard pour version desktop */}
         <ul className="navbar-menu desktop-menu">
-          <li className="navbar-item">
+          {/* <li className="navbar-item">
             <Link to="/" className="navbar-link">
               Accueil
             </Link>
-          </li>
+          </li> */}
 
           <li className="navbar-item">
             <Link to="https://adress-normandie.org/etre-incube-par-katapult/" className="navbar-link" target="_blank" rel="noopener noreferrer">
@@ -56,11 +56,14 @@ const Navbar = () => {
 
           {isAuthenticated && (
             <>
+
+              {userRole !== 'admin' && (
               <li className="navbar-item">
                 <Link to="/dashboard" className="navbar-link">
                   Tableau de bord
                 </Link>
               </li>
+              )}
 
 {/*               <li className="navbar-item">
                 <Link
@@ -159,7 +162,7 @@ const Navbar = () => {
 
             <li className="navbar-item">
               <Link to="https://adress-normandie.org/etre-incube-par-katapult/" className="navbar-link" target="_blank" rel="noopener noreferrer" onClick={() => setMobileMenuOpen(false)}>
-                Le Programme
+                Le programme
               </Link>
             </li>
 

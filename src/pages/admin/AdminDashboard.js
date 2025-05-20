@@ -45,13 +45,13 @@ const AdminDashboard = () => {
         // Extraire les statistiques de la réponse
         const statsData = statsResponse.stats || {}; 
 
-        // Récupérer les candidatures récentes (10 dernières)
-        const candidaturesData = await candidatureService.getAllCandidatures({
-          limit: 10,
+        // Récupérer les candidatures récentes (5 dernières)
+        const candidaturesData = await candidatureService.getAllCandidaturesForAdmin({
+          limit: 5,
           sort: 'createdAt',
           order: 'desc',
         });
-        console.log('Données candidatures reçues:', candidaturesData);
+        console.log('Données candidatures reçues (admin):', candidaturesData);
 
         // Mettre à jour l'état
         setStats({

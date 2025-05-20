@@ -149,6 +149,26 @@ const getRoles = async () => {
   }
 };
 
+const exportUsersCSV = async () => {
+  try {
+    const response = await apiClient.get(`${USERS_URL}/export/csv`, {
+      responseType: 'blob', // Important pour gérer la réponse comme un fichier
+    });
+    // Créer un lien temporaire pour télécharger le fichier
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'users.csv'); // Nom du fichier à télécharger
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode.removeChild(link);
+    window.URL.revokeObjectURL(url); // Nettoyer l'URL de l'objet
+  } catch (error) {
+    console.error('Erreur lors de l\'exportation CSV des utilisateurs:', error);
+    throw error; // Propage l'erreur pour que le composant puisse l'afficher
+  }
+};
+
 // Exporter les fonctions du service
 const userService = {
   getAllUsers,
@@ -157,6 +177,7 @@ const userService = {
   updateUser,
   deleteUser,
   getRoles,
+  exportUsersCSV,
 };
 
 export default userService; 

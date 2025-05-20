@@ -25,6 +25,26 @@ const getAllCandidatures = async (filters = {}) => {
   }
 };
 
+// Obtenir toutes les candidatures pour l'admin (pas de filtre utilisateur)
+const getAllCandidaturesForAdmin = async (filters = {}) => {
+  try {
+    console.log('Appel de getAllCandidaturesForAdmin avec filtres:', filters);
+    const response = await apiClient.get(CANDIDATURES_URL, {
+      params: filters,
+      headers: authService.authHeader()
+    });
+    console.log('Réponse candidatures admin:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Erreur lors de la récupération de toutes les candidatures pour admin", error);
+    if (error.response) {
+      console.error("Détails de l'erreur (admin):", error.response.data);
+      console.error("Status (admin):", error.response.status);
+    }
+    throw error;
+  }
+};
+
 // Obtenir une candidature par son ID
 const getCandidatureById = async (id) => {
   try {
@@ -196,6 +216,7 @@ const calculateCompletionPercentage = (candidature) => {
 
 const candidatureService = {
   getAllCandidatures,
+  getAllCandidaturesForAdmin,
   getCandidatureById,
   createCandidature,
   updateCandidature,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -10,7 +10,7 @@ import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 
 // Pages publiques
-import Home from './pages/Home';
+// import Home from './pages/Home'; // Suppression de l'importation de Home
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
@@ -54,7 +54,7 @@ function App() {
           <main className="main-content">
             <Routes>
               {/* Routes publiques */}
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<Navigate to="/register" replace />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
