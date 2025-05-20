@@ -93,6 +93,9 @@ const AdminDashboard = () => {
           <Link to="/admin/users" className="btn btn-secondary">
             Gérer les utilisateurs
           </Link>
+          <Link to="/admin/email-templates" className="btn btn-info" style={{ marginLeft: '10px' }}>
+            Gérer les templates d'email
+          </Link>
         </div>
       </div>
 

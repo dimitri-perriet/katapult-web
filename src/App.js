@@ -31,6 +31,8 @@ import AdminCandidatureList from './pages/admin/AdminCandidatureList';
 import AdminCandidatureDetail from './pages/admin/AdminCandidatureDetail';
 import AdminUserList from './pages/admin/AdminUserList';
 import AdminUserForm from './pages/admin/AdminUserForm';
+import AdminEmailTemplateList from './pages/admin/AdminEmailTemplateList';
+import AdminEmailTemplateEdit from './pages/admin/AdminEmailTemplateEdit';
 
 // Pages évaluateur
 import EvaluationList from './pages/evaluations/EvaluationList';
@@ -80,6 +82,8 @@ function App() {
                 <Route path="/admin/users" element={<AdminUserList />} />
                 <Route path="/admin/users/new" element={<AdminUserForm />} />
                 <Route path="/admin/users/:id" element={<AdminUserForm />} />
+                <Route path="/admin/email-templates" element={<AdminEmailTemplateList />} />
+                <Route path="/admin/email-templates/edit/:templateId" element={<AdminEmailTemplateEdit />} />
               </Route>
 
               {/* Routes protégées pour les évaluateurs */}
