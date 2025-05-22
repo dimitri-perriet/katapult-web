@@ -77,7 +77,7 @@ const CandidatureList = () => {
       case 'soumise': return 'Soumise';
       case 'en_evaluation': return 'En évaluation';
       case 'acceptee': return 'Acceptée';
-      case 'rejetee': return 'Rejetée';
+      case 'rejetee': return 'Non retenue';
       default: return status;
     }
   };
@@ -179,7 +179,7 @@ const CandidatureList = () => {
               <option value="soumise">Soumise</option>
               <option value="en_evaluation">En évaluation</option>
               <option value="acceptee">Acceptée</option>
-              <option value="rejetee">Rejetée</option>
+              <option value="rejetee">Non retenue</option>
             </select>
           </div>
 

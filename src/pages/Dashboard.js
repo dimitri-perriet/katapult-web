@@ -105,7 +105,7 @@ const Dashboard = () => {
       case 'soumise': return 'Soumise';
       case 'en_evaluation': return 'En évaluation';
       case 'acceptee': return 'Acceptée';
-      case 'rejetee': return 'Rejetée';
+      case 'rejetee': return 'Non retenue';
       default: return status;
     }
   };

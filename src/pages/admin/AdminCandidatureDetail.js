@@ -277,7 +277,7 @@ const AdminCandidatureDetail = () => {
       case 'soumise': return 'Soumise';
       case 'en_evaluation': return 'En évaluation';
       case 'acceptee': return 'Validée';
-      case 'rejetee': return 'Rejetée';
+      case 'rejetee': return 'Non retenue';
       default: return 'Inconnu';
     }
   };
@@ -408,7 +408,7 @@ const AdminCandidatureDetail = () => {
                       disabled={updateLoading}
                       style={{ backgroundColor: getStatusColor('rejetee'), color: 'white' }}
                     >
-                      <i className="bi bi-x-circle me-1"></i> Refuser
+                      <i className="bi bi-x-circle me-1"></i> Non retenue
                     </button>
                   </>
                 )}

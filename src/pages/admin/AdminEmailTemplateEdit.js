@@ -23,7 +23,7 @@ const AdminEmailTemplateEdit = () => {
     { name: '{{lastName}}', description: "Nom de famille de l'utilisateur (ex: Dupont)." },
     { name: '{{userEmail}}', description: "Adresse email complète de l'utilisateur (ex: jean.dupont@example.com)." },
     { name: '{{applicationName}}', description: "Nom ou titre de la candidature concernée." },
-    { name: '{{applicationStatus}}', description: "Nouveau statut de la candidature (ex: Acceptée, Rejetée, En évaluation)." },
+    { name: '{{applicationStatus}}', description: "Nouveau statut de la candidature (ex: Acceptée, Non retenue, En évaluation)." },
     { name: '{{applicationLink}}', description: "Lien URL direct pour visualiser la candidature." },
     { name: '{{submissionDate}}', description: "Date de soumission initiale de la candidature (format: JJ/MM/AAAA)." },
     { name: '{{adminNotes}}', description: "Notes ou commentaires optionnels de l'administrateur (utilisé par exemple lors d'un rejet ou d'un retour en brouillon)." }

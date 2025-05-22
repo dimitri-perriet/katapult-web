@@ -131,7 +131,7 @@ const AdminDashboard = () => {
               color="#4CAF50"
             />
             <StatCard
-              title="Refusées"
+              title="Non retenues"
               value={stats.rejected}
               icon="fas fa-times-circle"
               color="#F44336"
@@ -175,7 +175,7 @@ const AdminDashboard = () => {
                               : candidature.status === 'acceptee'
                               ? 'Acceptée'
                               : candidature.status === 'rejetee'
-                              ? 'Refusée'
+                              ? 'Non retenue'
                               : 'Inconnue'}
                           </span>
                         </td>

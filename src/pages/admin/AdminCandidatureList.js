@@ -67,7 +67,7 @@ const AdminCandidatureList = () => {
       case 'soumise': return 'Soumise';
       case 'en_evaluation': return 'En évaluation';
       case 'acceptee': return 'Validée';
-      case 'rejetee': return 'Rejetée';
+      case 'rejetee': return 'Non retenue';
       default: return 'Inconnu';
     }
   };
@@ -145,7 +145,7 @@ const AdminCandidatureList = () => {
               <option value="soumise">Soumise</option>
               <option value="en_evaluation">En évaluation</option>
               <option value="acceptee">Validée</option>
-              <option value="rejetee">Rejetée</option>
+              <option value="rejetee">Non retenue</option>
             </select>
           </div>
           <div className="filter-item">
